@@ -1,5 +1,5 @@
 [versions]
-#Kotlin
+# Kotlin
 ktor = "2.3.4"
 kotlin = "1.9.23"
 logback = "1.4.11"
@@ -7,8 +7,11 @@ postgres = "42.5.4"
 h2 = "2.1.214"
 coroutines = "1.6.4"
 koin = "3.5.6"
+detekt = "1.23.1"
+jacoco = "0.8.10"
+dokka = "1.8.10"
 
-#Android
+# Android
 agp = "8.3.1"
 coreKtx = "1.13.1"
 espressoCore = "3.5.1"
@@ -17,31 +20,43 @@ activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 
 [libraries]
-#Kotlin
+# Kotlin - Ktor
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation-jvm", version.ref = "ktor" }
-postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
-h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets-jvm", version.ref = "ktor" }
 ktor-serialization-gson = { group = "io.ktor", name = "ktor-serialization-gson-jvm", version.ref = "ktor" }
 ktor-server-call-logging = { group = "io.ktor", name = "ktor-server-call-logging-jvm", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth-jvm", version.ref = "ktor" }
 ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt", version.ref = "ktor" }
+ktor-server-sessions = { group = "io.ktor", name = "ktor-server-sessions", version.ref = "ktor" }
+ktor-server-tests = { group = "io.ktor", name = "ktor-server-tests-jvm", version.ref = "ktor" }
+
+# Kotlin - Logging
 logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+
+# Kotlin - Dependency Injection
 koin-ktor = { group = "io.insert-koin", name = "koin-ktor", version.ref = "koin" }
 koin-logger-slf4j = { group = "io.insert-koin", name = "koin-logger-slf4j", version.ref = "koin" }
-ktor-server-sessions = { group = "io.ktor", name = "ktor-server-sessions", version.ref = "ktor" }
-jbcrypt = { group = "org.mindrot", name = "jbcrypt", version = "0.4" }
-gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+
+# Kotlin - Database
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
+h2 = { group = "com.h2database", name = "h2", version.ref = "h2" }
 hikariCP = { group = "com.zaxxer", name = "HikariCP", version = "4.0.3" }
+
+# Kotlin - Security
+jbcrypt = { group = "org.mindrot", name = "jbcrypt", version = "0.4" }
+
+# Kotlin - Serialization
+gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+
+# Kotlin - Testing
 mockk = { group = "io.mockk", name = "mockk", version = "1.13.4" }
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version = "5.9.3" }
 junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version = "5.9.3" }
 assertk = { group = "com.willowtreeapps.assertk", name = "assertk", version = "0.27.0" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
-ktor-server-tests = { group = "io.ktor", name = "ktor-server-tests-jvm", version.ref = "ktor" }
 kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 
 # Plugins
@@ -62,8 +77,20 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
+# Detekt
+detekt-cli = { group = "io.gitlab.arturbosch.detekt", name = "detekt-cli", version.ref = "detekt" }
+
+# JaCoCo
+jacoco = { group = "org.jacoco", name = "org.jacoco.core", version.ref = "jacoco" }
+
+# Dokka
+dokka-gradle-plugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 application = { id = "com.android.application", version.ref = "agp" }
 library = { id = "com.android.library", version.ref = "agp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+jacoco = { id = "jacoco", version.ref = "jacoco" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
