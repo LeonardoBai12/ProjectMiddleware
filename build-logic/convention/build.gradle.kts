@@ -27,5 +27,13 @@ gradlePlugin {
             id = "io.lb.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"
         }
+        register("AndroidLibraryConventionPlugin") {
+            id = "io.lb.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("AndroidAppConventionPlugin") {
+            id = "io.lb.android.app"
+            implementationClass = "AndroidAppConventionPlugin"
+        }
     }
 }
