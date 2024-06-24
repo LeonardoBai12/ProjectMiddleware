@@ -16,6 +16,7 @@ class AndroidAppConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.android.application")
                 apply("org.jetbrains.kotlin.android")
+                apply("io.lb.detekt")
             }
 
             extensions.configure<ApplicationExtension> {
