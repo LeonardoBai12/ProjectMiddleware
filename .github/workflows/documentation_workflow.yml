@@ -1,0 +1,31 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  documentation:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 19
+        uses: actions/setup-java@v2
+        with:
+          java-version: 19
+          distribution: 'adopt'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Generate documentation
+        run: ./gradlew dokkaHtmlMultiModule
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: ProjectMiddleware-KDoc-Documentation
+          path: 'build/dokka/htmlMultiModule'

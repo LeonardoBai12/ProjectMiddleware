@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.gradle.testing.jacoco.tasks.JacocoReportBase
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -57,7 +58,7 @@ private fun Project.configureKotlin() {
     }
 }
 internal fun JacocoCoverageVerification.setupCoverageVerification(
-    minimumCoverage: Int = 80
+    minimumCoverage: Double = 0.80
 ) {
     violationRules {
         rule {
@@ -68,11 +69,25 @@ internal fun JacocoCoverageVerification.setupCoverageVerification(
     }
 }
 
+internal fun JacocoReport.setupCoverageReport() {
+    reports {
+        xml.apply {
+            isEnabled = false
+        }
+        csv.apply {
+            isEnabled = false
+        }
+        html.apply {
+            isEnabled = true
+        }
+    }
+}
+
+
 internal fun Project.setupJacoco() {
     pluginManager.apply("jacoco")
-
     extensions.configure<JacocoPluginExtension> {
-        toolVersion = libs.findVersion("jacoco").get().preferredVersion
+        toolVersion = libs.findVersion("jacoco").get().toString()
     }
     tasks.withType<Test> {
         extensions.configure<JacocoTaskExtension> {
@@ -103,26 +118,45 @@ internal fun Project.setJacocoAndroidDirectories(
 internal fun Project.setJacocoDirectories(
     jacocoReport: JacocoReportBase
 ) {
-    val customClassDirectories = files(layout.projectDirectory).asFileTree.matching {
-        exclude(
-            "**/build/generated/**",
-            "**/test/**",
-            "**/Application.kt",
-            "**/*Configuration.kt",
-            "**/*Kt$*",
-            "**/internal/**",
-            "**/R.class",
-            "**/BuildConfig.*",
-            "**/session/**",
-            "**/model/**",
-            "**/plugins/**",
-            "**/di/**",
-            "**/security/**",
-        )
-    }
+    val fileFilter = listOf(
+        "**/build/generated/**",
+        "**/Application.kt",
+        "**/*Configuration.kt",
+        "**/*Kt$*",
+        "**/internal/**",
+        "**/R.class",
+        "**/BuildConfig.*",
+        "**/session/**",
+        "**/model/**",
+        "**/plugins/**",
+        "**/di/**",
+        "**/security/**",
+    )
 
     jacocoReport.apply {
-        classDirectories.setFrom(customClassDirectories)
+        val javaTree = fileTree(
+            mapOf(
+                "dir" to "${layout.buildDirectory}/intermediates/javac/debug/classes",
+                "excludes" to fileFilter
+            )
+        )
+        val kotlinTree = fileTree(
+            mapOf(
+                "dir" to "${layout.buildDirectory}/tmp/kotlin-classes/debug",
+                "excludes" to fileFilter
+            )
+        )
+
+        classDirectories.setFrom(files(javaTree, kotlinTree))
+
+        val sourceDirs = listOf(
+            "src/main/kotlin",
+            "src/main/java",
+            "src/debug/kotlin",
+            "src/debug/java"
+        )
+        sourceDirectories.setFrom(files(sourceDirs))
+        additionalSourceDirs.setFrom(files(sourceDirs))
     }
 }
 

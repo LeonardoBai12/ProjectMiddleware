@@ -1,13 +1,16 @@
 import extensions.isJvm
 import extensions.setJacocoAndroidDirectories
 import extensions.setJacocoJvmDirectories
+import extensions.setupCoverageReport
 import extensions.setupCoverageVerification
 import extensions.setupJacoco
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.configurationcache.extensions.capitalized
+import org.gradle.testing.jacoco.plugins.JacocoCoverageReport
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.gradle.testing.jacoco.tasks.JacocoReportBase
 
 class JacocoMultiModuleConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -21,14 +24,15 @@ class JacocoMultiModuleConventionPlugin : Plugin<Project> {
             tasks.register(report, JacocoReport::class.java) {
                 group = "verification"
                 description = "Generates $module coverage report."
+                setupCoverageReport()
 
-                subprojects.forEach {
-                    if (it.isJvm()) {
-                        it.setJacocoJvmDirectories(this)
-                        dependsOn("test")
+                subprojects.forEach { subproject ->
+                    if (subproject.isJvm()) {
+                        subproject.setJacocoJvmDirectories(this)
+                        dependsOn(subproject.tasks.matching { it.name == "test" })
                     } else {
-                        it.setJacocoAndroidDirectories(this)
-                        dependsOn("testDebugUnitTest")
+                        subproject.setJacocoAndroidDirectories(this)
+                        dependsOn(subproject.tasks.matching { it.name == "testDebugUnitTest" })
                     }
                 }
             }
@@ -40,11 +44,11 @@ class JacocoMultiModuleConventionPlugin : Plugin<Project> {
                 setupCoverageVerification()
                 dependsOn(report)
 
-                subprojects.forEach {
-                    if (it.isJvm()) {
-                        it.setJacocoJvmDirectories(this)
+                subprojects.forEach { subproject ->
+                    if (subproject.isJvm()) {
+                        subproject.setJacocoJvmDirectories(this)
                     } else {
-                        it.setJacocoAndroidDirectories(this)
+                        subproject.setJacocoAndroidDirectories(this)
                     }
                 }
             }
