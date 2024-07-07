@@ -20,6 +20,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
+    compileOnly(libs.dokka.gradlePlugin)
 }
 
 gradlePlugin {
@@ -39,6 +40,18 @@ gradlePlugin {
         register("DetektConventionPlugin") {
             id = "io.lb.detekt"
             implementationClass = "DetektConventionPlugin"
+        }
+        register("DokkaModuleConventionPlugin") {
+            id = "io.lb.dokka"
+            implementationClass = "DokkaModuleConventionPlugin"
+        }
+        register("JacocoModuleConventionPlugin") {
+            id = "io.lb.jacoco.module"
+            implementationClass = "JacocoModuleConventionPlugin"
+        }
+        register("JacocoMultiModuleConventionPlugin") {
+            id = "io.lb.jacoco.multi-module"
+            implementationClass = "JacocoMultiModuleConventionPlugin"
         }
     }
 }
