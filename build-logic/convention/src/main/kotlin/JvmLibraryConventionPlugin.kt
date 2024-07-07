@@ -14,6 +14,7 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.jvm")
                 apply("io.lb.jacoco.module")
                 apply("io.lb.detekt")
+                apply("io.lb.dokka")
             }
 
             extensions.configure<KotlinJvmProjectExtension> {

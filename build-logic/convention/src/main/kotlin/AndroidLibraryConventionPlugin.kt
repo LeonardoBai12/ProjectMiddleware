@@ -18,6 +18,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.android")
                 apply("io.lb.jacoco.module")
                 apply("io.lb.detekt")
+                apply("io.lb.dokka")
             }
 
             extensions.configure<LibraryExtension> {
