@@ -35,6 +35,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     implementation(findLibrary("androidx-ui-graphics").get())
                     implementation(findLibrary("androidx-ui-tooling-preview").get())
                     implementation(findLibrary("androidx-material3").get())
+                    implementation(findLibrary("kotlinx-coroutines-android").get())
                     testImplementation(findLibrary("mockk").get())
                     testImplementation(findLibrary("junit-jupiter-api").get())
                     testImplementation(findLibrary("junit-jupiter-params").get())

@@ -18,5 +18,6 @@ dependencyResolutionManagement {
 rootProject.name = "ProjectMiddleWare"
 
 include("core")
-include("data")
 include("client")
+include("data")
+include("database")

@@ -1,4 +1,5 @@
 import extensions.configureKotlinJvm
+import extensions.implementation
 import extensions.testImplementation
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -24,6 +25,7 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
 
             dependencies {
                 with(libs) {
+                    implementation(findLibrary("kotlinx-coroutines-core").get())
                     testImplementation(findLibrary("mockk").get())
                     testImplementation(findLibrary("junit-jupiter-api").get())
                     testImplementation(findLibrary("junit-jupiter-params").get())
