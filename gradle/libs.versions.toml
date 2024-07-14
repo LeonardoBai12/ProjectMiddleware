@@ -10,6 +10,8 @@ koin = "3.5.6"
 detekt = "1.23.1"
 jacoco = "0.8.10"
 dokka = "1.9.20"
+serialization = "1.5.21"
+serialization-json = "1.5.1"
 minSdk = "24"
 targetSdk = "34"
 compileSdk = "34"
@@ -26,10 +28,8 @@ composeBom = "2023.08.00"
 # Kotlin - Ktor server
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation-jvm", version.ref = "ktor" }
 ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets-jvm", version.ref = "ktor" }
-ktor-serialization-gson = { group = "io.ktor", name = "ktor-serialization-gson-jvm", version.ref = "ktor" }
 ktor-server-call-logging = { group = "io.ktor", name = "ktor-server-call-logging-jvm", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth-jvm", version.ref = "ktor" }
 ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt", version.ref = "ktor" }
@@ -39,12 +39,14 @@ ktor-server-tests = { group = "io.ktor", name = "ktor-server-tests-jvm", version
 # Kotlin - Ktor Client
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core-jvm", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio-jvm", version.ref = "ktor" }
-ktor-client-json = { group = "io.ktor", name = "ktor-client-json-jvm", version.ref = "ktor" }
-ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization-jvm", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging-jvm", version.ref = "ktor" }
 ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth-jvm", version.ref = "ktor" }
-ktor-client-websockets = { group = "io.ktor", name = "ktor-client-websockets-jvm", version.ref = "ktor" }
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock-jvm", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+
+# Kotlin - Ktor Serialization
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
+ktor-http = { group = "io.ktor", name = "ktor-http", version.ref = "ktor" }
 
 # Kotlin - Logging
 logback-classic = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
@@ -63,6 +65,7 @@ jbcrypt = { group = "org.mindrot", name = "jbcrypt", version = "0.4" }
 
 # Kotlin - Serialization
 gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization-json" }
 
 # Kotlin - Testing
 mockk = { group = "io.mockk", name = "mockk", version = "1.13.4" }
@@ -106,3 +109,4 @@ library = { id = "com.android.library", version.ref = "agp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jacoco = { id = "jacoco", version.ref = "jacoco" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
