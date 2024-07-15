@@ -17,7 +17,7 @@ internal suspend fun HttpClient.request(route: OriginalRoute): OriginalResponse 
     val response = request {
         method = HttpMethod.parse(route.method.name)
 
-        url(route.mappedApi.baseUrl) {
+        url(route.originalApi.baseUrl) {
             path(route.path)
             route.queries.forEach {
                 parameters.append(it.key, it.value)

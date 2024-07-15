@@ -7,6 +7,8 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(project(":data"))
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)

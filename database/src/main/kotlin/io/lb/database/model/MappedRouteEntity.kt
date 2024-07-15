@@ -1,14 +1,14 @@
-package io.lb.data.model
+package io.lb.database.model
 
 import io.ktor.http.HttpHeaders
+import io.lb.data.model.OriginalRoute
 import io.lb.data.util.MiddlewareAuthHeader
 import io.lb.data.util.MiddlewareHttpMethods
 import java.util.UUID
 
-data class MappedRoute(
-    val uuid: UUID = UUID.randomUUID(),
+data class MappedRouteEntity(
+    val uuid: UUID,
     val path: String,
-    val mappedApi: MappedApi,
     val originalRoute: OriginalRoute,
     val method: MiddlewareHttpMethods,
     val authHeader: MiddlewareAuthHeader? = null,

@@ -1,9 +1,10 @@
-package io.lb.data.model
+package io.lb.database.model
 
+import io.lb.data.model.OriginalApi
 import io.lb.data.util.MiddlewareAuthHeader
 import io.lb.data.util.MiddlewareHttpMethods
 
-data class OriginalRoute(
+data class OriginalRouteEntity(
     val path: String,
     val originalApi: OriginalApi,
     val method: MiddlewareHttpMethods,

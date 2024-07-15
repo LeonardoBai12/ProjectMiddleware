@@ -1,6 +1,6 @@
 package io.lb.data.util
 
-data class MIddlewareAuthHeader(
+data class MiddlewareAuthHeader(
     val type: MiddlewareAuthHeaderType,
     val token: String
 ) {
