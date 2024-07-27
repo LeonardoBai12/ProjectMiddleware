@@ -5,11 +5,12 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":core"))
     implementation(project(":data"))
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
-    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.1.2")
-    implementation("org.mongodb:bson-kotlin:5.1.2")
-    implementation("org.slf4j:slf4j-simple:1.7.9")
+    implementation(libs.mongo.db.kt)
+    implementation(libs.mongo.db.bson)
+    implementation(libs.slf4.simple)
     implementation(libs.kotlinx.serialization.json)
 }

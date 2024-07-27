@@ -12,6 +12,8 @@ jacoco = "0.8.10"
 dokka = "1.9.20"
 serialization = "1.5.21"
 serialization-json = "1.5.1"
+mongo-db = "5.1.2"
+slf4j = "1.7.9"
 minSdk = "24"
 targetSdk = "34"
 compileSdk = "34"
@@ -104,6 +106,11 @@ jacoco-gradlePlugin = { group = "org.jacoco", name = "org.jacoco.core", version.
 
 # Dokka
 dokka-gradlePlugin = { group = "org.jetbrains.dokka", name = "dokka-gradle-plugin", version.ref = "dokka" }
+
+# MongoDB
+mongo-db-kt = { group = "org.mongodb", name = "mongodb-driver-kotlin-coroutine", version.ref = "mongo-db" }
+mongo-db-bson = { group = "org.mongodb", name = "bson-kotlin", version.ref = "mongo-db" }
+slf4-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j"}
 
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

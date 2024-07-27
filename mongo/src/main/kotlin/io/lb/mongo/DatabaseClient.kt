@@ -1,4 +1,4 @@
-package io.lb.database
+package io.lb.mongo
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
@@ -6,11 +6,11 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import java.io.FileInputStream
-import java.util.Properties
 import kotlinx.coroutines.runBlocking
 import org.bson.Document
 import org.bson.UuidRepresentation
+import java.io.FileInputStream
+import java.util.Properties
 
 object DatabaseClient {
     private val client = client()

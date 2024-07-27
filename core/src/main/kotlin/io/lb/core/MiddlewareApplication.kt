@@ -1,4 +1,3 @@
 package io.lb.core
 
-class MiddlewareApplication {
-}
+class MiddlewareApplication

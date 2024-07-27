@@ -20,4 +20,4 @@ rootProject.name = "ProjectMiddleWare"
 include("core")
 include("client")
 include("data")
-include("database")
+include("mongo")

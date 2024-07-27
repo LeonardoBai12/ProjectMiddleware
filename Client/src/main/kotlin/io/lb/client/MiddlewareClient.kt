@@ -11,6 +11,9 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 internal object MiddlewareClient {
+    private const val MAX_RETRIES = 5
+    private const val RETRY_DELAY = 3000L
+
     val client = HttpClient {
         install(Logging) {
             level = LogLevel.ALL
@@ -23,14 +26,14 @@ internal object MiddlewareClient {
             )
         }
         install(HttpRequestRetry) {
-            maxRetries = 5
+            maxRetries = MAX_RETRIES
             retryIf { _, response ->
                 response.status.isSuccess().not() &&
                     response.status != HttpStatusCode.Unauthorized &&
                     response.status != HttpStatusCode.NotFound
             }
             delayMillis { retry ->
-                retry * 3000L
+                retry * RETRY_DELAY
             }
         }
     }

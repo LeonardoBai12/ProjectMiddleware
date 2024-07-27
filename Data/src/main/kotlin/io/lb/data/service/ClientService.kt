@@ -6,6 +6,6 @@ import io.lb.data.model.OriginalResponse
 import io.lb.data.model.OriginalRoute
 
 interface ClientService {
-    suspend fun request(route: OriginalRoute) : OriginalResponse
-    suspend fun validateApi(api: OriginalApi) : ApiValidationResponse
+    suspend fun request(route: OriginalRoute): OriginalResponse
+    suspend fun validateApi(api: OriginalApi): ApiValidationResponse
 }
