@@ -15,6 +15,12 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.gradle.testing.jacoco.tasks.JacocoReportBase
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+/**
+ * Configures the Kotlin settings for the project.
+ *
+ * @receiver The project to configure the Kotlin settings for.
+ * @param commonExtension The common extension to configure the Kotlin settings for.
+ */
 internal fun Project.configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
@@ -34,6 +40,11 @@ internal fun Project.configureKotlinAndroid(
     configureKotlin()
 }
 
+/**
+ * Configures the Kotlin settings for the project.
+ *
+ * @receiver The project to configure the Kotlin settings for.
+ */
 internal fun Project.configureKotlinJvm() {
     extensions.configure<JavaPluginExtension> {
         sourceCompatibility = COMPILE_VERSION
@@ -43,6 +54,11 @@ internal fun Project.configureKotlinJvm() {
     configureKotlin()
 }
 
+/**
+ * Configures the Kotlin settings for the project.
+ *
+ * @receiver The project to configure the Kotlin settings for.
+ */
 private fun Project.configureKotlin() {
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
@@ -57,6 +73,13 @@ private fun Project.configureKotlin() {
         }
     }
 }
+
+/**
+ * Configures the Jacoco settings for the project.
+ *
+ * @receiver The JacocoCoverageVerification to configure the settings for.
+ * @param minimumCoverage The minimum coverage percentage to enforce.
+ */
 internal fun JacocoCoverageVerification.setupCoverageVerification(
     minimumCoverage: Double = 0.80
 ) {
@@ -69,6 +92,11 @@ internal fun JacocoCoverageVerification.setupCoverageVerification(
     }
 }
 
+/**
+ * Configures the Jacoco settings for the project.
+ *
+ * @receiver The JacocoReport to configure the settings for.
+ */
 internal fun JacocoReport.setupCoverageReport() {
     reports {
         xml.apply {
@@ -83,7 +111,11 @@ internal fun JacocoReport.setupCoverageReport() {
     }
 }
 
-
+/**
+ * Sets up the Jacoco plugin for the project.
+ *
+ * @receiver The project to set up the Jacoco plugin for.
+ */
 internal fun Project.setupJacoco() {
     pluginManager.apply("jacoco")
     extensions.configure<JacocoPluginExtension> {
@@ -97,6 +129,12 @@ internal fun Project.setupJacoco() {
     }
 }
 
+/**
+ * Sets up the Jacoco directories for the project.
+ *
+ * @receiver The project to set up the Jacoco directories for.
+ * @param jacocoReport The JacocoReport to set up the directories for.
+ */
 internal fun Project.setJacocoJvmDirectories(
     jacocoReport: JacocoReportBase
 ) {
@@ -106,6 +144,12 @@ internal fun Project.setJacocoJvmDirectories(
     }
 }
 
+/**
+ * Sets up the Jacoco directories for the project.
+ *
+ * @receiver The project to set up the Jacoco directories for.
+ * @param jacocoReport The JacocoReport to set up the directories for.
+ */
 internal fun Project.setJacocoAndroidDirectories(
     jacocoReport: JacocoReportBase
 ) {
@@ -115,6 +159,12 @@ internal fun Project.setJacocoAndroidDirectories(
     }
 }
 
+/**
+ * Sets up the Jacoco directories for the project.
+ *
+ * @receiver The project to set up the Jacoco directories for.
+ * @param jacocoReport The JacocoReport to set up the directories for.
+ */
 internal fun Project.setJacocoDirectories(
     jacocoReport: JacocoReportBase
 ) {
@@ -160,6 +210,12 @@ internal fun Project.setJacocoDirectories(
     }
 }
 
+/**
+ * Determines if the project is a JVM project.
+ *
+ * @receiver The project to determine if it is a JVM project.
+ * @return True if the project is a JVM project, false otherwise.
+ */
 fun Project.isJvm(): Boolean {
     return this.plugins.hasPlugin("io.lb.jvm.library")
 }

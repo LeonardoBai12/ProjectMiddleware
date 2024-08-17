@@ -15,9 +15,10 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ProjectMiddleWare"
+rootProject.name = "ProjectMiddleware"
 
-include("core")
-include("client")
-include("data")
-include("mongo")
+include(":core")
+include(":client")
+include(":data")
+include(":mongo")
+include(":server")

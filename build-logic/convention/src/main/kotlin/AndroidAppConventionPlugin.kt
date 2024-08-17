@@ -10,7 +10,15 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import provider.libs
 
+/**
+ * Plugin to apply Android app conventions.
+ */
 class AndroidAppConventionPlugin : Plugin<Project> {
+    /**
+     * Applies the Android app conventions to the project.
+     *
+     * @param target The project to apply the conventions to.
+     */
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {

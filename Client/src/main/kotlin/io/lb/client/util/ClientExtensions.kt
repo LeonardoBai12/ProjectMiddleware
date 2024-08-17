@@ -13,6 +13,12 @@ import io.ktor.http.path
 import io.lb.data.model.OriginalResponse
 import io.lb.data.model.OriginalRoute
 
+/**
+ * Extension function to make a request to the API.
+ *
+ * @param route The route to make the request to.
+ * @return The response from the API.
+ */
 internal suspend fun HttpClient.request(route: OriginalRoute): OriginalResponse {
     val response = request {
         method = HttpMethod.parse(route.method.name)

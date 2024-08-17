@@ -1,5 +1,11 @@
 package io.lb.data.util
 
+/**
+ * Data class representing a middleware auth header.
+ *
+ * @property type The type of the middleware auth header.
+ * @property token The token of the middleware auth header.
+ */
 data class MiddlewareAuthHeader(
     val type: MiddlewareAuthHeaderType,
     val token: String
@@ -13,6 +19,13 @@ data class MiddlewareAuthHeader(
     }
 }
 
+/**
+ * Enum class representing a middleware auth header type.
+ *
+ * @property None No middleware auth header type.
+ * @property Basic Basic middleware auth header type.
+ * @property Bearer Bearer middleware auth header type.
+ */
 enum class MiddlewareAuthHeaderType {
     None,
     Basic,

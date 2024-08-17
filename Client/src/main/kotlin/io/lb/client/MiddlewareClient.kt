@@ -10,10 +10,16 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+/**
+ * Object containing the middleware client.
+ */
 internal object MiddlewareClient {
     private const val MAX_RETRIES = 5
     private const val RETRY_DELAY = 3000L
 
+    /**
+     * The middleware client.
+     */
     val client = HttpClient {
         install(Logging) {
             level = LogLevel.ALL

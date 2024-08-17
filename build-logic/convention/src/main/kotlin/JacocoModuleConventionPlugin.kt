@@ -9,7 +9,15 @@ import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
+/**
+ * Plugin to apply Jacoco module conventions.
+ */
 class JacocoModuleConventionPlugin : Plugin<Project> {
+    /**
+     * Applies the Jacoco module conventions to the project.
+     *
+     * @param target The project to apply the conventions to.
+     */
     override fun apply(target: Project) {
         with(target) {
             val module = project.name.capitalized()

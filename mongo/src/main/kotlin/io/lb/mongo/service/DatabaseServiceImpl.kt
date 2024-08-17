@@ -15,6 +15,11 @@ import io.lb.mongo.model.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import java.util.UUID
 
+/**
+ * Service implementation for interacting with the database.
+ *
+ * @constructor Creates a database service implementation with the given database.
+ */
 class DatabaseServiceImpl(
     database: MongoDatabase
 ) : DatabaseService {
