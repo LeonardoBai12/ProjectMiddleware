@@ -4,7 +4,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.ktor.http.HttpStatusCode
-import io.lb.core.error.MiddlewareException
+import io.lb.common.error.MiddlewareException
 import io.lb.data.model.MappedApi
 import io.lb.data.model.MappedRoute
 import io.lb.data.model.OriginalApi
@@ -30,7 +30,7 @@ class DatabaseServiceImpl(
 
         collection.find<MappedApiEntity>().collect { api ->
             api.routes.forEach { route ->
-                routes.add(route.toRoute(api.toMappedApi()))
+                routes.add(route.toRoute())
             }
         }
 
@@ -63,14 +63,8 @@ class DatabaseServiceImpl(
             message = "Couldn't find mapped API."
         )
 
-        val mappedApi = MappedApi(
-            uuid = UUID.fromString(apiUuid),
-            originalApi = api.originalApi,
-            name = api.name
-        )
-
         return api.routes.map {
-            it.toRoute(mappedApi)
+            it.toRoute()
         }
     }
 
@@ -114,7 +108,7 @@ class DatabaseServiceImpl(
             Updates.set(MappedRouteEntity::method.name, routeEntity.method),
             Updates.set(MappedRouteEntity::authHeader.name, routeEntity.authHeader),
             Updates.set(MappedRouteEntity::headers.name, routeEntity.headers),
-            Updates.set(MappedRouteEntity::query.name, routeEntity.query),
+            Updates.set(MappedRouteEntity::queries.name, routeEntity.queries),
         )
         collection.updateOne(queryParams, updateParams)
     }

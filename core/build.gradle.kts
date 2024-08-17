@@ -7,4 +7,5 @@ plugins {
 dependencies {
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
+    implementation(project(":server"))
 }

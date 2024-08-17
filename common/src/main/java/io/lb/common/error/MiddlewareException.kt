@@ -1,4 +1,4 @@
-package io.lb.core.error
+package io.lb.common.error
 
 /**
  * Exception thrown by middleware.

@@ -1,6 +1,6 @@
 package io.lb.data.service
 
-import io.lb.core.error.MiddlewareException
+import io.lb.common.error.MiddlewareException
 import io.lb.data.model.MappedApi
 import io.lb.data.model.MappedRoute
 import kotlin.jvm.Throws

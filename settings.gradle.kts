@@ -18,6 +18,7 @@ dependencyResolutionManagement {
 rootProject.name = "ProjectMiddleware"
 
 include(":core")
+include(":common")
 include(":client")
 include(":data")
 include(":mongo")
