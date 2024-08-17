@@ -1,8 +1,8 @@
-package io.lb.data.service
+package io.lb.common.data.service
 
 import io.lb.common.data.model.ApiValidationResponse
-import io.lb.data.model.OriginalApi
-import io.lb.data.model.OriginalResponse
+import io.lb.common.data.model.OriginalApi
+import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
 
 /**

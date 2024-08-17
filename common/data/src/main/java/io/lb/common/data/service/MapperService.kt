@@ -19,4 +19,16 @@ interface MapperService {
         route: MappedRoute,
         originalResponse: OriginalResponse
     ): MappedResponse
+
+    /**
+     * Generates a preview of the JSON mapped response.
+     *
+     * @param route The mapped route.
+     * @param originalResponse The original response.
+     * @return The JSON preview.
+     */
+    fun responseJsonPreview(
+        route: MappedRoute,
+        originalResponse: OriginalResponse
+    ): String
 }

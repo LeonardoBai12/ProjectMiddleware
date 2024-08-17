@@ -6,7 +6,7 @@ import io.lb.common.data.model.ApiValidationResponse
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
-import io.lb.data.service.ClientService
+import io.lb.common.data.service.ClientService
 import io.lb.impl.ktor.client.util.request
 
 /**

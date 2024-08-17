@@ -30,7 +30,9 @@ class ServerServiceImpl(
             method(HttpMethod.parse(mappedRoute.method.name)) {
                 route("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
                     handle {
-                        val queries = call.request.queryParameters.toMap().mapValues { it.value.first() }
+                        val queries = call.request.queryParameters.toMap().mapValues { query ->
+                            query.value.first()
+                        }
                         val originalRoute = mappedRoute.originalRoute.copy()
                         val response = onRequest(originalRoute, queries)
 

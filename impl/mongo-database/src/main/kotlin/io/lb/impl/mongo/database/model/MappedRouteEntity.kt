@@ -2,8 +2,8 @@ package io.lb.impl.mongo.database.model
 
 import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedRoute
-import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.model.OriginalRoute
+import io.lb.common.data.request.MiddlewareHttpMethods
 import java.util.UUID
 
 /**
@@ -35,7 +35,7 @@ data class MappedRouteEntity(
             mappedApi = mappedApi,
             originalRoute = this.originalRoute,
             method = this.method,
-            body = this.body,
+            rulesAsString = this.body,
         )
     }
 }
@@ -51,6 +51,6 @@ internal fun MappedRoute.toEntity(): MappedRouteEntity {
         path = path,
         originalRoute = originalRoute,
         method = method,
-        body = body,
+        body = rulesAsString,
     )
 }

@@ -1,7 +1,7 @@
 package io.lb.impl.mongo.database.model
 
-import io.lb.data.model.MappedApi
-import io.lb.data.model.OriginalApi
+import io.lb.common.data.model.MappedApi
+import io.lb.common.data.model.OriginalApi
 import java.util.UUID
 
 /**
