@@ -17,15 +17,19 @@ import io.lb.data.model.OriginalRoute
  * Extension function to make a request to the API.
  *
  * @param route The route to make the request to.
+ * @param queries The queries to pass to the API.
  * @return The response from the API.
  */
-internal suspend fun HttpClient.request(route: OriginalRoute): OriginalResponse {
+internal suspend fun HttpClient.request(
+    route: OriginalRoute,
+    queries: Map<String, String>
+): OriginalResponse {
     val response = request {
         method = HttpMethod.parse(route.method.name)
 
         url(route.originalApi.baseUrl) {
             path(route.path)
-            route.queries.forEach {
+            queries.forEach {
                 parameters.append(it.key, it.value)
             }
         }

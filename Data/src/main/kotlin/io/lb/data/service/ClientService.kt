@@ -13,9 +13,10 @@ interface ClientService {
      * Makes a request to the middleware server.
      *
      * @param route The route to request.
+     * @param queries The queries to include in the request.
      * @return The response from the middleware server.
      */
-    suspend fun request(route: OriginalRoute): OriginalResponse
+    suspend fun request(route: OriginalRoute, queries: Map<String, String>): OriginalResponse
 
     /**
      * Validates an API by making a request to the base URL.

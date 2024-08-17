@@ -8,6 +8,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.method
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.util.toMap
 import io.lb.data.model.MappedRoute
 import io.lb.data.model.OriginalResponse
 import io.lb.data.model.OriginalRoute
@@ -23,14 +24,15 @@ class ServerServiceImpl(
 ) : ServerService {
     override fun createMappedRoute(
         mappedRoute: MappedRoute,
-        onRequest: (OriginalRoute) -> OriginalResponse
+        onRequest: (OriginalRoute, Map<String, String>) -> OriginalResponse
     ) {
         application.routing {
             method(HttpMethod.parse(mappedRoute.method.name)) {
-                route(mappedRoute.path) {
+                route("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
                     handle {
-                        val originalRoute = mappedRoute.originalRoute
-                        val response = onRequest(originalRoute)
+                        val queries = call.request.queryParameters.toMap().mapValues { it.value.first() }
+                        val originalRoute = mappedRoute.originalRoute.copy()
+                        val response = onRequest(originalRoute, queries)
 
                         call.respond(
                             HttpStatusCode.fromValue(response.statusCode),
@@ -44,10 +46,10 @@ class ServerServiceImpl(
 
     override fun createMappedRoutes(
         mappedRoutes: List<MappedRoute>,
-        onCompletion: (OriginalRoute) -> OriginalResponse
+        onRequest: (OriginalRoute, Map<String, String>) -> OriginalResponse
     ) {
         mappedRoutes.forEach {
-            createMappedRoute(it, onCompletion)
+            createMappedRoute(it, onRequest)
         }
     }
 }

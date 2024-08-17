@@ -112,9 +112,6 @@ class DatabaseServiceImpl(
             Updates.set(MappedRouteEntity::path.name, routeEntity.path),
             Updates.set(MappedRouteEntity::originalRoute.name, routeEntity.originalRoute),
             Updates.set(MappedRouteEntity::method.name, routeEntity.method),
-            Updates.set(MappedRouteEntity::authHeader.name, routeEntity.authHeader),
-            Updates.set(MappedRouteEntity::headers.name, routeEntity.headers),
-            Updates.set(MappedRouteEntity::queries.name, routeEntity.queries),
         )
         collection.updateOne(queryParams, updateParams)
     }

@@ -11,7 +11,6 @@ import io.lb.data.util.MiddlewareHttpMethods
  * @property method The HTTP method of the original route.
  * @property authHeader The authentication header of the original route.
  * @property headers The headers of the original route.
- * @property queries The queries of the original route.
  * @property body The body of the original route.
  */
 data class OriginalRoute(
@@ -20,6 +19,5 @@ data class OriginalRoute(
     val method: MiddlewareHttpMethods,
     val authHeader: MiddlewareAuthHeader? = null,
     val headers: Map<String, String> = mapOf(),
-    val queries: Map<String, String>,
     val body: String?
 )

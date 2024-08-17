@@ -17,8 +17,8 @@ import io.lb.data.service.ClientService
 internal class ClientServiceImpl(
     private val client: HttpClient
 ) : ClientService {
-    override suspend fun request(route: OriginalRoute): OriginalResponse {
-        return client.request(route)
+    override suspend fun request(route: OriginalRoute, queries: Map<String, String>): OriginalResponse {
+        return client.request(route, queries)
     }
 
     override suspend fun validateApi(api: OriginalApi): ApiValidationResponse {

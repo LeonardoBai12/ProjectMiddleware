@@ -18,18 +18,18 @@ interface ServerService {
     @Throws(MiddlewareException::class)
     fun createMappedRoute(
         mappedRoute: MappedRoute,
-        onRequest: (OriginalRoute) -> OriginalResponse
+        onRequest: (OriginalRoute, Map<String, String>) -> OriginalResponse
     )
 
     /**
      * Creates a list of mapped routes.
      *
      * @param mappedRoutes The mapped routes to create.
-     * @param onCompletion The request handler for the original route.
+     * @param onRequest The request handler for the original route.
      */
     @Throws(MiddlewareException::class)
     fun createMappedRoutes(
         mappedRoutes: List<MappedRoute>,
-        onCompletion: (OriginalRoute) -> OriginalResponse
+        onRequest: (OriginalRoute, Map<String, String>) -> OriginalResponse
     )
 }
