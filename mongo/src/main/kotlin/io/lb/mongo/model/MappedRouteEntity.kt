@@ -14,7 +14,7 @@ data class MappedRouteEntity(
     val method: MiddlewareHttpMethods,
     val authHeader: MiddlewareAuthHeader? = null,
     val headers: Map<String, String> = mapOf(),
-    val query: Map<String, String>?,
+    val queries: Map<String, String>?,
     val body: String?
 ) {
     internal fun toRoute(mappedApi: MappedApi): MappedRoute {
@@ -24,9 +24,6 @@ data class MappedRouteEntity(
             mappedApi = mappedApi,
             originalRoute = this.originalRoute,
             method = this.method,
-            authHeader = this.authHeader,
-            headers = this.headers,
-            query = this.query,
             body = this.body,
         )
     }
@@ -38,9 +35,9 @@ internal fun MappedRoute.toEntity(): MappedRouteEntity {
         path = path,
         originalRoute = originalRoute,
         method = method,
-        authHeader = authHeader,
-        headers = headers,
-        query = query,
+        authHeader = originalRoute.authHeader,
+        headers = originalRoute.headers,
+        queries = originalRoute.queries,
         body = body,
     )
 }

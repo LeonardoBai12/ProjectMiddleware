@@ -1,3 +1,5 @@
 package io.lb.core
 
-class MiddlewareApplication
+fun main() {
+    // configureAndRunServer()
+}

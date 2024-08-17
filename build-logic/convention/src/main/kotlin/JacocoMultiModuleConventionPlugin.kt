@@ -12,7 +12,15 @@ import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.gradle.testing.jacoco.tasks.JacocoReportBase
 
+/**
+ * Plugin to apply Jacoco multi-module conventions.
+ */
 class JacocoMultiModuleConventionPlugin : Plugin<Project> {
+    /**
+     * Applies the Jacoco multi-module conventions to the project.
+     *
+     * @param target The project to apply the conventions to.
+     */
     override fun apply(target: Project) {
         with(target) {
             val module = project.name.capitalized()

@@ -47,6 +47,7 @@ ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock-jvm", version.r
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 
 # Kotlin - Ktor Serialization
+ktor-serialization-gson = { group = "io.ktor", name = "ktor-serialization-gson-jvm", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
 ktor-http = { group = "io.ktor", name = "ktor-http", version.ref = "ktor" }
 

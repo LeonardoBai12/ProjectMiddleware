@@ -8,7 +8,15 @@ import org.gradle.kotlin.dsl.dependencies
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import provider.libs
 
+/**
+ * Plugin to apply JVM library conventions.
+ */
 class JvmLibraryConventionPlugin : Plugin<Project> {
+    /**
+     * Applies the JVM library conventions to the project.
+     *
+     * @param target The project to apply the conventions to.
+     */
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {

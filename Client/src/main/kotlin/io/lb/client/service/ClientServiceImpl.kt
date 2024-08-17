@@ -9,6 +9,11 @@ import io.lb.data.model.OriginalResponse
 import io.lb.data.model.OriginalRoute
 import io.lb.data.service.ClientService
 
+/**
+ * Implementation of the [ClientService] interface.
+ *
+ * @property client The HTTP client to make requests with.
+ */
 internal class ClientServiceImpl(
     private val client: HttpClient
 ) : ClientService {

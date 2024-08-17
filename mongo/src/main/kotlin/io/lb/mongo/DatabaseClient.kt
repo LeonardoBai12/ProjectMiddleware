@@ -12,10 +12,20 @@ import org.bson.UuidRepresentation
 import java.io.FileInputStream
 import java.util.Properties
 
+/**
+ * Object class representing a database client.
+ */
 object DatabaseClient {
     private val client = client()
+
+    /**
+     * The MongoDB database.
+     */
     val database: MongoDatabase = client.database()
 
+    /**
+     * Function to close the database client.
+     */
     internal fun close() {
         client.close()
     }

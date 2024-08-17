@@ -4,7 +4,7 @@ import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.ktor.http.HttpStatusCode
-import io.lb.core.error.MiddlewareException
+import io.lb.common.error.MiddlewareException
 import io.lb.data.model.MappedApi
 import io.lb.data.model.MappedRoute
 import io.lb.data.model.OriginalApi
@@ -15,6 +15,11 @@ import io.lb.mongo.model.toEntity
 import kotlinx.coroutines.flow.singleOrNull
 import java.util.UUID
 
+/**
+ * Service implementation for interacting with the database.
+ *
+ * @constructor Creates a database service implementation with the given database.
+ */
 class DatabaseServiceImpl(
     database: MongoDatabase
 ) : DatabaseService {
@@ -109,7 +114,7 @@ class DatabaseServiceImpl(
             Updates.set(MappedRouteEntity::method.name, routeEntity.method),
             Updates.set(MappedRouteEntity::authHeader.name, routeEntity.authHeader),
             Updates.set(MappedRouteEntity::headers.name, routeEntity.headers),
-            Updates.set(MappedRouteEntity::query.name, routeEntity.query),
+            Updates.set(MappedRouteEntity::queries.name, routeEntity.queries),
         )
         collection.updateOne(queryParams, updateParams)
     }
