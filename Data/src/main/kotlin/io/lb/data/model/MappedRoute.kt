@@ -1,6 +1,5 @@
 package io.lb.data.model
 
-import io.lb.data.util.MiddlewareAuthHeader
 import io.lb.data.util.MiddlewareHttpMethods
 import java.util.UUID
 
