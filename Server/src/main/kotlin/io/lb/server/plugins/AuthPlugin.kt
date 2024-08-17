@@ -29,7 +29,9 @@ fun Application.configureAuth() {
             validate { credential ->
                 if (credential.payload.audience.contains(config.audience)) {
                     JWTPrincipal(credential.payload)
-                } else null
+                } else {
+                    null
+                }
             }
         }
     }

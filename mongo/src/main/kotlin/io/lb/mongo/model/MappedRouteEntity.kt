@@ -1,5 +1,6 @@
 package io.lb.mongo.model
 
+import io.lb.data.model.MappedApi
 import io.lb.data.model.MappedRoute
 import io.lb.data.model.OriginalRoute
 import io.lb.data.util.MiddlewareAuthHeader
@@ -16,10 +17,11 @@ data class MappedRouteEntity(
     val queries: Map<String, String>?,
     val body: String?
 ) {
-    internal fun toRoute(): MappedRoute {
+    internal fun toRoute(mappedApi: MappedApi): MappedRoute {
         return MappedRoute(
             uuid = this.uuid,
             path = this.path,
+            mappedApi = mappedApi,
             originalRoute = this.originalRoute,
             method = this.method,
             body = this.body,

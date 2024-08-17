@@ -12,8 +12,6 @@ import io.lb.data.model.MappedRoute
 import io.lb.data.model.OriginalResponse
 import io.lb.data.model.OriginalRoute
 import io.lb.data.service.ServerService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Implementation of the server service.
@@ -32,10 +30,7 @@ class ServerServiceImpl(
                 route(mappedRoute.path) {
                     handle {
                         val originalRoute = mappedRoute.originalRoute
-
-                        val response = withContext(Dispatchers.IO) {
-                            onRequest(originalRoute)
-                        }
+                        val response = onRequest(originalRoute)
 
                         call.respond(
                             HttpStatusCode.fromValue(response.statusCode),

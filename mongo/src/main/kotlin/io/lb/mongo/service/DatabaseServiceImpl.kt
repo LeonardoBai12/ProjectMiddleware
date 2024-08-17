@@ -30,7 +30,7 @@ class DatabaseServiceImpl(
 
         collection.find<MappedApiEntity>().collect { api ->
             api.routes.forEach { route ->
-                routes.add(route.toRoute())
+                routes.add(route.toRoute(api.toMappedApi()))
             }
         }
 
@@ -63,8 +63,14 @@ class DatabaseServiceImpl(
             message = "Couldn't find mapped API."
         )
 
+        val mappedApi = MappedApi(
+            uuid = UUID.fromString(apiUuid),
+            originalApi = api.originalApi,
+            name = api.name
+        )
+
         return api.routes.map {
-            it.toRoute()
+            it.toRoute(mappedApi)
         }
     }
 
