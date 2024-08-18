@@ -17,9 +17,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "ProjectMiddleware"
 
-include(":core")
-include(":common")
-include(":client")
-include(":data")
-include(":mongo")
-include(":server")
+include(":common:shared")
+include(":common:data")
+include(":impl:ktor-client")
+include(":impl:ktor-server")
+include(":impl:mongo-database")
+include(":middleware:data")
+include(":middleware:core")
+include(":middleware:mapper")
