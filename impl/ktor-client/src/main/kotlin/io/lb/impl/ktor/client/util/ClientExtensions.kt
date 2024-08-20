@@ -8,6 +8,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.lb.common.data.model.OriginalResponse
@@ -15,6 +16,8 @@ import io.lb.common.data.model.OriginalRoute
 
 /**
  * Extension function to make a request to the API.
+ *
+ * @throws IllegalArgumentException If the base URL does not start with "https://".
  *
  * @param route The route to make the request to.
  * @param queries The queries to pass to the API.
@@ -27,7 +30,10 @@ internal suspend fun HttpClient.request(
     val response = request {
         method = HttpMethod.parse(route.method.name)
 
+        require(route.originalApi.baseUrl.startsWith("https://"))
+
         url(route.originalApi.baseUrl) {
+            protocol = URLProtocol.HTTPS
             path(route.path)
             queries.forEach {
                 parameters.append(it.key, it.value)

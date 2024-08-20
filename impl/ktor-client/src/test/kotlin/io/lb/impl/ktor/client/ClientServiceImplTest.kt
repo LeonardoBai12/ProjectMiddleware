@@ -1,0 +1,101 @@
+package io.lb.impl.ktor.client
+
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.lb.common.data.model.OriginalApi
+import io.lb.common.data.model.OriginalRoute
+import io.lb.common.data.request.MiddlewareAuthHeader
+import io.lb.common.data.request.MiddlewareAuthHeaderType
+import io.lb.common.data.request.MiddlewareHttpMethods
+import io.lb.impl.ktor.client.service.ClientServiceImpl
+import io.mockk.unmockkAll
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+
+class ClientServiceImplTest {
+
+    private lateinit var httpClient: HttpClient
+    private lateinit var service: ClientServiceImpl
+
+    @BeforeEach
+    fun setUp() {
+        val mockEngine = MockEngine { request ->
+            when (request.url.encodedPath) {
+                "/test-route" -> respond(
+                    content = """{"key":"response"}""",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf("Content-Type" to listOf("application/json"))
+                )
+                else -> respond(
+                    content = "Not Found",
+                    status = HttpStatusCode.NotFound
+                )
+            }
+        }
+
+        httpClient = HttpClient(mockEngine)
+        service = ClientServiceImpl(httpClient)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
+    }
+
+    @Test
+    fun `When calls existent route, expect success`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, "Authenticated"),
+            headers = mapOf("Content-Type" to "application/json"),
+            body = """{"key":"request"}"""
+        )
+
+        val response = service.request(route, emptyMap())
+
+        assertEquals(200, response.statusCode)
+        assertEquals("""{"key":"response"}""", response.body)
+    }
+
+    @Test
+    fun `When calls not existent route, expect to not find it`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route-unknown",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, "Authenticated"),
+            headers = mapOf("Content-Type" to "application/json"),
+            body = """{"key":"request"}"""
+        )
+
+        val response = service.request(route, emptyMap())
+
+        assertEquals(404, response.statusCode)
+        assertEquals("Not Found", response.body)
+    }
+
+    @Test
+    fun `When URL without HTTPS protocol, expect throws exception`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("http://localhost:8282/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "Authenticated"),
+            headers = mapOf("Content-Type" to "application/json"),
+            body = """{"key":"request"}"""
+        )
+
+        assertThrows<IllegalArgumentException> {
+            service.request(route, emptyMap())
+        }
+    }
+}
