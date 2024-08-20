@@ -1,4 +1,5 @@
 import extensions.implementation
+import extensions.testImplementation
 
 plugins {
     id("io.lb.jvm.library")
@@ -16,4 +17,5 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.koin.ktor)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.junit.jupiter.api)
 }
