@@ -30,23 +30,28 @@ data class TokenConfig(
         fun middlewareTokenConfig(
             config: ApplicationConfig,
             embedded: Boolean
-        ): TokenConfig {
-            val secret = if (embedded) {
-                val properties = Properties()
-                val fileInputStream = FileInputStream("local.properties")
-                properties.load(fileInputStream)
+        ): TokenConfig? {
+            return runCatching {
+                val secret = if (embedded) {
+                    val properties = Properties()
+                    val fileInputStream = FileInputStream("local.properties")
+                    properties.load(fileInputStream)
 
-                properties.getProperty("jwt.secret_key")
-            } else {
-                config.property("jwt.secret_key").getString()
+                    properties.getProperty("jwt.secret_key")
+                } else {
+                    config.property("jwt.secret_key").getString()
+                }
+
+                TokenConfig(
+                    issuer = "http://0.0.0.0:8080",
+                    audience = "users",
+                    expiresIn = 365L * 1000L * 60L * 60L * 24L,
+                    secret = secret
+                )
+            }.getOrElse {
+                println(it.message)
+                null
             }
-
-            return TokenConfig(
-                issuer = "http://0.0.0.0:8080",
-                audience = "users",
-                expiresIn = 365L * 1000L * 60L * 60L * 24L,
-                secret = secret
-            )
         }
     }
 }

@@ -21,13 +21,13 @@ fun Application.configureAuth() {
         jwt {
             realm = "Middleware"
             verifier(
-                JWT.require(Algorithm.HMAC256(config.secret))
-                    .withAudience(config.audience)
-                    .withIssuer(config.issuer)
+                JWT.require(Algorithm.HMAC256(config?.secret ?: ""))
+                    .withAudience(config?.audience)
+                    .withIssuer(config?.issuer)
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(config.audience)) {
+                if (credential.payload.audience.contains(config?.audience)) {
                     JWTPrincipal(credential.payload)
                 } else {
                     null
