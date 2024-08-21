@@ -3,7 +3,7 @@ package io.lb.common.shared.flow
 /**
  * A generic class that holds a value with its loading status.
  *
- * @param T The type of the value.
+ * @property T The type of the value.
  * @property data The value.
  * @property message The message.
  */

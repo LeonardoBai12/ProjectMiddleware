@@ -7,10 +7,10 @@ import java.util.UUID
 /**
  * Data class representing a mapped API entity.
  *
- * @param uuid UUID of the mapped API.
- * @param originalApi Original API of the mapped API.
- * @param name Name of the mapped API.
- * @param routes List of routes of the mapped API.
+ * @property uuid UUID of the mapped API.
+ * @property originalApi Original API of the mapped API.
+ * @property name Name of the mapped API.
+ * @property routes List of routes of the mapped API.
  */
 data class MappedApiEntity(
     val uuid: UUID,

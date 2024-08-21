@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 /**
  * Represents a field in the old body.
  *
- * @param keys The keys of the field. There should be at least one key.
- * @param type The type of the field. It could be one on these Kotlin primitive types. \n
+ * @property keys The keys of the field. There should be at least one key.
+ * @property type The type of the field. It could be one on these Kotlin primitive types. \n
  * Types: \n
  * - String \n
  * - Int \n
  * - Double \n
  * - Boolean \n
- * @param parents The parent keys of the field. It will be empty if its a root field.
+ * @property parents The parent keys of the field. It will be empty if its a root field.
  */
 @Serializable
 data class OldBodyField(
