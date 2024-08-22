@@ -28,7 +28,7 @@ class ClientServiceImplTest {
     @BeforeEach
     fun setUp() {
         val mockEngine = MockEngine { request ->
-            if (request.method == HttpMethod.Head) {
+            if (request.method == HttpMethod.Head && request.url.host == "10.0.2.2") {
                 return@MockEngine respond(
                     content = "",
                     status = HttpStatusCode.OK
