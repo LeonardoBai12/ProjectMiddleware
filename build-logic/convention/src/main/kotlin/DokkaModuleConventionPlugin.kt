@@ -1,3 +1,4 @@
+import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
@@ -19,6 +20,14 @@ class DokkaModuleConventionPlugin : Plugin<Project> {
 
             tasks.withType<DokkaTaskPartial> {
                 dokkaSourceSets.configureEach {
+                    val relativePath = project.projectDir
+                        .relativeTo(rootProject.projectDir)
+                        .path
+                        .replace(File.separator, ":")
+                    moduleName.set(relativePath)
+
+                    reportUndocumented.set(true)
+
                     if (file("Packages.md").exists()) {
                         includes.from("Packages.md")
                     }
