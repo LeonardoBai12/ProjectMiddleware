@@ -13,6 +13,9 @@ import io.lb.middleware.mapper.service.MapperServiceImpl
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+/**
+ * Main function to test the mapper service.
+ */
 internal fun main() {
     val mappingRule = Json.encodeToString(
         getMappingRule().copy(
