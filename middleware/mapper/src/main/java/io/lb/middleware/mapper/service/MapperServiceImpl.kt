@@ -4,6 +4,8 @@ import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.service.MapperService
+import io.lb.common.data.util.MiddlewareStatusCode
+import io.lb.common.shared.error.MiddlewareException
 import io.lb.middleware.mapper.model.NewBodyMappingRule
 import io.lb.middleware.mapper.model.OldBodyField
 import kotlinx.serialization.encodeToString
@@ -18,6 +20,10 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Implementation of [MapperService].
+ * This service is responsible for mapping the original response to a new response based on the mapping rules.
+ */
 class MapperServiceImpl : MapperService {
     override fun mapResponse(
         route: MappedRoute,
@@ -45,7 +51,11 @@ class MapperServiceImpl : MapperService {
 
         val newJson = buildJsonObject {
             for ((newKey, newField) in rules.newBodyFields) {
-                val oldField = rules.oldBodyFields[newKey] ?: continue
+                val oldField = rules.oldBodyFields[newKey]
+                    ?: throw MiddlewareException(
+                        code = MiddlewareStatusCode.BAD_REQUEST,
+                        "Mapping rule for new key '$newKey' is missing in old body fields."
+                    )
 
                 val value = extractValueFromOriginalJson(originalJson, oldField, rules.ignoreEmptyValues)
                 val transformedValue = transformValue(value, newField.type, rules.ignoreEmptyValues)
@@ -73,6 +83,10 @@ class MapperServiceImpl : MapperService {
 
         for (key in parentKeys) {
             currentElement = currentElement?.jsonObject?.get(key)?.jsonArray?.first()
+                ?: throw MiddlewareException(
+                    code = MiddlewareStatusCode.BAD_REQUEST,
+                    "Parent key '$key' not found in original JSON."
+                )
         }
 
         return runCatching {
@@ -87,6 +101,12 @@ class MapperServiceImpl : MapperService {
                     }
                 }
 
+                if (values.isEmpty()) {
+                    throw MiddlewareException(
+                        MiddlewareStatusCode.NOT_FOUND,
+                        "All extracted values are empty for keys: $keys."
+                    )
+                }
                 return JsonArray(values)
             }
 
@@ -113,9 +133,9 @@ class MapperServiceImpl : MapperService {
 
         return when (type) {
             "String" -> JsonPrimitive(value?.jsonPrimitive?.content.orEmpty())
-            "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull() ?: 0)
-            "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull() ?: 0.0)
-            "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean() ?: false)
+            "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull())
+            "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull())
+            "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean())
             else -> JsonNull
         }
     }
