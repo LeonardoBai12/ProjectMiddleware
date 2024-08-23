@@ -13,6 +13,12 @@ import io.lb.middleware.mapper.service.MapperServiceImpl
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+/**
+ * Main function to test the mapper service.
+ *
+ * It creates a mapping rule and a mapper service instance based on the API response provided by
+ * [TheMealDB](https://www.themealdb.com/api.php).
+ */
 internal fun main() {
     val mappingRule = Json.encodeToString(
         getMappingRule().copy(

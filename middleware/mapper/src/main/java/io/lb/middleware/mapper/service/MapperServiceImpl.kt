@@ -46,7 +46,15 @@ class MapperServiceImpl : MapperService {
         route: MappedRoute,
         originalResponse: OriginalResponse
     ): String {
-        val rules = Json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
+        val rules = kotlin.runCatching {
+            Json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
+        }.getOrElse {
+            throw MiddlewareException(
+                code = MiddlewareStatusCode.BAD_REQUEST,
+                message = "Failed to parse mapping rules. Checkout our documentation: " +
+                    "https://github.com/LeonardoBai12-Org/ProjectMiddleware"
+            )
+        }
         val originalJson = Json.parseToJsonElement(originalResponse.body ?: "{}").jsonObject
 
         val newJson = buildJsonObject {

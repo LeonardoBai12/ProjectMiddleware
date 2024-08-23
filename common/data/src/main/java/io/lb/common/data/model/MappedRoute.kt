@@ -12,6 +12,8 @@ import java.util.UUID
  * @property originalRoute The original route.
  * @property method The HTTP method of the mapped route.
  * @property rulesAsString The mapping rules as a string.
+ * <br>Json example of the rules:
+ * <br>[RulesExample.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/NewRouteExample.json)
  */
 data class MappedRoute(
     val uuid: UUID = UUID.randomUUID(),

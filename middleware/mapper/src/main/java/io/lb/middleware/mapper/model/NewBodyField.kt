@@ -6,12 +6,12 @@ import kotlinx.serialization.Serializable
  * Represents a field in the new body.
  *
  * @property key The key of the field.
- * @property type The type of the field. It could be any Kotlin primitive type. \n
- * Types: \n
- * - String \n
- * - Int \n
- * - Long \n
- * - Float \n
+ * @property type The type of the field. It could be any Kotlin primitive type.
+ * <br>Allowed types:
+ * <br>- [String]
+ * <br>- [Int]
+ * <br>- [Double]
+ * <br>- [Boolean]
  */
 @Serializable
 data class NewBodyField(
