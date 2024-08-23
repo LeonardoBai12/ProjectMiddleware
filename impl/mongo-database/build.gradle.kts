@@ -1,4 +1,5 @@
 import extensions.implementation
+import extensions.testImplementation
 
 plugins {
     id("io.lb.jvm.library")
@@ -13,4 +14,6 @@ dependencies {
     implementation(libs.mongo.db.bson)
     implementation(libs.slf4.simple)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.logback.classic)
+    testImplementation(libs.junit.jupiter.api)
 }
