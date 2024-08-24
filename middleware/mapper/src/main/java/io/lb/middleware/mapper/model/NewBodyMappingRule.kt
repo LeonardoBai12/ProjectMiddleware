@@ -14,6 +14,9 @@ import kotlinx.serialization.Serializable
  * - Json example of a mapped response using the rules from the example above:
  * [ExampleAfter.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/ExampleAfter.json)
  *
+ * - Json example of a mapped response using the rules from the example above (with empty values):
+ * [ExampleAfter.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/ExampleAfterWithEmptyValues.json)
+ *
  * @property newBodyFields The new body fields.
  * @property oldBodyFields The old body fields.
  * @property ignoreEmptyValues Whether to ignore empty values.

@@ -130,7 +130,7 @@ private fun getMappingRule(): NewBodyMappingRule =
             "category" to OldBodyField(listOf("strCategory"), "String"),
             "area" to OldBodyField(listOf("strArea"), "String"),
             "instructions" to OldBodyField(listOf("strInstructions"), "String"),
-            "mealThumb" to OldBodyField(listOf("strMealThumb"), "String"),
+            "mealThumb" to OldBodyField(listOf("strMealThumb"), "String", parents = listOf("meals")),
             "tags" to OldBodyField(listOf("strTags"), "String"),
             "youtube" to OldBodyField(listOf("strYoutube"), "String"),
             "source" to OldBodyField(listOf("strSource"), "String"),
