@@ -25,6 +25,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * This service is responsible for mapping the original response to a new response based on the mapping rules.
  */
 class MapperServiceImpl : MapperService {
+    private val json = Json
+
     override fun mapResponse(
         route: MappedRoute,
         originalResponse: OriginalResponse,
@@ -46,8 +48,16 @@ class MapperServiceImpl : MapperService {
         route: MappedRoute,
         originalResponse: OriginalResponse
     ): String {
-        val rules = Json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
-        val originalJson = Json.parseToJsonElement(originalResponse.body ?: "{}").jsonObject
+        val rules = runCatching {
+            json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
+        }.getOrElse {
+            throw MiddlewareException(
+                code = MiddlewareStatusCode.BAD_REQUEST,
+                message = "Failed to parse mapping rules. Checkout our documentation: " +
+                    "https://github.com/LeonardoBai12-Org/ProjectMiddleware"
+            )
+        }
+        val originalJson = json.parseToJsonElement(originalResponse.body ?: "{}").jsonObject
 
         val newJson = buildJsonObject {
             for ((newKey, newField) in rules.newBodyFields) {
@@ -56,7 +66,6 @@ class MapperServiceImpl : MapperService {
                         code = MiddlewareStatusCode.BAD_REQUEST,
                         "Mapping rule for new key '$newKey' is missing in old body fields."
                     )
-
                 val value = extractValueFromOriginalJson(originalJson, oldField, rules.ignoreEmptyValues)
                 val transformedValue = transformValue(value, newField.type, rules.ignoreEmptyValues)
 
@@ -68,7 +77,18 @@ class MapperServiceImpl : MapperService {
             }
         }
 
-        return Json.encodeToString(newJson)
+        validateEmptyJson(newJson)
+
+        return json.encodeToString(newJson)
+    }
+
+    private fun validateEmptyJson(newJson: JsonObject) {
+        if (newJson.isEmpty()) {
+            throw MiddlewareException(
+                MiddlewareStatusCode.NOT_FOUND,
+                "All extracted values are empty."
+            )
+        }
     }
 
     private fun extractValueFromOriginalJson(
@@ -81,11 +101,19 @@ class MapperServiceImpl : MapperService {
 
         var currentElement: JsonElement? = jsonObject
 
-        for (key in parentKeys) {
-            currentElement = currentElement?.jsonObject?.get(key)?.jsonArray?.first()
+        if (parentKeys.isNotEmpty()) {
+            for (key in parentKeys) {
+                currentElement = currentElement?.jsonObject?.get(key)?.jsonArray?.first()
+                    ?: throw MiddlewareException(
+                        code = MiddlewareStatusCode.BAD_REQUEST,
+                        "Parent key '$key' not found in original JSON."
+                    )
+            }
+        } else {
+            currentElement = currentElement?.jsonObject?.get(keys[0])?.jsonArray?.first()
                 ?: throw MiddlewareException(
                     code = MiddlewareStatusCode.BAD_REQUEST,
-                    "Parent key '$key' not found in original JSON."
+                    "Key '${keys[0]}' not found in original JSON root."
                 )
         }
 
@@ -101,12 +129,6 @@ class MapperServiceImpl : MapperService {
                     }
                 }
 
-                if (values.isEmpty()) {
-                    throw MiddlewareException(
-                        MiddlewareStatusCode.NOT_FOUND,
-                        "All extracted values are empty for keys: $keys."
-                    )
-                }
                 return JsonArray(values)
             }
 

@@ -15,6 +15,9 @@ import kotlinx.serialization.json.Json
 
 /**
  * Main function to test the mapper service.
+ *
+ * It creates a mapping rule and a mapper service instance based on the API response provided by
+ * [TheMealDB](https://www.themealdb.com/api.php).
  */
 internal fun main() {
     val mappingRule = Json.encodeToString(
@@ -127,7 +130,7 @@ private fun getMappingRule(): NewBodyMappingRule =
             "category" to OldBodyField(listOf("strCategory"), "String"),
             "area" to OldBodyField(listOf("strArea"), "String"),
             "instructions" to OldBodyField(listOf("strInstructions"), "String"),
-            "mealThumb" to OldBodyField(listOf("strMealThumb"), "String"),
+            "mealThumb" to OldBodyField(listOf("strMealThumb"), "String", parents = listOf("meals")),
             "tags" to OldBodyField(listOf("strTags"), "String"),
             "youtube" to OldBodyField(listOf("strYoutube"), "String"),
             "source" to OldBodyField(listOf("strSource"), "String"),

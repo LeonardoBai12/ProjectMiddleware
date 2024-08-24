@@ -3,6 +3,7 @@ package io.lb.impl.ktor.client
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.lb.common.data.model.OriginalApi
@@ -27,6 +28,13 @@ class ClientServiceImplTest {
     @BeforeEach
     fun setUp() {
         val mockEngine = MockEngine { request ->
+            if (request.method == HttpMethod.Head && request.url.host == "10.0.2.2") {
+                return@MockEngine respond(
+                    content = "",
+                    status = HttpStatusCode.OK
+                )
+            }
+
             when (request.url.encodedPath) {
                 "/test-route" -> respond(
                     content = """{"key":"response"}""",
@@ -84,10 +92,22 @@ class ClientServiceImplTest {
     }
 
     @Test
+    fun `When validates not existent api, expect to not find it`() = runTest {
+        val response = service.validateApi(OriginalApi("https://10.0.1.1:2185/"))
+        assertEquals(404, response.statusCode)
+    }
+
+    @Test
+    fun `When validates existent route, expect to not find it`() = runTest {
+        val response = service.validateApi(OriginalApi("https://10.0.2.2:8885/"))
+        assertEquals(200, response.statusCode)
+    }
+
+    @Test
     fun `When URL without HTTPS protocol, expect throws exception`() = runTest {
         val route = OriginalRoute(
             path = "test-route",
-            originalApi = OriginalApi("http://localhost:8282/"),
+            originalApi = OriginalApi("http://10.0.2.2:8282/"),
             method = MiddlewareHttpMethods.Get,
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "Authenticated"),
             headers = mapOf("Content-Type" to "application/json"),
