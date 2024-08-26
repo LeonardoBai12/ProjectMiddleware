@@ -66,6 +66,7 @@ class MapperServiceImpl : MapperService {
                         code = MiddlewareStatusCode.BAD_REQUEST,
                         "Mapping rule for new key '$newKey' is missing in old body fields."
                     )
+
                 val value = extractValueFromOriginalJson(originalJson, oldField, rules.ignoreEmptyValues)
                 val transformedValue = transformValue(value, newField.type, rules.ignoreEmptyValues)
 
@@ -93,14 +94,13 @@ class MapperServiceImpl : MapperService {
     }
 
     private fun extractValueFromOriginalJson(
-        jsonObject: JsonObject,
+        originalResponse: JsonObject,
         oldField: OldBodyField,
         ignoreEmptyValues: Boolean
     ): JsonElement? {
         val keys = oldField.keys
         val parentKeys = oldField.parents
-
-        var currentElement: JsonElement? = jsonObject
+        var currentElement: JsonElement? = originalResponse
 
         if (parentKeys.isNotEmpty()) {
             for (key in parentKeys) {
@@ -121,6 +121,9 @@ class MapperServiceImpl : MapperService {
         return runCatching {
             if (keys.size > 1) {
                 var values = keys.map { key ->
+                    if (key.contains(",")) {
+                        return@map JsonPrimitive(concatenateValues(key, currentElement?.jsonObject))
+                    }
                     currentElement?.jsonObject?.get(key) ?: JsonNull
                 }
 
@@ -130,7 +133,9 @@ class MapperServiceImpl : MapperService {
                     }
                 }
 
-                return JsonArray(values)
+                return JsonArray(
+                    values
+                )
             }
 
             keys.fold(currentElement) { element, key ->
@@ -143,6 +148,21 @@ class MapperServiceImpl : MapperService {
                 }
             }
         }.getOrElse { JsonNull }
+    }
+
+    private fun concatenateValues(
+        key: String,
+        jsonObject: JsonObject?
+    ): String {
+        var finalValue = ""
+
+        key.split(",").map {
+            it.trim()
+        }.forEach {
+            finalValue += " " + jsonObject?.get(it)?.jsonPrimitive?.content?.trim().orEmpty()
+        }
+
+        return finalValue.trim()
     }
 
     private fun transformValue(

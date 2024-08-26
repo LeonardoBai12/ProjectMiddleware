@@ -44,7 +44,7 @@ internal fun createOriginalResponse(): OriginalResponse {
                      "strMealThumb":"https:\/\/www.themealdb.com\/images\/media\/meals\/tnwy8m1628770384.jpg",
                      "strTags":"Warming, Soup, Beans",
                      "strYoutube":"https:\/\/www.youtube.com\/watch?v=mrjnQal3S1A",
-                     $oldIngredients
+                     $OLD_INGREDIENTS
                      "strSource":"https:\/\/www.visit-croatia.co.uk\/croatian-cuisine\/croatian-recipes\/",
                      "strImageSource":null,
                      "strCreativeCommonsConfirmed":null,
@@ -52,11 +52,11 @@ internal fun createOriginalResponse(): OriginalResponse {
                   }
                ]
             }
-            """.trimIndent()
+        """.trimIndent()
     )
 }
 
-internal val oldIngredients = """
+internal const val OLD_INGREDIENTS = """
         "strIngredient1":"Cannellini Beans",
         "strIngredient2":"Vegetable Oil",
         "strIngredient3":"Tomatoes",
@@ -151,11 +151,10 @@ internal fun expectedMappedResponseWithEmptyValues() =
             ""
           ]
         }
-            """.trimIndent()
+        """.trimIndent()
     ).toString()
 
-
-internal val newFields = """        
+internal const val NEW_FIELDS = """        
         "newBodyFields":{
           "idMeal":{
             "key":"id",
@@ -180,13 +179,13 @@ internal val newFields = """
         },
         """
 
-internal val parents = """
+internal const val PARENTS = """
         "parents":[
           "meals"
         ]
     """
 
-internal val measures = """                
+internal const val MEASURES = """                
         "strMeasure1",
         "strMeasure2",
         "strMeasure3",
@@ -209,7 +208,7 @@ internal val measures = """
         "strMeasure20"
     """
 
-internal val ingredients = """
+internal const val INGREDIENTS = """
          "strIngredient1",
          "strIngredient2",
          "strIngredient3",
@@ -239,21 +238,21 @@ internal val oldFields = """
               "idMeal"
             ],
             "type":"Int",
-            $parents
+            $PARENTS
           },
           "meal":{
             "keys":[
               "strMeal"
             ],
             "type":"String",
-            $parents
+            $PARENTS
           },
           "mealThumb":{
             "keys":[
               "strMealThumb"
             ],
             "type":"String",
-            $parents
+            $PARENTS
           },
           "tags":{
             "keys":[
@@ -281,7 +280,7 @@ internal val oldFields = """
           },
           "ingredients":{
             "keys":[
-              $ingredients
+              $INGREDIENTS
             ],
             "type":"String",
             "parents":[
@@ -290,10 +289,10 @@ internal val oldFields = """
           },
           "measures":{
             "keys":[
-              $measures
+              $MEASURES
             ],
             "type":"String",
-            $parents
+            $PARENTS
           }
         }"""
 
@@ -302,7 +301,7 @@ internal fun getMappingRule(ignoreEmptyValues: Boolean = true) =
         """
         {
           "ignoreEmptyValues":$ignoreEmptyValues,
-          $newFields
+          $NEW_FIELDS
           $oldFields
         }
         """.trimIndent()

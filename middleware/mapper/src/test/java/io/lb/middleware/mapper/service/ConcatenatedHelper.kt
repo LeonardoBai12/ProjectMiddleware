@@ -5,7 +5,7 @@ internal fun getConcatenatedMappingRule() =
         """
         {
           "ignoreEmptyValues":true,
-          $concatenatedNewFields
+          $CONCATENATED_NEW_FIELDS
           $concatenatedOldFields
         }
         """.trimIndent()
@@ -41,21 +41,21 @@ internal val concatenatedOldFields = """
               "idMeal"
             ],
             "type":"Int",
-            $parents
+            $PARENTS
           },
           "meal":{
             "keys":[
               "strMeal"
             ],
             "type":"String",
-            $parents
+            $PARENTS
           },
           "mealThumb":{
             "keys":[
               "strMealThumb"
             ],
             "type":"String",
-            $parents
+            $PARENTS
           },
           "tags":{
             "keys":[
@@ -92,7 +92,7 @@ internal val concatenatedOldFields = """
           }
         }"""
 
-private const val concatenatedNewFields = """        
+private const val CONCATENATED_NEW_FIELDS = """        
         "newBodyFields":{
           "idMeal":{
             "key":"id",
@@ -119,6 +119,7 @@ internal fun expectedMeasuredResponse() =
         {
           "id":53058,
           "name":"Croatian Bean Stew",
+          "thumbnail":"https://www.themealdb.com/images/media/meals/tnwy8m1628770384.jpg",
           "ingredients":[
             "2 cans Cannellini Beans",
             "3 tbs Vegetable Oil",
