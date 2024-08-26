@@ -69,9 +69,10 @@ class MapperServiceImpl : MapperService {
                 val value = extractValueFromOriginalJson(originalJson, oldField, rules.ignoreEmptyValues)
                 val transformedValue = transformValue(value, newField.type, rules.ignoreEmptyValues)
 
-                if (transformedValue is JsonPrimitive && transformedValue.jsonPrimitive.content != "null") {
-                    put(newField.key, transformedValue)
-                } else if (transformedValue is JsonArray) {
+                if (
+                    transformedValue !is JsonNull &&
+                    (transformedValue is JsonPrimitive || transformedValue is JsonArray)
+                ) {
                     put(newField.key, transformedValue)
                 }
             }
@@ -150,11 +151,17 @@ class MapperServiceImpl : MapperService {
         ignoreEmptyValues: Boolean
     ): JsonElement {
         if (value is JsonArray) {
-            return JsonArray(value.map { transformValue(it, type, ignoreEmptyValues) })
+            return JsonArray(
+                value.filter {
+                    it !is JsonNull
+                }.map {
+                    transformValue(it, type, ignoreEmptyValues)
+                }
+            )
         }
 
         return when (type) {
-            "String" -> JsonPrimitive(value?.jsonPrimitive?.content.orEmpty())
+            "String" -> JsonPrimitive(value?.jsonPrimitive?.content?.trim().orEmpty())
             "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull())
             "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull())
             "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean())
