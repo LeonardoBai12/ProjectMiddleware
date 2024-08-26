@@ -14,15 +14,15 @@ import io.lb.common.shared.error.MiddlewareException
 import io.lb.impl.mongo.database.model.MappedApiEntity
 import io.lb.impl.mongo.database.model.MappedRouteEntity
 import io.lb.impl.mongo.database.service.DatabaseServiceImpl
-import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.bson.conversions.Bson
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -32,16 +32,20 @@ import org.junit.jupiter.api.assertThrows
 import java.util.UUID
 
 class DatabaseServiceImplTest {
-    @RelaxedMockK
     private lateinit var db: MongoDatabase
     private lateinit var collection: MongoCollection<MappedApiEntity>
     private lateinit var service: DatabaseService
 
     @BeforeEach
     fun setUp() {
-        MockKAnnotations.init(this)
+        db = mockk(relaxed = true)
         collection = db.getCollection("MappedApi")
         service = DatabaseServiceImpl(db)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
@@ -279,7 +283,7 @@ class DatabaseServiceImplTest {
         val apiUuid = UUID.randomUUID()
         val updatedApi = MappedApi(apiUuid, OriginalApi("https://test.com"), "Updated API")
 
-        mockFindApi(emptyList<MappedApiEntity>())
+        mockFindApi(emptyList())
 
         val exception = assertThrows<MiddlewareException> {
             service.updateMappedApi(updatedApi)
@@ -342,7 +346,10 @@ class DatabaseServiceImplTest {
             originalApi = OriginalApi("https://teste.com")
         ),
         method = MiddlewareHttpMethods.Get,
-        body = null,
+        preConfiguredQueries = mapOf("query" to "value"),
+        preConfiguredHeaders = mapOf("header" to "value"),
+        preConfiguredBody = "",
+        rulesAsString = null,
     )
 
     private fun mappedRoute() = mappedRouteEntity()

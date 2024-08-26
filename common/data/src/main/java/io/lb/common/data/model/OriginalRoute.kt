@@ -19,5 +19,5 @@ data class OriginalRoute(
     val method: MiddlewareHttpMethods,
     val authHeader: MiddlewareAuthHeader? = null,
     val headers: Map<String, String> = mapOf(),
-    val body: String?
+    val body: String? = null
 )

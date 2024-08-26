@@ -17,8 +17,18 @@ import io.lb.impl.ktor.client.util.request
 internal class ClientServiceImpl(
     private val client: HttpClient
 ) : ClientService {
-    override suspend fun request(route: OriginalRoute, queries: Map<String, String>): OriginalResponse {
-        return client.request(route, queries)
+    override suspend fun request(
+        route: OriginalRoute,
+        preConfiguredQueries: Map<String, String>,
+        preConfiguredHeaders: Map<String, String>,
+        preConfiguredBody: String?
+    ): OriginalResponse {
+        return client.request(
+            originalRoute = route,
+            preConfiguredQueries = preConfiguredQueries,
+            preConfiguredHeaders = preConfiguredHeaders,
+            preConfiguredBody = preConfiguredBody
+        )
     }
 
     override suspend fun validateApi(api: OriginalApi): ApiValidationResponse {

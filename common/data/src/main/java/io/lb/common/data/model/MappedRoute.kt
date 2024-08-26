@@ -11,6 +11,9 @@ import java.util.UUID
  * @property mappedApi The mapped API.
  * @property originalRoute The original route.
  * @property method The HTTP method of the mapped route.
+ * @property preConfiguredQueries The pre-configured queries of the mapped route.
+ * @property preConfiguredHeaders The pre-configured headers of the mapped route.
+ * @property preConfiguredBody The pre-configured body of the mapped route.
  * @property rulesAsString The mapping rules as a string.
  * <br>Json example of the rules:
  * <br>[RulesExample.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/RulesExample.json)
@@ -22,5 +25,8 @@ data class MappedRoute(
     val mappedApi: MappedApi,
     val originalRoute: OriginalRoute,
     val method: MiddlewareHttpMethods,
+    val preConfiguredQueries: Map<String, String> = mapOf(),
+    val preConfiguredHeaders: Map<String, String> = originalRoute.headers,
+    val preConfiguredBody: String? = originalRoute.body,
     val rulesAsString: String?
 )

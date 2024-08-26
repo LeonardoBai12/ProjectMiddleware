@@ -13,10 +13,18 @@ interface ClientService {
      * Makes a request to the middleware server.
      *
      * @param route The route to request.
-     * @param queries The queries to include in the request.
+     * @param preConfiguredQueries The pre-configured queries to include in the request.
+     * @param preConfiguredHeaders The pre-configured headers to include in the request.
+     * @param preConfiguredBody The pre-configured body to include in the request.
+     *
      * @return The response from the middleware server.
      */
-    suspend fun request(route: OriginalRoute, queries: Map<String, String>): OriginalResponse
+    suspend fun request(
+        route: OriginalRoute,
+        preConfiguredQueries: Map<String, String>,
+        preConfiguredHeaders: Map<String, String>,
+        preConfiguredBody: String?
+    ): OriginalResponse
 
     /**
      * Validates an API by making a request to the base URL.

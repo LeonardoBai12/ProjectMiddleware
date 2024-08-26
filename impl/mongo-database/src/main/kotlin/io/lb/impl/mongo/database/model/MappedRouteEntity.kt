@@ -13,14 +13,20 @@ import java.util.UUID
  * @property path The path of the route.
  * @property originalRoute The original route.
  * @property method The HTTP method.
- * @property body The body.
+ * @property preConfiguredQueries Pre-configured queries.
+ * @property preConfiguredHeaders Pre-configured headers.
+ * @property preConfiguredBody Pre-configured body.
+ * @property rulesAsString The mapping rules as a string.
  */
 data class MappedRouteEntity(
     val uuid: UUID,
     val path: String,
     val originalRoute: OriginalRoute,
     val method: MiddlewareHttpMethods,
-    val body: String?
+    val preConfiguredQueries: Map<String, String>,
+    val preConfiguredHeaders: Map<String, String>,
+    val preConfiguredBody: String?,
+    val rulesAsString: String?,
 ) {
     /**
      * Converts the entity to a mapped route.
@@ -35,7 +41,10 @@ data class MappedRouteEntity(
             mappedApi = mappedApi,
             originalRoute = this.originalRoute,
             method = this.method,
-            rulesAsString = this.body,
+            preConfiguredQueries = this.preConfiguredQueries,
+            preConfiguredHeaders = this.preConfiguredHeaders,
+            preConfiguredBody = this.preConfiguredBody,
+            rulesAsString = this.rulesAsString,
         )
     }
 }
@@ -51,6 +60,9 @@ internal fun MappedRoute.toEntity(): MappedRouteEntity {
         path = path,
         originalRoute = originalRoute,
         method = method,
-        body = rulesAsString,
+        preConfiguredQueries = this.preConfiguredQueries,
+        preConfiguredHeaders = this.preConfiguredHeaders,
+        preConfiguredBody = this.preConfiguredBody,
+        rulesAsString = rulesAsString,
     )
 }
