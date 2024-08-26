@@ -3,9 +3,11 @@ package io.lb.impl.ktor.client
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.util.toMap
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
@@ -13,6 +15,7 @@ import io.lb.common.data.request.MiddlewareAuthHeaderType
 import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.impl.ktor.client.service.ClientServiceImpl
 import io.mockk.unmockkAll
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -24,10 +27,11 @@ class ClientServiceImplTest {
 
     private lateinit var httpClient: HttpClient
     private lateinit var service: ClientServiceImpl
+    private lateinit var mockEngine: MockEngine
 
     @BeforeEach
     fun setUp() {
-        val mockEngine = MockEngine { request ->
+        mockEngine = MockEngine { request ->
             if (request.method == HttpMethod.Head && request.url.host == "10.0.2.2") {
                 return@MockEngine respond(
                     content = "",
@@ -68,7 +72,7 @@ class ClientServiceImplTest {
             body = """{"key":"request"}"""
         )
 
-        val response = service.request(route, emptyMap())
+        val response = service.request(route, emptyMap(), emptyMap(), null)
 
         assertEquals(200, response.statusCode)
         assertEquals("""{"key":"response"}""", response.body)
@@ -85,7 +89,7 @@ class ClientServiceImplTest {
             body = """{"key":"request"}"""
         )
 
-        val response = service.request(route, emptyMap())
+        val response = service.request(route, emptyMap(), emptyMap(), null)
 
         assertEquals(404, response.statusCode)
         assertEquals("Not Found", response.body)
@@ -115,7 +119,33 @@ class ClientServiceImplTest {
         )
 
         assertThrows<IllegalArgumentException> {
-            service.request(route, emptyMap())
+            service.request(route, emptyMap(), emptyMap(), null)
         }
+    }
+
+    @Test
+    fun `When URL with parameters, body and headers, expect them to be added`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8282/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "Authenticated"),
+            headers = mapOf("OtherRandom" to "OtherHeader"),
+            body = """{"key":"request"}"""
+        )
+
+        val response = service.request(
+            route = route,
+            preConfiguredQueries = mapOf("key" to "value"),
+            preConfiguredHeaders = mapOf("Random" to "Header"),
+            preConfiguredBody = """{"key":"value"}"""
+        )
+        advanceUntilIdle()
+        val request = mockEngine.requestHistory.first()
+
+        assertEquals(mapOf("key" to listOf("value")), request.url.parameters.toMap())
+        assertEquals("Header", request.headers["Random"])
+        assertEquals("""{"key":"value"}""", request.body.toByteArray().decodeToString())
+        assertEquals(200, response.statusCode)
     }
 }

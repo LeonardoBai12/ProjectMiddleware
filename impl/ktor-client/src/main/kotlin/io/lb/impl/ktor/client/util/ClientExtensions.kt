@@ -19,39 +19,45 @@ import io.lb.common.data.model.OriginalRoute
  *
  * @throws IllegalArgumentException If the base URL does not start with "https://".
  *
- * @param route The route to make the request to.
- * @param queries The queries to pass to the API.
+ * @param originalRoute The route to make the request to.
+ * @param preConfiguredQueries The queries to pass to the API.
+ * @param preConfiguredHeaders The headers to pass to the API.
  * @return The response from the API.
  */
 internal suspend fun HttpClient.request(
-    route: OriginalRoute,
-    queries: Map<String, String>
+    originalRoute: OriginalRoute,
+    preConfiguredQueries: Map<String, String>,
+    preConfiguredHeaders: Map<String, String>,
+    preConfiguredBody: String?
 ): OriginalResponse {
     val response = request {
-        method = HttpMethod.parse(route.method.name)
+        method = HttpMethod.parse(originalRoute.method.name)
 
-        require(route.originalApi.baseUrl.startsWith("https://"))
+        require(originalRoute.originalApi.baseUrl.startsWith("https://"))
 
-        url(route.originalApi.baseUrl) {
+        url(originalRoute.originalApi.baseUrl) {
             protocol = URLProtocol.HTTPS
-            path(route.path)
-            queries.forEach {
+            path(originalRoute.path)
+            preConfiguredQueries.forEach {
                 parameters.append(it.key, it.value)
             }
         }
 
-        route.authHeader?.fullToken()?.let {
+        originalRoute.authHeader?.fullToken()?.let {
             headers.append(HttpHeaders.Authorization, it)
         }
 
-        route.headers.forEach {
-            headers.append(it.key, it.value)
-        }
+        preConfiguredHeaders.ifEmpty { originalRoute.headers }
+            .forEach { headers.append(it.key, it.value) }
 
         if (headers.contains(HttpHeaders.ContentType).not()) {
             contentType(ContentType.Application.Json)
         }
-        setBody(route.body)
+        preConfiguredBody?.takeIf { it.isNotBlank() }?.let {
+            setBody(it)
+        } ?: originalRoute.body?.takeIf { it.isNotBlank() }?.let {
+            setBody(it)
+        }
     }
 
     return OriginalResponse(
