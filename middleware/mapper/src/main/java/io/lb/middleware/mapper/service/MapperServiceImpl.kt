@@ -66,12 +66,14 @@ class MapperServiceImpl : MapperService {
                         code = MiddlewareStatusCode.BAD_REQUEST,
                         "Mapping rule for new key '$newKey' is missing in old body fields."
                     )
+
                 val value = extractValueFromOriginalJson(originalJson, oldField, rules.ignoreEmptyValues)
                 val transformedValue = transformValue(value, newField.type, rules.ignoreEmptyValues)
 
-                if (transformedValue is JsonPrimitive && transformedValue.jsonPrimitive.content != "null") {
-                    put(newField.key, transformedValue)
-                } else if (transformedValue is JsonArray) {
+                if (
+                    transformedValue !is JsonNull &&
+                    (transformedValue is JsonPrimitive || transformedValue is JsonArray)
+                ) {
                     put(newField.key, transformedValue)
                 }
             }
@@ -92,14 +94,13 @@ class MapperServiceImpl : MapperService {
     }
 
     private fun extractValueFromOriginalJson(
-        jsonObject: JsonObject,
+        originalResponse: JsonObject,
         oldField: OldBodyField,
         ignoreEmptyValues: Boolean
     ): JsonElement? {
         val keys = oldField.keys
         val parentKeys = oldField.parents
-
-        var currentElement: JsonElement? = jsonObject
+        var currentElement: JsonElement? = originalResponse
 
         if (parentKeys.isNotEmpty()) {
             for (key in parentKeys) {
@@ -120,6 +121,9 @@ class MapperServiceImpl : MapperService {
         return runCatching {
             if (keys.size > 1) {
                 var values = keys.map { key ->
+                    if (key.contains(",")) {
+                        return@map JsonPrimitive(concatenateValues(key, currentElement?.jsonObject))
+                    }
                     currentElement?.jsonObject?.get(key) ?: JsonNull
                 }
 
@@ -129,7 +133,9 @@ class MapperServiceImpl : MapperService {
                     }
                 }
 
-                return JsonArray(values)
+                return JsonArray(
+                    values
+                )
             }
 
             keys.fold(currentElement) { element, key ->
@@ -144,17 +150,38 @@ class MapperServiceImpl : MapperService {
         }.getOrElse { JsonNull }
     }
 
+    private fun concatenateValues(
+        key: String,
+        jsonObject: JsonObject?
+    ): String {
+        var finalValue = ""
+
+        key.split(",").map {
+            it.trim()
+        }.forEach {
+            finalValue += " " + jsonObject?.get(it)?.jsonPrimitive?.content?.trim().orEmpty()
+        }
+
+        return finalValue.trim()
+    }
+
     private fun transformValue(
         value: JsonElement?,
         type: String,
         ignoreEmptyValues: Boolean
     ): JsonElement {
         if (value is JsonArray) {
-            return JsonArray(value.map { transformValue(it, type, ignoreEmptyValues) })
+            return JsonArray(
+                value.filter {
+                    it !is JsonNull
+                }.map {
+                    transformValue(it, type, ignoreEmptyValues)
+                }
+            )
         }
 
         return when (type) {
-            "String" -> JsonPrimitive(value?.jsonPrimitive?.content.orEmpty())
+            "String" -> JsonPrimitive(value?.jsonPrimitive?.content?.trim().orEmpty())
             "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull())
             "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull())
             "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean())
