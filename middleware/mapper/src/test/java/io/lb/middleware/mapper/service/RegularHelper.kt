@@ -14,7 +14,6 @@ internal fun createMappedRoute(
     return MappedRoute(
         path = "getTeryiaki",
         mappedApi = MappedApi(
-            name = "Test API",
             originalApi = OriginalApi("https://www.themealdb.com/api/")
         ),
         method = MiddlewareHttpMethods.Get,

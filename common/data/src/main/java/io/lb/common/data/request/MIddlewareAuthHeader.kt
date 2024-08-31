@@ -17,6 +17,18 @@ data class MiddlewareAuthHeader(
 
         return "${type.name} $token"
     }
+
+    companion object {
+        fun fromMap(map: Map<String, String>?): MiddlewareAuthHeader? {
+            map ?: return null
+            val token = map["Authorization"].orEmpty()
+            val type = MiddlewareAuthHeaderType.entries.find {
+                token.startsWith(it.name, ignoreCase = true)
+            } ?: MiddlewareAuthHeaderType.None
+
+            return MiddlewareAuthHeader(type, token)
+        }
+    }
 }
 
 /**
