@@ -22,6 +22,7 @@ import io.lb.common.data.model.OriginalRoute
  * @param originalRoute The route to make the request to.
  * @param preConfiguredQueries The queries to pass to the API.
  * @param preConfiguredHeaders The headers to pass to the API.
+ * @param preConfiguredBody The body to pass to the API.
  * @return The response from the API.
  */
 internal suspend fun HttpClient.request(

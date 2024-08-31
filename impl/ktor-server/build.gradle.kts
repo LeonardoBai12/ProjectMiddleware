@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.koin.logger.slf4j)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.serialization.gson)
     implementation(libs.ktor.server.content.negotiation)

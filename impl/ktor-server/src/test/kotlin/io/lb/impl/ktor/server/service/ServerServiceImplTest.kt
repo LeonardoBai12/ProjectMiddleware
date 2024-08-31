@@ -8,9 +8,10 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
@@ -22,8 +23,14 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareAuthHeaderType
 import io.lb.common.data.request.MiddlewareHttpMethods
+import io.lb.impl.ktor.server.model.MappedApiParameter
+import io.lb.impl.ktor.server.model.MappedRouteParameter
+import io.lb.impl.ktor.server.model.OriginalApiParameter
+import io.lb.impl.ktor.server.model.OriginalRouteParameter
 import io.lb.impl.ktor.server.util.setupApplication
 import io.mockk.clearAllMocks
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -38,11 +45,43 @@ class ServerServiceImplTest {
     }
 
     @Test
+    fun `When uses Post method on mapping route, expect unsupported media type`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Post) {
+            val response = client.post("v1/mapping") {
+                contentType(ContentType.Application.Json)
+            }
+            assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
+        }
+
+    @Test
+    fun `When uses Post method on mapping route, expect bad request`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Post) {
+            val response = client.post("v1/mapping") {
+                contentType(ContentType.Application.Json)
+                setBody("{}")
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+
+    @Test
+    fun `When uses Post method on mapping route, expect created`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Post) {
+            val mappedRouteParameter = createMappedRoute()
+            val response = client.post("v1/mapping") {
+                contentType(ContentType.Application.Json)
+                setBody(Json.encodeToString(mappedRouteParameter))
+            }
+            assertEquals(HttpStatusCode.Created, response.status)
+        }
+
+    @Test
     fun `When uses Get method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Get) {
         val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -51,9 +90,11 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Delete method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Delete) {
         val response = client.delete("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -70,10 +111,13 @@ class ServerServiceImplTest {
                     testMappedRoute,
                     onRequestMock: (
                         OriginalRoute,
-                        Map<String, String>
+                        Map<String, String>,
+                        Map<String, String>,
+                        String?
                     ) -> OriginalResponse
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
+                serverService.startGenericMappingRoute { "Received" }
             }
             block()
         }
@@ -82,9 +126,11 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Post method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Post) {
         val response = client.post("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -93,9 +139,11 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Put method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Put) {
         val response = client.put("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -104,9 +152,11 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Head method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Head) {
         val response = client.head("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -115,9 +165,11 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Patch method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Patch) {
         val response = client.patch("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            contentType(ContentType.Application.Json)
+            header("header-lb", "example")
             parameter("sortBy", "timestamp")
             parameter("order", "asc")
+            setBody("""{"key":"request"}""")
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -125,7 +177,7 @@ class ServerServiceImplTest {
 
     private fun Application.setupService(
         method: MiddlewareHttpMethods
-    ): Pair<MappedRoute, (OriginalRoute, Map<String, String>) -> OriginalResponse> {
+    ): Pair<MappedRoute, (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse> {
         val route = OriginalRoute(
             path = "test-route",
             method = method,
@@ -142,7 +194,6 @@ class ServerServiceImplTest {
             originalRoute = route,
             mappedApi = MappedApi(
                 UUID.fromString("a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
-                name = "here",
                 originalApi = OriginalApi(baseUrl = "https://10.0.2.2:8885/")
             ),
         )
@@ -152,15 +203,38 @@ class ServerServiceImplTest {
             body = "Test Body"
         )
 
-        val onRequestMock: (OriginalRoute, Map<String, String>) -> OriginalResponse = { _, parameters ->
-            parameters.apply {
-                assertEquals("timestamp", get("sortBy"))
-                assertEquals("asc", get("order"))
+        val onRequestMock: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse =
+            { _, parameters, headers, body ->
+                parameters.apply {
+                    assertEquals("timestamp", get("sortBy"))
+                    assertEquals("asc", get("order"))
+                }
+                headers.apply {
+                    assertEquals("application/json", get("Content-Type"))
+                    assertEquals("example", get("header-lb"))
+                }
+                assertEquals("""{"key":"request"}""", body)
+                testResponse
             }
-            testResponse
-        }
 
         serverService = ServerServiceImpl(this)
         return Pair(testMappedRoute, onRequestMock)
+    }
+
+    private fun createMappedRoute(): MappedRouteParameter {
+        return MappedRouteParameter(
+            path = "getTeryiaki",
+            mappedApi = MappedApiParameter(
+                originalApi = OriginalApiParameter("https://www.themealdb.com/api/")
+            ),
+            method = MiddlewareHttpMethods.Get,
+            originalRoute = OriginalRouteParameter(
+                path = "json/v1/1/lookup.php?i=52772",
+                method = MiddlewareHttpMethods.Get,
+                originalApi = OriginalApiParameter("https://www.themealdb.com/api/"),
+                body = null
+            ),
+            rulesAsString = "RulesAsString"
+        )
     }
 }

@@ -48,7 +48,6 @@ class DatabaseServiceImpl(
         return MappedApi(
             uuid = api.uuid,
             originalApi = api.originalApi,
-            name = api.name,
         )
     }
 
@@ -66,7 +65,6 @@ class DatabaseServiceImpl(
         val mappedApi = MappedApi(
             uuid = UUID.fromString(apiUuid),
             originalApi = api.originalApi,
-            name = api.name
         )
 
         return api.routes.map {
@@ -122,7 +120,6 @@ class DatabaseServiceImpl(
             originalApi = OriginalApi(
                 baseUrl = api.originalApi.baseUrl
             ),
-            name = api.name,
         )
         collection.insertOne(mappedApi)
         return api.uuid.toString()
@@ -142,7 +139,6 @@ class DatabaseServiceImpl(
         val updateParams = Updates.combine(
             Updates.set(MappedApiEntity::uuid.name, apiEntity.uuid),
             Updates.set(MappedApiEntity::originalApi.name, apiEntity.originalApi),
-            Updates.set(MappedApiEntity::name.name, apiEntity.name),
             Updates.set(MappedApiEntity::routes.name, apiEntity.routes),
         )
         collection.updateOne(queryParams, updateParams)
