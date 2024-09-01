@@ -18,6 +18,12 @@ interface ServerService {
     fun startGenericMappingRoute(onReceive: (MappedRoute) -> String)
 
     /**
+     * Starts the preview route.
+     * @param onReceive The handler for the preview route. It receives the mapping rules and returns the preview.
+     */
+    fun startPreviewRoute(onReceive: (String) -> String)
+
+    /**
      * Creates a mapped route.
      *
      * @param mappedRoute The mapped route to create.
