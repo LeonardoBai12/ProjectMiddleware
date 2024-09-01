@@ -6,6 +6,8 @@ plugins {
 
 dependencies {
     implementation(project(":common:shared"))
+    implementation(project(":common:data"))
+    implementation(project(":middleware:domain"))
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
     implementation(libs.ktor.http)

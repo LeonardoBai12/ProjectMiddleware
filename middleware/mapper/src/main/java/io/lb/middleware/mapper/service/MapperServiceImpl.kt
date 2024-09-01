@@ -28,28 +28,28 @@ class MapperServiceImpl : MapperService {
     private val json = Json
 
     override fun mapResponse(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse,
     ): MappedResponse {
         return MappedResponse(
             statusCode = originalResponse.statusCode,
-            body = mapOldResponse(route, originalResponse)
+            body = mapOldResponse(mappingRules, originalResponse)
         )
     }
 
     override fun responseJsonPreview(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): String {
-        return mapOldResponse(route, originalResponse)
+        return mapOldResponse(mappingRules, originalResponse)
     }
 
     private fun mapOldResponse(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): String {
         val rules = runCatching {
-            json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
+            json.decodeFromString<NewBodyMappingRule>(mappingRules)
         }.getOrElse {
             throw MiddlewareException(
                 code = MiddlewareStatusCode.BAD_REQUEST,

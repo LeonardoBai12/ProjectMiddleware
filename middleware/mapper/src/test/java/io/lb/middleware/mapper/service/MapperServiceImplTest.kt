@@ -24,10 +24,8 @@ class MapperServiceImplTest {
 
     @Test
     fun `mapResponse should return a MappedResponse with correct statusCode and mapped body`() {
-        val route = createMappedRoute()
         val originalResponse = createOriginalResponse()
-
-        val mappedResponse: MappedResponse = mapperService.mapResponse(route, originalResponse)
+        val mappedResponse: MappedResponse = mapperService.mapResponse(getMappingRule(), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
         assertEquals(expectedMappedResponse(), mappedResponse.body)
@@ -35,10 +33,8 @@ class MapperServiceImplTest {
 
     @Test
     fun `mapResponse should return a MappedResponse with correct statusCode and mapped body with empty values`() {
-        val route = createMappedRoute(false)
         val originalResponse = createOriginalResponse()
-
-        val mappedResponse: MappedResponse = mapperService.mapResponse(route, originalResponse)
+        val mappedResponse: MappedResponse = mapperService.mapResponse(getMappingRule(false), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
         assertEquals(expectedMappedResponseWithEmptyValues(), mappedResponse.body)
@@ -46,21 +42,18 @@ class MapperServiceImplTest {
 
     @Test
     fun `responseJsonPreview should return a JSON string with the mapped response`() {
-        val route = createMappedRoute()
         val originalResponse = createOriginalResponse()
-
-        val jsonPreview: String = mapperService.responseJsonPreview(route, originalResponse)
+        val jsonPreview: String = mapperService.responseJsonPreview(getMappingRule(), originalResponse)
 
         assertEquals(expectedMappedResponse(), jsonPreview)
     }
 
     @Test
     fun `mapResponse should throw MiddlewareException when mapping rules are invalid`() {
-        val route = createMappedRoute(rulesAsString = "invalid json")
         val originalResponse = createOriginalResponse()
 
         val exception = assertThrows<MiddlewareException> {
-            mapperService.mapResponse(route, originalResponse)
+            mapperService.mapResponse("Invalid json", originalResponse)
         }
 
         assertEquals(
@@ -78,11 +71,10 @@ class MapperServiceImplTest {
                 oldBodyFields = mapOf("idMeal" to OldBodyField(listOf("idMeal"), "Int", parents = listOf("meals")))
             )
         )
-        val route = createMappedRoute(rulesAsString = invalidMappingRule)
         val originalResponse = createOriginalResponse()
 
         val exception = assertThrows<MiddlewareException> {
-            mapperService.mapResponse(route, originalResponse)
+            mapperService.mapResponse(invalidMappingRule, originalResponse)
         }
 
         assertEquals("Mapping rule for new key 'nonExistentField' is missing in old body fields.", exception.message)
@@ -96,7 +88,6 @@ class MapperServiceImplTest {
                 oldBodyFields = mapOf("idMeal" to OldBodyField(listOf("idMeal"), "Int", parents = listOf("parent")))
             )
         )
-        val route = createMappedRoute(rulesAsString = invalidMappingRule)
         val originalResponse = OriginalResponse(
             statusCode = 200,
             body = """
@@ -115,7 +106,7 @@ class MapperServiceImplTest {
         )
 
         val exception = assertThrows<MiddlewareException> {
-            mapperService.mapResponse(route, originalResponse)
+            mapperService.mapResponse(invalidMappingRule, originalResponse)
         }
 
         assertEquals("Parent key 'parent' not found in original JSON.", exception.message)
@@ -129,7 +120,6 @@ class MapperServiceImplTest {
                 oldBodyFields = mapOf("idMeal" to OldBodyField(listOf("idMeal"), "Int", parents = listOf("meals")))
             )
         )
-        val route = createMappedRoute(rulesAsString = mappingRule)
         val emptyValuesOriginalResponse = OriginalResponse(
             statusCode = 200,
             body = """
@@ -145,7 +135,7 @@ class MapperServiceImplTest {
         )
 
         val exception = assertThrows<MiddlewareException> {
-            mapperService.mapResponse(route, emptyValuesOriginalResponse)
+            mapperService.mapResponse(mappingRule, emptyValuesOriginalResponse)
         }
 
         assertEquals("All extracted values are empty.", exception.message)
@@ -159,11 +149,10 @@ class MapperServiceImplTest {
                 oldBodyFields = mapOf("idMeal" to OldBodyField(listOf("idMeal"), "Int"))
             )
         )
-        val route = createMappedRoute(rulesAsString = mappingRule)
         val originalResponse = createOriginalResponse()
 
         val exception = assertThrows<MiddlewareException> {
-            mapperService.mapResponse(route, originalResponse)
+            mapperService.mapResponse(mappingRule, originalResponse)
         }
 
         assertEquals("Key 'idMeal' not found in original JSON root.", exception.message)
@@ -171,11 +160,8 @@ class MapperServiceImplTest {
 
     @Test
     fun `mapResponse shaould return a MappedResponse with correct statusCode and mapped body`() {
-        val route = createMappedRoute(
-            rulesAsString = getConcatenatedMappingRule()
-        )
         val originalResponse = createOriginalResponse()
-        val mappedResponse: MappedResponse = mapperService.mapResponse(route, originalResponse)
+        val mappedResponse: MappedResponse = mapperService.mapResponse(getConcatenatedMappingRule(), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
         assertEquals(expectedMeasuredResponse(), mappedResponse.body)

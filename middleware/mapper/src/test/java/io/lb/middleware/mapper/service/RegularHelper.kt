@@ -1,31 +1,6 @@
 package io.lb.middleware.mapper.service
 
-import io.lb.common.data.model.MappedApi
-import io.lb.common.data.model.MappedRoute
-import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalResponse
-import io.lb.common.data.model.OriginalRoute
-import io.lb.common.data.request.MiddlewareHttpMethods
-
-internal fun createMappedRoute(
-    ignoreEmptyValues: Boolean = true,
-    rulesAsString: String = getMappingRule(ignoreEmptyValues)
-): MappedRoute {
-    return MappedRoute(
-        path = "getTeryiaki",
-        mappedApi = MappedApi(
-            originalApi = OriginalApi("https://www.themealdb.com/api/")
-        ),
-        method = MiddlewareHttpMethods.Get,
-        originalRoute = OriginalRoute(
-            path = "json/v1/1/lookup.php?i=52772",
-            method = MiddlewareHttpMethods.Get,
-            originalApi = OriginalApi("https://www.themealdb.com/api/"),
-            body = null
-        ),
-        rulesAsString = rulesAsString
-    )
-}
 
 internal fun createOriginalResponse(): OriginalResponse {
     return OriginalResponse(

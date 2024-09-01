@@ -16,6 +16,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.lb.common.data.model.MappedApi
+import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalResponse
@@ -27,6 +28,7 @@ import io.lb.impl.ktor.server.model.MappedApiParameter
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.OriginalApiParameter
 import io.lb.impl.ktor.server.model.OriginalRouteParameter
+import io.lb.impl.ktor.server.model.PreviewRequestBody
 import io.lb.impl.ktor.server.util.setupApplication
 import io.mockk.clearAllMocks
 import kotlinx.serialization.encodeToString
@@ -75,12 +77,11 @@ class ServerServiceImplTest {
         }
 
     @Test
-    fun `When uses Get method on mapping rules route, expect OK`() =
+    fun `When uses Get method on preview route, expect OK`() =
         serverServiceTestApplication(MiddlewareHttpMethods.Get) {
-            val mappedRouteParameter = createMappedRoute()
             val response = client.get("v1/preview") {
                 contentType(ContentType.Application.Json)
-                setBody(Json.encodeToString(mappedRouteParameter))
+                setBody(Json.encodeToString(createPreviewRequest()))
             }
             assertEquals(HttpStatusCode.OK, response.status)
         }
@@ -121,15 +122,12 @@ class ServerServiceImplTest {
                 val (
                     testMappedRoute,
                     onRequestMock: (
-                        OriginalRoute,
-                        Map<String, String>,
-                        Map<String, String>,
-                        String?
-                    ) -> OriginalResponse
+                        MappedRoute
+                    ) -> MappedResponse
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
                 serverService.startGenericMappingRoute { "Received" }
-                serverService.startPreviewRoute { "Received" }
+                serverService.startPreviewRoute { _, _ -> "Received" }
             }
             block()
         }
@@ -189,7 +187,7 @@ class ServerServiceImplTest {
 
     private fun Application.setupService(
         method: MiddlewareHttpMethods
-    ): Pair<MappedRoute, (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse> {
+    ): Pair<MappedRoute, (MappedRoute) -> MappedResponse> {
         val route = OriginalRoute(
             path = "test-route",
             method = method,
@@ -210,27 +208,34 @@ class ServerServiceImplTest {
             ),
         )
 
-        val testResponse = OriginalResponse(
+        val testResponse = MappedResponse(
             statusCode = 200,
             body = "Test Body"
         )
 
-        val onRequestMock: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse =
-            { _, parameters, headers, body ->
-                parameters.apply {
+        val onRequestMock: (MappedRoute) -> MappedResponse =
+            {
+                it.originalRoute.queries.apply {
                     assertEquals("timestamp", get("sortBy"))
                     assertEquals("asc", get("order"))
                 }
-                headers.apply {
+                it.originalRoute.headers.apply {
                     assertEquals("application/json", get("Content-Type"))
                     assertEquals("example", get("header-lb"))
                 }
-                assertEquals("""{"key":"request"}""", body)
+                assertEquals("""{"key":"request"}""", it.originalRoute.body)
                 testResponse
             }
 
         serverService = ServerServiceImpl(this)
         return Pair(testMappedRoute, onRequestMock)
+    }
+
+    private fun createPreviewRequest(): PreviewRequestBody {
+        return PreviewRequestBody(
+            originalResponse = "{}",
+            mappingRules = "{}"
+        )
     }
 
     private fun createMappedRoute(): MappedRouteParameter {

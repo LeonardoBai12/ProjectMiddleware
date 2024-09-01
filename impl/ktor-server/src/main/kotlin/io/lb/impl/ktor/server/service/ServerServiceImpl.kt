@@ -16,12 +16,12 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.toMap
+import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
-import io.lb.common.data.model.OriginalResponse
-import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.service.ServerService
 import io.lb.impl.ktor.server.model.MappedRouteParameter
+import io.lb.impl.ktor.server.model.PreviewRequestBody
 
 /**
  * Implementation of the server service.
@@ -31,7 +31,7 @@ import io.lb.impl.ktor.server.model.MappedRouteParameter
 class ServerServiceImpl(
     private val application: Application,
 ) : ServerService {
-    override fun startGenericMappingRoute(onReceive: (MappedRoute) -> String) {
+    override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
         application.routing {
             post("v1/mapping") {
                 val parameter = call.receiveNullable<MappedRouteParameter>() ?: run {
@@ -44,19 +44,24 @@ class ServerServiceImpl(
         }
     }
 
-    override fun startPreviewRoute(onReceive: (String) -> String) {
+    override fun startPreviewRoute(onReceive: (String, String) -> String) {
         application.routing {
             get("v1/preview") {
-                val parameter = call.receiveText()
-                val mappingRules = onReceive(parameter)
-                call.respond(HttpStatusCode.OK, mappingRules)
+                val parameter = call.receiveNullable<PreviewRequestBody>()
+                val originalResponse = parameter?.originalResponse ?: run {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@get
+                }
+                val mappingRules = parameter.mappingRules
+                val mappedResponse = onReceive(originalResponse, mappingRules)
+                call.respond(HttpStatusCode.OK, mappedResponse)
             }
         }
     }
 
     override fun createMappedRoute(
         mappedRoute: MappedRoute,
-        onRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse
+        onRequest: suspend (MappedRoute) -> MappedResponse
     ) {
         application.routing {
             when (mappedRoute.originalRoute.method) {
@@ -96,7 +101,7 @@ class ServerServiceImpl(
 
     private suspend fun PipelineContext<Unit, ApplicationCall>.onServerRequest(
         mappedRoute: MappedRoute,
-        onRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse,
+        onRequest: suspend (MappedRoute) -> MappedResponse,
     ) {
         val queries = call.request.queryParameters.toMap().mapValues { query ->
             query.value.first()
@@ -105,8 +110,12 @@ class ServerServiceImpl(
             header.value.first()
         }
         val body = call.receiveText()
-        val originalRoute = mappedRoute.originalRoute.copy()
-        val response = onRequest(originalRoute, queries, headers, body)
+        mappedRoute.originalRoute = mappedRoute.originalRoute.copy(
+            queries = queries,
+            headers = headers,
+            body = body
+        )
+        val response = onRequest(mappedRoute)
 
         call.respond(
             HttpStatusCode.fromValue(response.statusCode),
@@ -116,7 +125,7 @@ class ServerServiceImpl(
 
     override fun createMappedRoutes(
         mappedRoutes: List<MappedRoute>,
-        onEachRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse
+        onEachRequest: suspend (MappedRoute) -> MappedResponse
     ) {
         mappedRoutes.forEach {
             createMappedRoute(it, onEachRequest)
