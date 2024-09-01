@@ -75,6 +75,17 @@ class ServerServiceImplTest {
         }
 
     @Test
+    fun `When uses Get method on mapping rules route, expect OK`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Get) {
+            val mappedRouteParameter = createMappedRoute()
+            val response = client.get("v1/preview") {
+                contentType(ContentType.Application.Json)
+                setBody(Json.encodeToString(mappedRouteParameter))
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+        }
+
+    @Test
     fun `When uses Get method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Get) {
         val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
             contentType(ContentType.Application.Json)
@@ -118,6 +129,7 @@ class ServerServiceImplTest {
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
                 serverService.startGenericMappingRoute { "Received" }
+                serverService.startPreviewRoute { "Received" }
             }
             block()
         }

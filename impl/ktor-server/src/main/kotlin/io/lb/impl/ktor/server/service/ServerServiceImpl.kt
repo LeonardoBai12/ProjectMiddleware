@@ -44,6 +44,16 @@ class ServerServiceImpl(
         }
     }
 
+    override fun startPreviewRoute(onReceive: (String) -> String) {
+        application.routing {
+            get("v1/preview") {
+                val parameter = call.receiveText()
+                val mappingRules = onReceive(parameter)
+                call.respond(HttpStatusCode.OK, mappingRules)
+            }
+        }
+    }
+
     override fun createMappedRoute(
         mappedRoute: MappedRoute,
         onRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse
