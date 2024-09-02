@@ -39,8 +39,14 @@ internal suspend fun HttpClient.request(
         url(originalRoute.originalApi.baseUrl) {
             protocol = URLProtocol.HTTPS
             path(originalRoute.path)
-            preConfiguredQueries.forEach {
-                parameters.append(it.key, it.value)
+            if (preConfiguredQueries.isEmpty()) {
+                originalRoute.queries.forEach {
+                    parameters.append(it.key, it.value)
+                }
+            } else {
+                preConfiguredQueries.forEach {
+                    parameters.append(it.key, it.value)
+                }
             }
         }
 

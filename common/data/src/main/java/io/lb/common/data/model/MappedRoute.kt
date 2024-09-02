@@ -23,7 +23,7 @@ data class MappedRoute(
     val uuid: UUID = UUID.randomUUID(),
     val path: String,
     val mappedApi: MappedApi,
-    val originalRoute: OriginalRoute,
+    var originalRoute: OriginalRoute,
     val method: MiddlewareHttpMethods,
     val preConfiguredQueries: Map<String, String> = mapOf(),
     val preConfiguredHeaders: Map<String, String> = originalRoute.headers,

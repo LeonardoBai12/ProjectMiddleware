@@ -1,7 +1,6 @@
 package io.lb.common.data.service
 
 import io.lb.common.data.model.MappedResponse
-import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.shared.error.MiddlewareException
 import kotlin.jvm.Throws
@@ -14,7 +13,7 @@ interface MapperService {
     /**
      * Maps the original response to a mapped response.
      *
-     * @param route The route.
+     * @param mappingRules The mapping rules.
      * @param originalResponse The original response.
      *
      * @throws MiddlewareException If an error occurs during the mapping.
@@ -23,14 +22,14 @@ interface MapperService {
      */
     @Throws(MiddlewareException::class)
     fun mapResponse(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): MappedResponse
 
     /**
      * Generates a preview of the JSON mapped response.
      *
-     * @param route The mapped route.
+     * @param mappingRules The mapping rules.
      * @param originalResponse The original response.
      *
      * @throws MiddlewareException If an error occurs during the mapping.
@@ -39,7 +38,7 @@ interface MapperService {
      */
     @Throws(MiddlewareException::class)
     fun responseJsonPreview(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): String
 }

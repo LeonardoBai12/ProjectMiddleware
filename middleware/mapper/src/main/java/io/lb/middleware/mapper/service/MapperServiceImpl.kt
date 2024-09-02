@@ -1,7 +1,6 @@
 package io.lb.middleware.mapper.service
 
 import io.lb.common.data.model.MappedResponse
-import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.util.MiddlewareStatusCode
@@ -28,28 +27,28 @@ class MapperServiceImpl : MapperService {
     private val json = Json
 
     override fun mapResponse(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse,
     ): MappedResponse {
         return MappedResponse(
             statusCode = originalResponse.statusCode,
-            body = mapOldResponse(route, originalResponse)
+            body = mapOldResponse(mappingRules, originalResponse)
         )
     }
 
     override fun responseJsonPreview(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): String {
-        return mapOldResponse(route, originalResponse)
+        return mapOldResponse(mappingRules, originalResponse)
     }
 
     private fun mapOldResponse(
-        route: MappedRoute,
+        mappingRules: String,
         originalResponse: OriginalResponse
     ): String {
         val rules = runCatching {
-            json.decodeFromString<NewBodyMappingRule>(route.rulesAsString.orEmpty())
+            json.decodeFromString<NewBodyMappingRule>(mappingRules)
         }.getOrElse {
             throw MiddlewareException(
                 code = MiddlewareStatusCode.BAD_REQUEST,

@@ -1,8 +1,7 @@
 package io.lb.common.data.service
 
+import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
-import io.lb.common.data.model.OriginalResponse
-import io.lb.common.data.model.OriginalRoute
 import io.lb.common.shared.error.MiddlewareException
 
 /**
@@ -15,13 +14,13 @@ interface ServerService {
      * @param onReceive The handler for the configuration route. It receives the mapped route and returns
      * the URL for the mapped route.
      */
-    fun startGenericMappingRoute(onReceive: (MappedRoute) -> String)
+    fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String)
 
     /**
      * Starts the preview route.
      * @param onReceive The handler for the preview route. It receives the mapping rules and returns the preview.
      */
-    fun startPreviewRoute(onReceive: (String) -> String)
+    fun startPreviewRoute(onReceive: (String, String) -> String)
 
     /**
      * Creates a mapped route.
@@ -33,7 +32,7 @@ interface ServerService {
     @Throws(MiddlewareException::class)
     fun createMappedRoute(
         mappedRoute: MappedRoute,
-        onRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse
+        onRequest: suspend (MappedRoute) -> MappedResponse
     )
 
     /**
@@ -46,6 +45,6 @@ interface ServerService {
     @Throws(MiddlewareException::class)
     fun createMappedRoutes(
         mappedRoutes: List<MappedRoute>,
-        onEachRequest: (OriginalRoute, Map<String, String>, Map<String, String>, String?) -> OriginalResponse
+        onEachRequest: suspend (MappedRoute) -> MappedResponse
     )
 }
