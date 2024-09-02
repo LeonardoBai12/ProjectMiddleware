@@ -19,7 +19,6 @@ import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalApi
-import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareAuthHeaderType

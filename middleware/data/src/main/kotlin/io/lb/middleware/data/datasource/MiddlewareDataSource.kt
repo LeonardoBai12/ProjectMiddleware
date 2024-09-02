@@ -6,17 +6,32 @@ import io.lb.common.data.service.ClientService
 import io.lb.common.data.service.DatabaseService
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.service.ServerService
+import io.lb.common.shared.error.MiddlewareException
 import kotlinx.serialization.json.Json
+import org.jetbrains.annotations.VisibleForTesting
 
+/**
+ * MiddlewareDataSource is responsible for configuring the middleware.
+ *
+ * @property clientService Service to make requests to the original server.
+ * @property databaseService Service to interact with the database.
+ * @property serverService Service to configure the server.
+ * @property mapperService Service to map the responses.
+ */
 class MiddlewareDataSource(
     private val clientService: ClientService,
     private val databaseService: DatabaseService,
     private val serverService: ServerService,
     private val mapperService: MapperService
 ) {
+    /**
+     * Configures the generic routes.
+     *
+     * @throws MiddlewareException If an error occurs while configuring the routes.
+     */
+    @Throws(MiddlewareException::class)
     fun configGenericRoutes() {
         serverService.startGenericMappingRoute {
-            databaseService.createMappedRoute(it)
             createMappedRoute(it)
             "/v1/${it.uuid}/${it.path}"
         }
@@ -28,20 +43,37 @@ class MiddlewareDataSource(
         }
     }
 
-    suspend fun configStoredMappedRoutes() {
+    /**
+     * Configures the stored mapped routes.
+     *
+     * @return The number of mapped routes created.
+     * @throws MiddlewareException If an error occurs while configuring the routes.
+     */
+    @Throws(MiddlewareException::class)
+    suspend fun configStoredMappedRoutes(): Int {
         val localRoutes = databaseService.queryAllMappedRoutes()
         serverService.createMappedRoutes(localRoutes) { mappedRoute ->
             getMappedResponse(mappedRoute)
         }
+        return localRoutes.size
     }
 
-    private suspend fun createMappedRoute(mappedRoute: MappedRoute) {
+    @Throws(MiddlewareException::class)
+    @VisibleForTesting
+    suspend fun createMappedRoute(mappedRoute: MappedRoute) {
+        databaseService.createMappedRoute(mappedRoute)
+        configureMappedRoute(mappedRoute)
+    }
+
+    @Throws(MiddlewareException::class)
+    private suspend fun configureMappedRoute(mappedRoute: MappedRoute) {
         serverService.createMappedRoute(mappedRoute) {
             getMappedResponse(mappedRoute)
         }
     }
 
-    private suspend fun getMappedResponse(mappedRoute: MappedRoute): MappedResponse {
+    @VisibleForTesting
+    suspend fun getMappedResponse(mappedRoute: MappedRoute): MappedResponse {
         val originalResponse = clientService.request(
             route = mappedRoute.originalRoute,
             preConfiguredQueries = mappedRoute.preConfiguredQueries,

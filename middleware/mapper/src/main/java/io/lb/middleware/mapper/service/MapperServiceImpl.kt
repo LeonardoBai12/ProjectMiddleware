@@ -1,7 +1,6 @@
 package io.lb.middleware.mapper.service
 
 import io.lb.common.data.model.MappedResponse
-import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.util.MiddlewareStatusCode
