@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
+import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
@@ -27,9 +28,11 @@ import io.lb.impl.ktor.server.model.PreviewRequestBody
  * Implementation of the server service.
  *
  * @property application The application on which the server is running.
+ * @property engine The engine of the application.
  */
 class ServerServiceImpl(
     private val application: Application,
+    private val engine: NettyApplicationEngine
 ) : ServerService {
     override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
         application.routing {
@@ -130,5 +133,9 @@ class ServerServiceImpl(
         mappedRoutes.forEach {
             createMappedRoute(it, onEachRequest)
         }
+    }
+
+    override fun stopServer() {
+        engine.stop(gracePeriodMillis = 3000, timeoutMillis = 5000)
     }
 }

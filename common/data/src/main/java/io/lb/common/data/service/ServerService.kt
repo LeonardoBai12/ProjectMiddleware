@@ -47,4 +47,9 @@ interface ServerService {
         mappedRoutes: List<MappedRoute>,
         onEachRequest: suspend (MappedRoute) -> MappedResponse
     )
+
+    /**
+     * Stops the server.
+     */
+    fun stopServer()
 }

@@ -33,4 +33,8 @@ class MiddlewareRepositoryImpl(
             emit(Resource.Error(e.message ?: "Internal error"))
         }
     }
+
+    override fun stopMiddleware() {
+        dataSource.stopMiddleware()
+    }
 }

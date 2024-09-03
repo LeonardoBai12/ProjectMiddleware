@@ -86,4 +86,11 @@ class MiddlewareDataSource(
         )
         return mappedResponse
     }
+
+    /**
+     * Stops the middleware.
+     */
+    fun stopMiddleware() {
+        serverService.stopServer()
+    }
 }

@@ -30,6 +30,7 @@ import io.lb.impl.ktor.server.model.OriginalRouteParameter
 import io.lb.impl.ktor.server.model.PreviewRequestBody
 import io.lb.impl.ktor.server.util.setupApplication
 import io.mockk.clearAllMocks
+import io.mockk.mockk
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterEach
@@ -226,7 +227,7 @@ class ServerServiceImplTest {
                 testResponse
             }
 
-        serverService = ServerServiceImpl(this)
+        serverService = ServerServiceImpl(this, mockk(relaxed = true))
         return Pair(testMappedRoute, onRequestMock)
     }
 

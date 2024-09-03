@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>IgnoredReturnValue:ConfigureRoutesUseCaseTest.kt$ConfigureRoutesUseCaseTest$configureStoredMappedRoutes()</ID>
+    <ID>IgnoredReturnValue:MiddlewareControllerTest.kt$MiddlewareControllerTest$configureRoutesUseCase()</ID>
+    <ID>IgnoredReturnValue:MiddlewareControllerTest.kt$MiddlewareControllerTest$startMiddlewareUseCase()</ID>
+    <ID>IgnoredReturnValue:StartMiddlewareUseCaseTest.kt$StartMiddlewareUseCaseTest$startMiddleware()</ID>
+    <ID>VarCouldBeVal:ConfigureRoutesUseCaseTest.kt$ConfigureRoutesUseCaseTest$@MockK private lateinit var repository: MiddlewareRepository</ID>
+    <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var configureRoutesUseCase: ConfigureRoutesUseCase</ID>
+    <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var startMiddlewareUseCase: StartMiddlewareUseCase</ID>
+    <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var stopMiddlewareUseCase: StopMiddlewareUseCase</ID>
+    <ID>VarCouldBeVal:StartMiddlewareUseCaseTest.kt$StartMiddlewareUseCaseTest$@MockK private lateinit var middlewareRepository: MiddlewareRepository</ID>
+    <ID>VarCouldBeVal:StopMiddlewareUseCaseTest.kt$StopMiddlewareUseCaseTest$@MockK private lateinit var repository: MiddlewareRepository</ID>
+  </CurrentIssues>
+</SmellBaseline>

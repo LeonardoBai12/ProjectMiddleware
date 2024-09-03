@@ -16,4 +16,9 @@ interface MiddlewareRepository {
      * Configures the stored mapped routes.
      */
     fun configureStoredMappedRoutes(): Flow<Resource<String>>
+
+    /**
+     * Stops the middleware.
+     */
+    fun stopMiddleware()
 }

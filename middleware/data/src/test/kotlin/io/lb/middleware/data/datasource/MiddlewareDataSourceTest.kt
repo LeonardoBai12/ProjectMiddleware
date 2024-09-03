@@ -138,4 +138,13 @@ class MiddlewareDataSourceTest {
         coVerify { clientService.request(originalRoute, any(), any(), any()) }
         coVerify { mapperService.mapResponse(any(), originalResponse) }
     }
+
+    @Test
+    fun `When stopMiddleware is called, expect stopMiddleware`() {
+        every { serverService.stopServer() } just Runs
+
+        dataSource.stopMiddleware()
+
+        verify { serverService.stopServer() }
+    }
 }

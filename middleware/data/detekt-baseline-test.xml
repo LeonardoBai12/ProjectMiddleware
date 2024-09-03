@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>VarCouldBeVal:MiddlewareDataSourceTest.kt$MiddlewareDataSourceTest$@MockK private lateinit var clientService: ClientService</ID>
+    <ID>VarCouldBeVal:MiddlewareDataSourceTest.kt$MiddlewareDataSourceTest$@MockK private lateinit var databaseService: DatabaseService</ID>
+    <ID>VarCouldBeVal:MiddlewareDataSourceTest.kt$MiddlewareDataSourceTest$@MockK private lateinit var mapperService: MapperService</ID>
+    <ID>VarCouldBeVal:MiddlewareDataSourceTest.kt$MiddlewareDataSourceTest$@MockK private lateinit var serverService: ServerService</ID>
+  </CurrentIssues>
+</SmellBaseline>

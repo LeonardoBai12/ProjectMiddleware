@@ -3,8 +3,11 @@ package io.lb.middleware.data.repository
 import io.lb.common.shared.error.MiddlewareException
 import io.lb.common.shared.flow.Resource
 import io.lb.middleware.data.datasource.MiddlewareDataSource
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.single
@@ -59,5 +62,14 @@ class MiddlewareRepositoryimplTest {
         val result = repository.configureStoredMappedRoutes().single()
 
         assert(result is Resource.Error)
+    }
+
+    @Test
+    fun `When stopMiddleware is called, expect to call stopMiddleware`() = runTest {
+        every { dataSource.stopMiddleware() } just Runs
+
+        repository.stopMiddleware()
+
+        verify { dataSource.stopMiddleware() }
     }
 }
