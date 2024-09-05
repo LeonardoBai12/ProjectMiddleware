@@ -7,7 +7,9 @@ plugins {
 dependencies {
     implementation(project(":common:shared"))
     implementation(project(":middleware:domain"))
+    implementation(project(":impl:ktor-server"))
 
-    implementation(libs.koin.ktor)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
     implementation(libs.koin.logger.slf4j)
 }
