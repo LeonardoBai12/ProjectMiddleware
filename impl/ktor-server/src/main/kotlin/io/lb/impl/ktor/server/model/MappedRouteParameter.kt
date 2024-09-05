@@ -17,7 +17,7 @@ import kotlinx.serialization.Serializable
  * @property rulesAsString The mapping rules as a string.
  */
 @Serializable
-data class MappedRouteParameter(
+internal data class MappedRouteParameter(
     val path: String,
     val mappedApi: MappedApiParameter,
     val originalRoute: OriginalRouteParameter,

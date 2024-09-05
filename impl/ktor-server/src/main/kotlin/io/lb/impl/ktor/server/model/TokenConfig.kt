@@ -12,7 +12,7 @@ import java.util.Properties
  * @param expiresIn Timestamp in millis of the experitation date of the token.
  * @param secret Secret key of the token configuration.
  */
-data class TokenConfig(
+internal data class TokenConfig(
     val issuer: String,
     val audience: String,
     val expiresIn: Long,

@@ -13,6 +13,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.application.Application
+import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.lb.common.data.model.MappedApi
@@ -30,6 +31,7 @@ import io.lb.impl.ktor.server.model.OriginalRouteParameter
 import io.lb.impl.ktor.server.model.PreviewRequestBody
 import io.lb.impl.ktor.server.util.setupApplication
 import io.mockk.clearAllMocks
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -227,7 +229,10 @@ class ServerServiceImplTest {
                 testResponse
             }
 
-        serverService = ServerServiceImpl(this, mockk(relaxed = true))
+        val engine: NettyApplicationEngine = mockk(relaxed = true)
+        every { engine.application } returns this
+
+        serverService = ServerServiceImpl(engine)
         return Pair(testMappedRoute, onRequestMock)
     }
 

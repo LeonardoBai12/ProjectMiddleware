@@ -6,7 +6,7 @@ package io.lb.impl.ktor.server.model
  * @property clientId The client ID of the middleware session.
  * @property sessionId The session ID of the middleware session.
  */
-data class MiddlewareSession(
+internal data class MiddlewareSession(
     val clientId: String,
     val sessionId: String,
 )

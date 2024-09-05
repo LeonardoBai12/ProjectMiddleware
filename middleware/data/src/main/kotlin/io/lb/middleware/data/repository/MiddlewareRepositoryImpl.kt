@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.flow
  *
  * @property dataSource Data source for the middleware.
  */
-class MiddlewareRepositoryImpl(
+internal class MiddlewareRepositoryImpl(
     private val dataSource: MiddlewareDataSource
 ) : MiddlewareRepository {
     override fun startMiddleware() = flow {

@@ -12,7 +12,7 @@ import java.util.UUID
  * @property name Name of the mapped API.
  * @property routes List of routes of the mapped API.
  */
-data class MappedApiEntity(
+internal data class MappedApiEntity(
     val uuid: UUID,
     val originalApi: OriginalApi,
     val routes: List<MappedRouteEntity> = listOf()

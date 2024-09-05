@@ -15,7 +15,7 @@ import java.util.Properties
 /**
  * Object class representing a database client.
  */
-object DatabaseClient {
+internal object DatabaseClient {
     private val client = client()
 
     /**

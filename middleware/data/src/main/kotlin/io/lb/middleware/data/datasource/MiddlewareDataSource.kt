@@ -18,7 +18,7 @@ import org.jetbrains.annotations.VisibleForTesting
  * @property serverService Service to configure the server.
  * @property mapperService Service to map the responses.
  */
-class MiddlewareDataSource(
+internal class MiddlewareDataSource(
     private val clientService: ClientService,
     private val databaseService: DatabaseService,
     private val serverService: ServerService,

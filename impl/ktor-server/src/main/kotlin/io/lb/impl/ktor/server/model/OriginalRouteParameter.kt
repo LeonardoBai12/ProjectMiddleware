@@ -6,7 +6,7 @@ import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OriginalRouteParameter(
+internal data class OriginalRouteParameter(
     val path: String,
     val originalApi: OriginalApiParameter,
     val method: MiddlewareHttpMethods,

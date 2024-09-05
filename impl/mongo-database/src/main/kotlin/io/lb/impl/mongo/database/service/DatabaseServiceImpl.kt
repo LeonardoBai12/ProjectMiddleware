@@ -20,7 +20,7 @@ import java.util.UUID
  *
  * @constructor Creates a database service implementation with the given database.
  */
-class DatabaseServiceImpl(
+internal class DatabaseServiceImpl(
     database: MongoDatabase
 ) : DatabaseService {
     private val collection = database.getCollection<MappedApiEntity>(MAPPED_API)
