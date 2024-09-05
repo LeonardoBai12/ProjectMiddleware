@@ -1,7 +1,6 @@
 package io.lb.impl.ktor.server.service
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.netty.NettyApplicationEngine
@@ -27,15 +26,13 @@ import io.lb.impl.ktor.server.model.PreviewRequestBody
 /**
  * Implementation of the server service.
  *
- * @property application The application on which the server is running.
  * @property engine The engine of the application.
  */
-class ServerServiceImpl(
-    private val application: Application,
+internal class ServerServiceImpl(
     private val engine: NettyApplicationEngine
 ) : ServerService {
     override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
-        application.routing {
+        engine.application.routing {
             post("v1/mapping") {
                 val parameter = call.receiveNullable<MappedRouteParameter>() ?: run {
                     call.respond(HttpStatusCode.BadRequest)
@@ -48,7 +45,7 @@ class ServerServiceImpl(
     }
 
     override fun startPreviewRoute(onReceive: (String, String) -> String) {
-        application.routing {
+        engine.application.routing {
             get("v1/preview") {
                 val parameter = call.receiveNullable<PreviewRequestBody>()
                 val originalResponse = parameter?.originalResponse ?: run {
@@ -66,7 +63,7 @@ class ServerServiceImpl(
         mappedRoute: MappedRoute,
         onRequest: suspend (MappedRoute) -> MappedResponse
     ) {
-        application.routing {
+        engine.application.routing {
             when (mappedRoute.originalRoute.method) {
                 MiddlewareHttpMethods.Get -> {
                     get("v1/${mappedRoute.uuid}/${mappedRoute.path}") {

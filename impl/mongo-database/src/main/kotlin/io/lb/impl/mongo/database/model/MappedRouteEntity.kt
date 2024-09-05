@@ -18,7 +18,7 @@ import java.util.UUID
  * @property preConfiguredBody Pre-configured body.
  * @property rulesAsString The mapping rules as a string.
  */
-data class MappedRouteEntity(
+internal data class MappedRouteEntity(
     val uuid: UUID,
     val path: String,
     val originalRoute: OriginalRoute,
