@@ -21,8 +21,14 @@ class Middleware(
         }
     }
 
-    @VisibleForTesting
-    suspend fun startMiddleware() {
+    /**
+     * Starts the middleware.
+     */
+    fun start() {
+        controller.onEvent(MiddlewareEvent.StartMiddleware)
+    }
+
+    private suspend fun startMiddleware() {
         controller.state.collectLatest {
             when (it) {
                 is MiddlewareState.Idle -> {
@@ -36,7 +42,5 @@ class Middleware(
                 }
             }
         }
-
-        controller.onEvent(MiddlewareEvent.StartMiddleware)
     }
 }

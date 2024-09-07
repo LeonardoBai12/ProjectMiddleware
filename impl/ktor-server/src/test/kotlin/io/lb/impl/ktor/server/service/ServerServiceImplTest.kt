@@ -35,10 +35,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 class ServerServiceImplTest {
     private lateinit var serverService: ServerServiceImpl
@@ -199,13 +199,13 @@ class ServerServiceImplTest {
             body = """{"key":"request"}"""
         )
         val testMappedRoute = MappedRoute(
-            uuid = UUID.fromString("b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+            uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
             method = method,
             path = "test-path",
             rulesAsString = "test-rules",
             originalRoute = route,
             mappedApi = MappedApi(
-                UUID.fromString("a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+                "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
                 originalApi = OriginalApi(baseUrl = "https://10.0.2.2:8885/")
             ),
         )
@@ -238,8 +238,8 @@ class ServerServiceImplTest {
 
     private fun createPreviewRequest(): PreviewRequestBody {
         return PreviewRequestBody(
-            originalResponse = "{}",
-            mappingRules = "{}"
+            originalResponse = Json.parseToJsonElement("{}").jsonObject,
+            mappingRules = Json.parseToJsonElement("{}").jsonObject
         )
     }
 

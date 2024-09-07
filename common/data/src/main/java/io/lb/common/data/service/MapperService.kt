@@ -39,6 +39,6 @@ interface MapperService {
     @Throws(MiddlewareException::class)
     fun responseJsonPreview(
         mappingRules: String,
-        originalResponse: OriginalResponse
+        originalResponseBody: String
     ): String
 }

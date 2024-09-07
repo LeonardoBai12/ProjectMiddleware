@@ -14,9 +14,6 @@ dependencies {
     implementation(project(":impl:ktor-server"))
     implementation(project(":impl:mongo-database"))
 
-    implementation(libs.koin.ktor)
-    implementation(libs.koin.logger.slf4j)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
-    implementation(libs.koin.logger.slf4j)
 }

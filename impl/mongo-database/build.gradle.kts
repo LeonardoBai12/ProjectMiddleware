@@ -8,8 +8,7 @@ plugins {
 dependencies {
     implementation(project(":common:shared"))
     implementation(project(":common:data"))
-    implementation(libs.koin.ktor)
-    implementation(libs.koin.logger.slf4j)
+    implementation(libs.ktor.client.core)
     implementation(libs.mongo.db.kt)
     implementation(libs.mongo.db.bson)
     implementation(libs.slf4.simple)

@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * <br>- [Boolean]
  */
 @Serializable
-data class NewBodyField(
+internal data class NewBodyField(
     val key: String,
     val type: String
 )

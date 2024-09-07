@@ -13,7 +13,6 @@ import io.lb.impl.mongo.database.model.MappedApiEntity
 import io.lb.impl.mongo.database.model.MappedRouteEntity
 import io.lb.impl.mongo.database.model.toEntity
 import kotlinx.coroutines.flow.singleOrNull
-import java.util.UUID
 
 /**
  * Service implementation for interacting with the database.
@@ -52,7 +51,7 @@ internal class DatabaseServiceImpl(
     }
 
     override suspend fun queryMappedRoutes(apiUuid: String): List<MappedRoute> {
-        val queryParams = Filters.eq(MappedApiEntity::uuid.name, UUID.fromString(apiUuid))
+        val queryParams = Filters.eq(MappedApiEntity::uuid.name, apiUuid)
         val api = collection.find<MappedApiEntity>(queryParams)
             .limit(1)
             .singleOrNull()
@@ -63,7 +62,7 @@ internal class DatabaseServiceImpl(
         )
 
         val mappedApi = MappedApi(
-            uuid = UUID.fromString(apiUuid),
+            uuid = apiUuid,
             originalApi = api.originalApi,
         )
 
@@ -73,7 +72,7 @@ internal class DatabaseServiceImpl(
     }
 
     override suspend fun createMappedRoute(route: MappedRoute) {
-        val queryParams = Filters.eq(MappedApiEntity::uuid.name, UUID.fromString(route.mappedApi.uuid.toString()))
+        val queryParams = Filters.eq(MappedApiEntity::uuid.name, route.mappedApi.uuid)
         val api = collection.find<MappedApiEntity>(queryParams)
             .limit(1)
             .singleOrNull()
@@ -95,7 +94,7 @@ internal class DatabaseServiceImpl(
     }
 
     override suspend fun updateMappedRoute(route: MappedRoute) {
-        val queryParams = Filters.eq(MappedRouteEntity::uuid.name, UUID.fromString(route.uuid.toString()))
+        val queryParams = Filters.eq(MappedRouteEntity::uuid.name, route.uuid)
         val routeEntity = collection.find<MappedRouteEntity>(queryParams)
             .limit(1)
             .singleOrNull()
@@ -122,11 +121,11 @@ internal class DatabaseServiceImpl(
             ),
         )
         collection.insertOne(mappedApi)
-        return api.uuid.toString()
+        return api.uuid
     }
 
     override suspend fun updateMappedApi(api: MappedApi) {
-        val queryParams = Filters.eq(MappedApiEntity::uuid.name, UUID.fromString(api.uuid.toString()))
+        val queryParams = Filters.eq(MappedApiEntity::uuid.name, api.uuid)
         val apiEntity = collection.find<MappedApiEntity>(queryParams)
             .limit(1)
             .singleOrNull()

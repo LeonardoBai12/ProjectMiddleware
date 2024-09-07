@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.UUID
 
 class DatabaseServiceImplTest {
     private lateinit var db: MongoDatabase
@@ -53,7 +52,7 @@ class DatabaseServiceImplTest {
         val apis =
             listOf(
                 MappedApiEntity(
-                    UUID.randomUUID(),
+                    "uuid",
                     OriginalApi("https://teste.com"),
                     listOf(
                         mappedRouteEntity(),
@@ -61,7 +60,7 @@ class DatabaseServiceImplTest {
                     )
                 ),
                 MappedApiEntity(
-                    UUID.randomUUID(),
+                    "uuid",
                     OriginalApi("https://teste.com"),
                     listOf(
                         mappedRouteEntity(),
@@ -82,24 +81,24 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API exists, expect return it`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val api = MappedApiEntity(
-            uuid = apiUuid,
+            "uuid",
             originalApi = OriginalApi("https://test.com"),
         )
 
         mockkFindApiLimit1(api)
 
-        val result = service.queryMappedApi(apiUuid.toString())
+        val result = service.queryMappedApi(apiUuid)
         advanceUntilIdle()
 
         assertNotNull(result)
-        assertEquals(apiUuid.toString(), result?.uuid.toString())
+        assertEquals(apiUuid, result?.uuid.toString())
     }
 
     @Test
     fun `When API is not found, expect return null`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
 
         mockkFindApiLimit1(null)
 
@@ -111,7 +110,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API exists, expect return all routes`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val mappedRoutes = listOf(
             mappedRouteEntity(),
             mappedRouteEntity(),
@@ -127,7 +126,7 @@ class DatabaseServiceImplTest {
 
         mockkFindApiLimit1(api)
 
-        val result = service.queryMappedRoutes(apiUuid.toString())
+        val result = service.queryMappedRoutes(apiUuid)
         advanceUntilIdle()
 
         assertEquals(5, result.size)
@@ -135,7 +134,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API is not found, expect throw MiddlewareException`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
 
         mockkFindApiLimit1(null)
 
@@ -150,7 +149,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API exists, expect create route`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val existingRoutes = listOf(
             mappedRouteEntity(),
             mappedRouteEntity()
@@ -174,7 +173,7 @@ class DatabaseServiceImplTest {
     @Test
     fun `When API is not found on route creation, expect throw MiddlewareException`() = runTest {
         val newRoute = mappedRoute().copy(
-            mappedApi = MappedApi(UUID.randomUUID(), OriginalApi("https://test.com"))
+            mappedApi = MappedApi("uuid", OriginalApi("https://test.com"))
         )
 
         mockFindApi(emptyList())
@@ -191,14 +190,14 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When route is found, expect update it`() = runTest {
-        val routeUuid = UUID.randomUUID()
+        val routeUuid = "uuid"
         val existingRoute = mappedRouteEntity().copy(uuid = routeUuid)
 
         mockkFindRouteLimit1(existingRoute)
         coEvery { collection.updateOne(any<Bson>(), any<Bson>(), any<UpdateOptions>()) } returns mockk()
 
         service.updateMappedRoute(
-            existingRoute.toRoute(MappedApi(UUID.randomUUID(), OriginalApi("https://test.com")))
+            existingRoute.toRoute(MappedApi(routeUuid, OriginalApi("https://test.com")))
         )
         advanceUntilIdle()
 
@@ -209,7 +208,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When route is not found, expect throw MiddlewareException`() = runTest {
-        val routeUuid = UUID.randomUUID()
+        val routeUuid = "uuid"
         val updatedRoute = mappedRoute().copy(uuid = routeUuid)
 
         mockkFindRouteLimit1(null)
@@ -229,7 +228,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API does not exist, expect create it`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val newApi = MappedApi(apiUuid, OriginalApi("https://test.com"))
 
         coEvery { collection.insertOne(any<MappedApiEntity>(), any<InsertOneOptions>()) } returns mockk()
@@ -251,7 +250,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When it exists, expect update it`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val existingApi = MappedApiEntity(
             apiUuid,
             OriginalApi("https://test.com"),
@@ -272,7 +271,7 @@ class DatabaseServiceImplTest {
 
     @Test
     fun `When API is not found expect throw MiddlewareException`() = runTest {
-        val apiUuid = UUID.randomUUID()
+        val apiUuid = "uuid"
         val updatedApi = MappedApi(apiUuid, OriginalApi("https://test.com"))
 
         mockFindApi(emptyList())
@@ -329,7 +328,7 @@ class DatabaseServiceImplTest {
     }
 
     private fun mappedRouteEntity() = MappedRouteEntity(
-        uuid = UUID.randomUUID(),
+        uuid = "uuid",
         path = "/path",
         originalRoute = OriginalRoute(
             path = "/path",
@@ -347,7 +346,7 @@ class DatabaseServiceImplTest {
     private fun mappedRoute() = mappedRouteEntity()
         .toRoute(
             MappedApi(
-                UUID.randomUUID(),
+                "uuid",
                 OriginalApi("https://teste.com"),
             )
         )

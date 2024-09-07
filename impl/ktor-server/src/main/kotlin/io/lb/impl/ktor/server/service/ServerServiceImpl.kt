@@ -52,8 +52,8 @@ internal class ServerServiceImpl(
                     call.respond(HttpStatusCode.BadRequest)
                     return@get
                 }
-                val mappingRules = parameter.mappingRules
-                val mappedResponse = onReceive(originalResponse, mappingRules)
+                val mappingRules = parameter.mappingRules.toString()
+                val mappedResponse = onReceive(originalResponse.toString(), mappingRules)
                 call.respond(HttpStatusCode.OK, mappedResponse)
             }
         }
