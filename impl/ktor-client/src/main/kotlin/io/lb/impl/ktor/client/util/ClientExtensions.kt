@@ -4,21 +4,18 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.accept
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
-import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
-import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.http.takeFrom
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
@@ -33,20 +30,14 @@ import kotlinx.coroutines.withContext
  * @return The response from the API.
  */
 internal suspend fun HttpClient.request(
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     originalRoute: OriginalRoute,
     preConfiguredQueries: Map<String, String>,
     preConfiguredHeaders: Map<String, String>,
     preConfiguredBody: String?
-): OriginalResponse = withContext(Dispatchers.IO) {
+): OriginalResponse = withContext(coroutineDispatcher) {
     val response = request {
-        method = when (originalRoute.method) {
-            MiddlewareHttpMethods.Get -> HttpMethod.Get
-            MiddlewareHttpMethods.Post -> HttpMethod.Post
-            MiddlewareHttpMethods.Head -> HttpMethod.Put
-            MiddlewareHttpMethods.Delete -> HttpMethod.Delete
-            MiddlewareHttpMethods.Patch -> HttpMethod.Patch
-            MiddlewareHttpMethods.Put -> HttpMethod.Put
-        }
+        method = getHttpMethod(originalRoute)
 
         require(originalRoute.originalApi.baseUrl.startsWith("https://"))
 
@@ -75,12 +66,12 @@ internal suspend fun HttpClient.request(
 
             path(originalRoute.path)
             if (preConfiguredQueries.isNotEmpty()) {
-                preConfiguredQueries.forEach {
-                    parameters.append(it.key, it.value)
+                preConfiguredQueries.forEach { route ->
+                    parameters.append(route.key, route.value)
                 }
             } else if (originalRoute.queries.isNotEmpty()) {
-                originalRoute.queries.forEach {
-                    parameters.append(it.key, it.value)
+                originalRoute.queries.forEach { route ->
+                    parameters.append(route.key, route.value)
                 }
             }
         }
@@ -90,4 +81,13 @@ internal suspend fun HttpClient.request(
         statusCode = response.status.value,
         body = response.bodyAsText()
     )
+}
+
+private fun getHttpMethod(originalRoute: OriginalRoute) = when (originalRoute.method) {
+    MiddlewareHttpMethods.Get -> HttpMethod.Get
+    MiddlewareHttpMethods.Post -> HttpMethod.Post
+    MiddlewareHttpMethods.Head -> HttpMethod.Put
+    MiddlewareHttpMethods.Delete -> HttpMethod.Delete
+    MiddlewareHttpMethods.Patch -> HttpMethod.Patch
+    MiddlewareHttpMethods.Put -> HttpMethod.Put
 }

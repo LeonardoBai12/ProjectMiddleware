@@ -6,7 +6,6 @@ import io.lb.common.shared.error.MiddlewareException
 import io.lb.middleware.mapper.model.NewBodyField
 import io.lb.middleware.mapper.model.NewBodyMappingRule
 import io.lb.middleware.mapper.model.OldBodyField
-import io.mockk.InternalPlatformDsl.toStr
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -56,7 +56,7 @@ internal data class MappedRouteEntity(
 internal fun MappedRoute.toEntity(): MappedRouteEntity {
     return MappedRouteEntity(
         uuid = uuid,
-        path = "/v1/${uuid}/${path}",
+        path = "/v1/$uuid/$path",
         originalRoute = originalRoute,
         method = method,
         preConfiguredQueries = this.preConfiguredQueries,
