@@ -46,7 +46,7 @@ internal class ServerServiceImpl(
         }
     }
 
-    override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> String) {
+    override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>) {
         engine.application.routing {
             get("v1/routes") {
                 val routes = onReceive("v1/routes")

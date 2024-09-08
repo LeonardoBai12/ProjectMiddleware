@@ -19,7 +19,7 @@ interface ServerService {
     /**
      * Starts the route to query all routes.
      */
-    fun startQueryAllRoutesRoute(onReceive: suspend (String) -> String)
+    fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>)
 
     /**
      * Starts the preview route.
