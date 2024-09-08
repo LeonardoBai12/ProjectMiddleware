@@ -38,7 +38,7 @@ class MiddlewareTest {
     fun `When startMiddleware is called, expect controller state is collected`() = runTest {
         every { controller.onEvent(any()) } just runs
 
-        middleware.startMiddleware()
+        middleware.start()
         advanceUntilIdle()
 
         verify { controller.onEvent(MiddlewareEvent.StartMiddleware) }

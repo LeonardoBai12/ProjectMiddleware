@@ -21,16 +21,16 @@ interface DatabaseService {
      *
      * @return A list of all mapped APIs.
      */
-    suspend fun queryMappedApi(apiUuid: String): MappedApi?
+    suspend fun queryMappedApi(originalBaseUrl: String): MappedApi?
 
     /**
      * Queries all mapped routes for a given API.
      *
-     * @param apiUuid The UUID of the API to query.
+     * @param originalBaseUrl The base URL of the original API.
      * @return A list of all mapped routes for the given API.
      */
     @Throws(MiddlewareException::class)
-    suspend fun queryMappedRoutes(apiUuid: String): List<MappedRoute>
+    suspend fun queryMappedRoutes(originalBaseUrl: String): List<MappedRoute>
 
     /**
      * Creates a mapped route.
@@ -38,7 +38,7 @@ interface DatabaseService {
      * @param route The route to create.
      */
     @Throws(MiddlewareException::class)
-    suspend fun createMappedRoute(route: MappedRoute)
+    suspend fun createMappedRoute(route: MappedRoute): String
 
     /**
      * Updates a mapped route.
@@ -46,7 +46,7 @@ interface DatabaseService {
      * @param route The route to update.
      */
     @Throws(MiddlewareException::class)
-    suspend fun updateMappedRoute(route: MappedRoute)
+    suspend fun updateMappedRoute(route: MappedRoute): String
 
     /**
      * Creates a mapped API.

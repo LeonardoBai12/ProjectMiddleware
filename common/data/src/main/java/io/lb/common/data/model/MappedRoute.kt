@@ -1,6 +1,7 @@
 package io.lb.common.data.model
 
 import io.lb.common.data.request.MiddlewareHttpMethods
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
 /**
@@ -19,8 +20,9 @@ import java.util.UUID
  * <br>[RulesExample.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/RulesExample.json)
  * <br>[ConcatenatedRulesExample.json](https://github.com/LeonardoBai12-Org/ProjectMiddleware/blob/main/JsonExamples/ConcatenatedRulesExample.json)
  */
+@Serializable
 data class MappedRoute(
-    val uuid: UUID = UUID.randomUUID(),
+    val uuid: String = UUID.randomUUID().toString(),
     val path: String,
     val mappedApi: MappedApi,
     var originalRoute: OriginalRoute,

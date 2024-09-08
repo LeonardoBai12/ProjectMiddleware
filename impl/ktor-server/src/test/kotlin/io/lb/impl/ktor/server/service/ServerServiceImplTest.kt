@@ -24,7 +24,6 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareAuthHeaderType
 import io.lb.common.data.request.MiddlewareHttpMethods
-import io.lb.impl.ktor.server.model.MappedApiParameter
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.OriginalApiParameter
 import io.lb.impl.ktor.server.model.OriginalRouteParameter
@@ -35,10 +34,10 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 class ServerServiceImplTest {
     private lateinit var serverService: ServerServiceImpl
@@ -89,6 +88,15 @@ class ServerServiceImplTest {
         }
 
     @Test
+    fun `When uses Get method on routes route, expect OK`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Get) {
+            val response = client.get("v1/routes") {
+                contentType(ContentType.Application.Json)
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+        }
+
+    @Test
     fun `When uses Get method, expect success`() = serverServiceTestApplication(MiddlewareHttpMethods.Get) {
         val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
             contentType(ContentType.Application.Json)
@@ -128,6 +136,7 @@ class ServerServiceImplTest {
                     ) -> MappedResponse
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
+                serverService.startQueryAllRoutesRoute { "Received" }
                 serverService.startGenericMappingRoute { "Received" }
                 serverService.startPreviewRoute { _, _ -> "Received" }
             }
@@ -199,20 +208,20 @@ class ServerServiceImplTest {
             body = """{"key":"request"}"""
         )
         val testMappedRoute = MappedRoute(
-            uuid = UUID.fromString("b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+            uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
             method = method,
-            path = "test-path",
+            path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
             rulesAsString = "test-rules",
             originalRoute = route,
             mappedApi = MappedApi(
-                UUID.fromString("a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
-                originalApi = OriginalApi(baseUrl = "https://10.0.2.2:8885/")
+                "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+                originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
             ),
         )
 
         val testResponse = MappedResponse(
             statusCode = 200,
-            body = "Test Body"
+            body = "{}"
         )
 
         val onRequestMock: (MappedRoute) -> MappedResponse =
@@ -238,17 +247,14 @@ class ServerServiceImplTest {
 
     private fun createPreviewRequest(): PreviewRequestBody {
         return PreviewRequestBody(
-            originalResponse = "{}",
-            mappingRules = "{}"
+            originalResponse = Json.parseToJsonElement("{}").jsonObject,
+            mappingRules = Json.parseToJsonElement("{}").jsonObject
         )
     }
 
     private fun createMappedRoute(): MappedRouteParameter {
         return MappedRouteParameter(
             path = "getTeryiaki",
-            mappedApi = MappedApiParameter(
-                originalApi = OriginalApiParameter("https://www.themealdb.com/api/")
-            ),
             method = MiddlewareHttpMethods.Get,
             originalRoute = OriginalRouteParameter(
                 path = "json/v1/1/lookup.php?i=52772",
@@ -256,7 +262,7 @@ class ServerServiceImplTest {
                 originalApi = OriginalApiParameter("https://www.themealdb.com/api/"),
                 body = null
             ),
-            rulesAsString = "RulesAsString"
+            rulesAsString = Json.parseToJsonElement("{}").jsonObject
         )
     }
 }

@@ -6,7 +6,6 @@ import io.lb.middleware.domain.model.MiddlewareState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.VisibleForTesting
 
 /**
  * Middleware class that starts the middleware.
@@ -21,8 +20,14 @@ class Middleware(
         }
     }
 
-    @VisibleForTesting
-    suspend fun startMiddleware() {
+    /**
+     * Starts the middleware.
+     */
+    fun start() {
+        controller.onEvent(MiddlewareEvent.StartMiddleware)
+    }
+
+    private suspend fun startMiddleware() {
         controller.state.collectLatest {
             when (it) {
                 is MiddlewareState.Idle -> {
@@ -36,7 +41,5 @@ class Middleware(
                 }
             }
         }
-
-        controller.onEvent(MiddlewareEvent.StartMiddleware)
     }
 }

@@ -1,11 +1,14 @@
 package io.lb.common.data.request
 
+import kotlinx.serialization.Serializable
+
 /**
  * Data class representing a middleware auth header.
  *
  * @property type The type of the middleware auth header.
  * @property token The token of the middleware auth header.
  */
+@Serializable
 data class MiddlewareAuthHeader(
     val type: MiddlewareAuthHeaderType,
     val token: String

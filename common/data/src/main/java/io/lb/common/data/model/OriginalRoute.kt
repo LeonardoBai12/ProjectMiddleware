@@ -2,6 +2,7 @@ package io.lb.common.data.model
 
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareHttpMethods
+import kotlinx.serialization.Serializable
 
 /**
  * Data class representing an original route.
@@ -14,6 +15,7 @@ import io.lb.common.data.request.MiddlewareHttpMethods
  * @property headers The headers of the original route.
  * @property body The body of the original route.
  */
+@Serializable
 data class OriginalRoute(
     val path: String,
     val originalApi: OriginalApi,

@@ -1,6 +1,5 @@
 package io.lb.middleware.mapper.util
 
-import io.lb.common.data.model.OriginalResponse
 import io.lb.middleware.mapper.model.NewBodyField
 import io.lb.middleware.mapper.model.NewBodyMappingRule
 import io.lb.middleware.mapper.model.OldBodyField
@@ -24,10 +23,7 @@ internal fun main() {
 
     val preview = mapper.responseJsonPreview(
         mappingRules = mappingRule,
-        originalResponse = OriginalResponse(
-            statusCode = 200,
-            body = mealResponse,
-        )
+        originalResponseBody = mealResponse,
     )
 
     println(preview)

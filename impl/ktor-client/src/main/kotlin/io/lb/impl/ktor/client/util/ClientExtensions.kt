@@ -1,18 +1,22 @@
 package io.lb.impl.ktor.client.util
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.accept
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
-import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
-import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.path
+import io.ktor.http.takeFrom
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
+import io.lb.common.data.request.MiddlewareHttpMethods
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Extension function to make a request to the API.
@@ -26,49 +30,64 @@ import io.lb.common.data.model.OriginalRoute
  * @return The response from the API.
  */
 internal suspend fun HttpClient.request(
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     originalRoute: OriginalRoute,
     preConfiguredQueries: Map<String, String>,
     preConfiguredHeaders: Map<String, String>,
     preConfiguredBody: String?
-): OriginalResponse {
+): OriginalResponse = withContext(coroutineDispatcher) {
     val response = request {
-        method = HttpMethod.parse(originalRoute.method.name)
+        method = getHttpMethod(originalRoute)
 
         require(originalRoute.originalApi.baseUrl.startsWith("https://"))
 
-        url(originalRoute.originalApi.baseUrl) {
-            protocol = URLProtocol.HTTPS
-            path(originalRoute.path)
-            if (preConfiguredQueries.isEmpty()) {
-                originalRoute.queries.forEach {
-                    parameters.append(it.key, it.value)
-                }
-            } else {
-                preConfiguredQueries.forEach {
-                    parameters.append(it.key, it.value)
+        originalRoute.authHeader?.fullToken()?.let {
+            headers[HttpHeaders.Authorization] = it
+        }
+        preConfiguredHeaders
+            .ifEmpty { originalRoute.headers }
+            .forEach {
+                if (it.key == HttpHeaders.ContentType) {
+                    accept(ContentType.parse(it.value))
+                    contentType(ContentType.parse(it.value))
+                } else {
+                    headers[it.key] = it.value
                 }
             }
-        }
 
-        originalRoute.authHeader?.fullToken()?.let {
-            headers.append(HttpHeaders.Authorization, it)
-        }
-
-        preConfiguredHeaders.ifEmpty { originalRoute.headers }
-            .forEach { headers.append(it.key, it.value) }
-
-        if (headers.contains(HttpHeaders.ContentType).not()) {
-            contentType(ContentType.Application.Json)
-        }
         preConfiguredBody?.takeIf { it.isNotBlank() }?.let {
             setBody(it)
         } ?: originalRoute.body?.takeIf { it.isNotBlank() }?.let {
             setBody(it)
         }
+
+        url {
+            takeFrom(originalRoute.originalApi.baseUrl)
+
+            path(originalRoute.path)
+            if (preConfiguredQueries.isNotEmpty()) {
+                preConfiguredQueries.forEach { route ->
+                    parameters.append(route.key, route.value)
+                }
+            } else if (originalRoute.queries.isNotEmpty()) {
+                originalRoute.queries.forEach { route ->
+                    parameters.append(route.key, route.value)
+                }
+            }
+        }
     }
 
-    return OriginalResponse(
+    OriginalResponse(
         statusCode = response.status.value,
         body = response.bodyAsText()
     )
+}
+
+private fun getHttpMethod(originalRoute: OriginalRoute) = when (originalRoute.method) {
+    MiddlewareHttpMethods.Get -> HttpMethod.Get
+    MiddlewareHttpMethods.Post -> HttpMethod.Post
+    MiddlewareHttpMethods.Head -> HttpMethod.Put
+    MiddlewareHttpMethods.Delete -> HttpMethod.Delete
+    MiddlewareHttpMethods.Patch -> HttpMethod.Patch
+    MiddlewareHttpMethods.Put -> HttpMethod.Put
 }

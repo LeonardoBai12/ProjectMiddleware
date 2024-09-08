@@ -30,7 +30,7 @@ interface MapperService {
      * Generates a preview of the JSON mapped response.
      *
      * @param mappingRules The mapping rules.
-     * @param originalResponse The original response.
+     * @param originalResponseBody The original response.
      *
      * @throws MiddlewareException If an error occurs during the mapping.
      *
@@ -39,6 +39,15 @@ interface MapperService {
     @Throws(MiddlewareException::class)
     fun responseJsonPreview(
         mappingRules: String,
-        originalResponse: OriginalResponse
+        originalResponseBody: String
     ): String
+
+    /**
+     * Validates the mapping rules.
+     *
+     * @param mappingRules The mapping rules.
+     *
+     * @return True if the mapping rules are valid, false otherwise.
+     */
+    fun validateMappingRules(mappingRules: String): Boolean
 }

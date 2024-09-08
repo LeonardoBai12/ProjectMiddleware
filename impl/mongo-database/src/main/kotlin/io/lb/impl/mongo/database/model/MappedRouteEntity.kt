@@ -4,7 +4,6 @@ import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
-import java.util.UUID
 
 /**
  * Entity for a mapped route.
@@ -19,7 +18,7 @@ import java.util.UUID
  * @property rulesAsString The mapping rules as a string.
  */
 internal data class MappedRouteEntity(
-    val uuid: UUID,
+    val uuid: String,
     val path: String,
     val originalRoute: OriginalRoute,
     val method: MiddlewareHttpMethods,
@@ -57,7 +56,7 @@ internal data class MappedRouteEntity(
 internal fun MappedRoute.toEntity(): MappedRouteEntity {
     return MappedRouteEntity(
         uuid = uuid,
-        path = path,
+        path = "/v1/$uuid/$path",
         originalRoute = originalRoute,
         method = method,
         preConfiguredQueries = this.preConfiguredQueries,

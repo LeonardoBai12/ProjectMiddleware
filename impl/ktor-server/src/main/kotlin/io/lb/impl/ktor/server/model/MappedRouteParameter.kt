@@ -1,14 +1,15 @@
 package io.lb.impl.ktor.server.model
 
+import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Data class representing a mapped route.
  *
  * @property path The path of the mapped route.
- * @property mappedApi The mapped API.
  * @property originalRoute The original route.
  * @property method The HTTP method of the mapped route.
  * @property preConfiguredQueries The pre-configured queries of the mapped route.
@@ -19,22 +20,21 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class MappedRouteParameter(
     val path: String,
-    val mappedApi: MappedApiParameter,
     val originalRoute: OriginalRouteParameter,
     val method: MiddlewareHttpMethods,
     val preConfiguredQueries: Map<String, String> = mapOf(),
     val preConfiguredHeaders: Map<String, String> = originalRoute.headers,
     val preConfiguredBody: String? = originalRoute.body,
-    val rulesAsString: String?
+    val rulesAsString: JsonObject?
 ) {
     fun toMappedRoute() = MappedRoute(
         path = path,
-        mappedApi = mappedApi.toMappedApi(),
         originalRoute = originalRoute.toOriginalRoute(),
+        mappedApi = MappedApi(originalApi = originalRoute.originalApi.toOriginalApi()),
         method = method,
         preConfiguredQueries = preConfiguredQueries,
         preConfiguredHeaders = preConfiguredHeaders,
         preConfiguredBody = preConfiguredBody,
-        rulesAsString = rulesAsString
+        rulesAsString = rulesAsString.toString()
     )
 }
