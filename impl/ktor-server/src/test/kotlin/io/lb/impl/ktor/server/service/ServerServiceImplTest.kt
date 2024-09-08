@@ -24,7 +24,6 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareAuthHeaderType
 import io.lb.common.data.request.MiddlewareHttpMethods
-import io.lb.impl.ktor.server.model.MappedApiParameter
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.OriginalApiParameter
 import io.lb.impl.ktor.server.model.OriginalRouteParameter
@@ -201,18 +200,18 @@ class ServerServiceImplTest {
         val testMappedRoute = MappedRoute(
             uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
             method = method,
-            path = "test-path",
+            path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
             rulesAsString = "test-rules",
             originalRoute = route,
             mappedApi = MappedApi(
                 "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
-                originalApi = OriginalApi(baseUrl = "https://10.0.2.2:8885/")
+                originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
             ),
         )
 
         val testResponse = MappedResponse(
             statusCode = 200,
-            body = "Test Body"
+            body = "{}"
         )
 
         val onRequestMock: (MappedRoute) -> MappedResponse =
@@ -253,7 +252,7 @@ class ServerServiceImplTest {
                 originalApi = OriginalApiParameter("https://www.themealdb.com/api/"),
                 body = null
             ),
-            rulesAsString = "RulesAsString"
+            rulesAsString = Json.parseToJsonElement("{}").jsonObject
         )
     }
 }

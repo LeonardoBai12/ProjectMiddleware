@@ -53,7 +53,7 @@ class DatabaseServiceImplTest {
             listOf(
                 MappedApiEntity(
                     "uuid",
-                    OriginalApi("https://teste.com"),
+                    originalBaseUrl = "https://test.com",
                     listOf(
                         mappedRouteEntity(),
                         mappedRouteEntity(),
@@ -61,7 +61,7 @@ class DatabaseServiceImplTest {
                 ),
                 MappedApiEntity(
                     "uuid",
-                    OriginalApi("https://teste.com"),
+                    originalBaseUrl = "https://test.com",
                     listOf(
                         mappedRouteEntity(),
                         mappedRouteEntity(),
@@ -84,7 +84,7 @@ class DatabaseServiceImplTest {
         val apiUuid = "uuid"
         val api = MappedApiEntity(
             "uuid",
-            originalApi = OriginalApi("https://test.com"),
+            originalBaseUrl = "https://test.com",
         )
 
         mockkFindApiLimit1(api)
@@ -120,7 +120,7 @@ class DatabaseServiceImplTest {
         )
         val api = MappedApiEntity(
             uuid = apiUuid,
-            originalApi = OriginalApi("https://test.com"),
+            originalBaseUrl = "https://test.com",
             routes = mappedRoutes
         )
 
@@ -157,7 +157,7 @@ class DatabaseServiceImplTest {
         val newRoute = mappedRoute().copy(mappedApi = MappedApi(apiUuid, OriginalApi("https://test.com")))
         val api = MappedApiEntity(
             uuid = apiUuid,
-            originalApi = OriginalApi("https://test.com"),
+            originalBaseUrl = "https://test.com",
             routes = existingRoutes
         )
 
@@ -193,7 +193,7 @@ class DatabaseServiceImplTest {
         val routeUuid = "uuid"
         val existingRoute = mappedRouteEntity().copy(uuid = routeUuid)
 
-        mockkFindRouteLimit1(existingRoute)
+        mockkFindApiLimit1(MappedApiEntity("uuid", "https://test.com", listOf(existingRoute)))
         coEvery { collection.updateOne(any<Bson>(), any<Bson>(), any<UpdateOptions>()) } returns mockk()
 
         service.updateMappedRoute(
@@ -211,7 +211,7 @@ class DatabaseServiceImplTest {
         val routeUuid = "uuid"
         val updatedRoute = mappedRoute().copy(uuid = routeUuid)
 
-        mockkFindRouteLimit1(null)
+        mockkFindApiLimit1(null)
         coEvery { collection.updateOne(any<Bson>(), any<Bson>(), any<UpdateOptions>()) } returns mockk()
 
         val exception = assertThrows<MiddlewareException> {
@@ -241,7 +241,7 @@ class DatabaseServiceImplTest {
             collection.insertOne(
                 MappedApiEntity(
                     uuid = apiUuid,
-                    originalApi = newApi.originalApi,
+                    originalBaseUrl = "https://test.com",
                 ),
                 any<InsertOneOptions>()
             )
@@ -253,7 +253,7 @@ class DatabaseServiceImplTest {
         val apiUuid = "uuid"
         val existingApi = MappedApiEntity(
             apiUuid,
-            OriginalApi("https://test.com"),
+            originalBaseUrl = "https://test.com",
         )
         val updatedApi = MappedApi(apiUuid, OriginalApi("https://test.com"))
 
@@ -285,21 +285,6 @@ class DatabaseServiceImplTest {
         assertEquals("Couldn't find mapped API.", exception.message)
         coVerify(exactly = 0) {
             collection.updateOne(any<Bson>(), any<Bson>(), any<UpdateOptions>())
-        }
-    }
-
-    private fun mockkFindRouteLimit1(route: MappedRouteEntity?) {
-        val flow = mockk<FindFlow<MappedRouteEntity>>(relaxed = true)
-
-        coEvery {
-            collection.find<MappedRouteEntity>(any<Bson>()).limit(1)
-        } coAnswers {
-            flow
-        }
-
-        coEvery { flow.collect(any()) } coAnswers {
-            val collector = it.invocation.args[0] as FlowCollector<MappedRouteEntity?>
-            collector.emit(route)
         }
     }
 

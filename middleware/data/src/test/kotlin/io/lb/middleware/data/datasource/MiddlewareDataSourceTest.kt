@@ -1,5 +1,6 @@
 package io.lb.middleware.data.datasource
 
+import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalApi
@@ -91,19 +92,29 @@ class MiddlewareDataSourceTest {
             ),
         )
         val mappedRoute = MappedRoute(
-            path = "path",
-            mappedApi = mockk(),
+            uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+            path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
+            mappedApi = MappedApi(
+                uuid = "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+                originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
+            ),
             originalRoute = originalRoute,
             method = MiddlewareHttpMethods.Post,
             rulesAsString = "rules"
         )
-        coEvery { databaseService.createMappedRoute(any()) } just Runs
         coEvery { serverService.createMappedRoute(any(), any()) } just Runs
+        coEvery { databaseService.updateMappedRoute(any()) } returns "id"
+        coEvery { databaseService.queryMappedRoutes(any()) } returns listOf(mappedRoute)
+        coEvery { databaseService.queryMappedApi(any()) } returns null
+        coEvery { databaseService.createMappedApi(any()) } returns "id"
 
         dataSource.createMappedRoute(mappedRoute)
 
-        coVerify { databaseService.createMappedRoute(mappedRoute) }
         coVerify { serverService.createMappedRoute(mappedRoute, any()) }
+        coVerify { databaseService.updateMappedRoute(mappedRoute) }
+        coVerify { databaseService.queryMappedRoutes("https://www.themealdb.com/api/") }
+        coVerify { databaseService.queryMappedApi("https://www.themealdb.com/api/") }
+        coVerify { databaseService.createMappedApi(any()) }
     }
 
     @Test
