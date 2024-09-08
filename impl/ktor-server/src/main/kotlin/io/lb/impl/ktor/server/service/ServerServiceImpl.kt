@@ -46,10 +46,32 @@ internal class ServerServiceImpl(
         }
     }
 
-    override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> String) {
+    override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>) {
         engine.application.routing {
             get("v1/routes") {
-                val routes = onReceive("v1/routes")
+                val pathFilter = call.parameters["path"]
+                val methodFilter = call.parameters["method"]
+                val originalBaseUrlFilter = call.parameters["originalBaseUrl"]
+
+                var routes = onReceive("v1/routes")
+
+                pathFilter?.let {
+                    routes = routes.filter { route ->
+                        route.path.lowercase().contains(it.lowercase())
+                    }
+                }
+                methodFilter?.let {
+                    routes = routes.filter { route ->
+                        route.method.name.lowercase() == it.lowercase()
+                    }
+                }
+                originalBaseUrlFilter?.let {
+                    routes = routes.filter { route ->
+                        route.originalRoute.originalApi.baseUrl.lowercase()
+                            .contains(it.lowercase())
+                    }
+                }
+
                 call.respond(HttpStatusCode.OK, routes)
             }
         }

@@ -27,8 +27,6 @@ internal class MiddlewareDataSource(
     private val serverService: ServerService,
     private val mapperService: MapperService
 ) {
-    private val json = Json { this.prettyPrint = true }
-
     /**
      * Configures the generic routes.
      *
@@ -39,9 +37,9 @@ internal class MiddlewareDataSource(
         serverService.startQueryAllRoutesRoute {
             try {
                 val routes = databaseService.queryAllMappedRoutes()
-                json.encodeToString(routes.map { route -> route.copy(rulesAsString = null) })
+                routes.map { route -> route.copy(rulesAsString = null) }
             } catch (e: MiddlewareException) {
-                e.message.toString()
+                emptyList()
             }
         }
         serverService.startGenericMappingRoute { mappedRoute ->
