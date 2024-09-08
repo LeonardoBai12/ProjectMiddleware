@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  * @property parents The parent keys of the field. It will be empty if it's a root field.
  */
 @Serializable
-data class OldBodyField(
+internal data class OldBodyField(
     val keys: List<String>,
     val type: String,
     val parents: List<String> = emptyList()

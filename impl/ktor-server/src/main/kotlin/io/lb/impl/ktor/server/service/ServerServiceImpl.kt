@@ -1,11 +1,13 @@
 package io.lb.impl.ktor.server.service
 
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.request.receiveText
+import io.ktor.server.response.defaultTextContentType
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
@@ -44,6 +46,15 @@ internal class ServerServiceImpl(
         }
     }
 
+    override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> String) {
+        engine.application.routing {
+            get("v1/routes") {
+                val routes = onReceive("v1/routes")
+                call.respond(HttpStatusCode.OK, routes)
+            }
+        }
+    }
+
     override fun startPreviewRoute(onReceive: (String, String) -> String) {
         engine.application.routing {
             get("v1/preview") {
@@ -52,8 +63,8 @@ internal class ServerServiceImpl(
                     call.respond(HttpStatusCode.BadRequest)
                     return@get
                 }
-                val mappingRules = parameter.mappingRules
-                val mappedResponse = onReceive(originalResponse, mappingRules)
+                val mappingRules = parameter.mappingRules.toString()
+                val mappedResponse = onReceive(originalResponse.toString(), mappingRules)
                 call.respond(HttpStatusCode.OK, mappedResponse)
             }
         }
@@ -64,34 +75,34 @@ internal class ServerServiceImpl(
         onRequest: suspend (MappedRoute) -> MappedResponse
     ) {
         engine.application.routing {
-            when (mappedRoute.originalRoute.method) {
+            when (mappedRoute.method) {
                 MiddlewareHttpMethods.Get -> {
-                    get("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    get(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
                 MiddlewareHttpMethods.Post -> {
-                    post("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    post(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
                 MiddlewareHttpMethods.Put -> {
-                    put("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    put(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
                 MiddlewareHttpMethods.Delete -> {
-                    delete("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    delete(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
                 MiddlewareHttpMethods.Patch -> {
-                    patch("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    patch(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
                 MiddlewareHttpMethods.Head -> {
-                    head("v1/${mappedRoute.uuid}/${mappedRoute.path}") {
+                    head(mappedRoute.path) {
                         onServerRequest(mappedRoute, onRequest)
                     }
                 }
@@ -103,6 +114,7 @@ internal class ServerServiceImpl(
         mappedRoute: MappedRoute,
         onRequest: suspend (MappedRoute) -> MappedResponse,
     ) {
+        call.defaultTextContentType(ContentType.Application.Json)
         val queries = call.request.queryParameters.toMap().mapValues { query ->
             query.value.first()
         }

@@ -28,7 +28,7 @@ class MapperServiceImplTest {
         val mappedResponse: MappedResponse = mapperService.mapResponse(getMappingRule(), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
-        assertEquals(expectedMappedResponse(), mappedResponse.body)
+        assertEquals(expectedMappedResponse(), json.parseToJsonElement(mappedResponse.body!!).toString())
     }
 
     @Test
@@ -37,15 +37,15 @@ class MapperServiceImplTest {
         val mappedResponse: MappedResponse = mapperService.mapResponse(getMappingRule(false), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
-        assertEquals(expectedMappedResponseWithEmptyValues(), mappedResponse.body)
+        assertEquals(expectedMappedResponseWithEmptyValues(), json.parseToJsonElement(mappedResponse.body!!).toString())
     }
 
     @Test
     fun `responseJsonPreview should return a JSON string with the mapped response`() {
         val originalResponse = createOriginalResponse()
-        val jsonPreview: String = mapperService.responseJsonPreview(getMappingRule(), originalResponse)
+        val jsonPreview: String = mapperService.responseJsonPreview(getMappingRule(), originalResponse.body!!)
 
-        assertEquals(expectedMappedResponse(), jsonPreview)
+        assertEquals(expectedMappedResponse(), json.parseToJsonElement(jsonPreview).toString())
     }
 
     @Test
@@ -164,7 +164,7 @@ class MapperServiceImplTest {
         val mappedResponse: MappedResponse = mapperService.mapResponse(getConcatenatedMappingRule(), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
-        assertEquals(expectedMeasuredResponse(), mappedResponse.body)
+        assertEquals(expectedMeasuredResponse(), json.parseToJsonElement(mappedResponse.body!!).toString())
     }
 }
 

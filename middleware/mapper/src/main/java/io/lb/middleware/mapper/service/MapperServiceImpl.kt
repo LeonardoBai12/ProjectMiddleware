@@ -23,8 +23,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * Implementation of [MapperService].
  * This service is responsible for mapping the original response to a new response based on the mapping rules.
  */
-class MapperServiceImpl : MapperService {
-    private val json = Json
+internal class MapperServiceImpl : MapperService {
+    private val json = Json { this.prettyPrint = true }
 
     override fun mapResponse(
         mappingRules: String,
@@ -32,20 +32,20 @@ class MapperServiceImpl : MapperService {
     ): MappedResponse {
         return MappedResponse(
             statusCode = originalResponse.statusCode,
-            body = mapOldResponse(mappingRules, originalResponse)
+            body = mapOldResponse(mappingRules, originalResponse.body ?: "{}")
         )
     }
 
     override fun responseJsonPreview(
         mappingRules: String,
-        originalResponse: OriginalResponse
+        originalResponseBody: String
     ): String {
-        return mapOldResponse(mappingRules, originalResponse)
+        return mapOldResponse(mappingRules, originalResponseBody)
     }
 
     private fun mapOldResponse(
         mappingRules: String,
-        originalResponse: OriginalResponse
+        originalResponse: String
     ): String {
         val rules = runCatching {
             json.decodeFromString<NewBodyMappingRule>(mappingRules)
@@ -56,7 +56,7 @@ class MapperServiceImpl : MapperService {
                     "https://github.com/LeonardoBai12-Org/ProjectMiddleware"
             )
         }
-        val originalJson = json.parseToJsonElement(originalResponse.body ?: "{}").jsonObject
+        val originalJson = json.parseToJsonElement(originalResponse).jsonObject
 
         val newJson = buildJsonObject {
             for ((newKey, newField) in rules.newBodyFields) {
@@ -128,7 +128,8 @@ class MapperServiceImpl : MapperService {
 
                 if (ignoreEmptyValues) {
                     values = values.filter {
-                        it.jsonPrimitive.content.trim().isNotEmpty()
+                        it !is JsonNull &&
+                            it.jsonPrimitive.content.trim().isNotEmpty()
                     }
                 }
 
@@ -137,16 +138,25 @@ class MapperServiceImpl : MapperService {
                 )
             }
 
-            keys.fold(currentElement) { element, key ->
-                with(element?.jsonObject?.get(key)) {
-                    takeIf {
-                        ignoreEmptyValues && it?.jsonPrimitive?.content?.trim().isNullOrEmpty()
-                    }?.let {
-                        JsonNull
-                    } ?: this
-                }
-            }
+            filterJsonElement(keys, currentElement, ignoreEmptyValues)
         }.getOrElse { JsonNull }
+    }
+
+    private fun filterJsonElement(
+        keys: List<String>,
+        currentElement: JsonElement?,
+        ignoreEmptyValues: Boolean,
+    ) = keys.fold(currentElement) { element, key ->
+        with(element?.jsonObject?.get(key)) {
+            takeIf {
+                ignoreEmptyValues && (
+                    it is JsonNull ||
+                        it?.jsonPrimitive?.content?.trim().isNullOrEmpty()
+                    )
+            }?.let {
+                JsonNull
+            } ?: this
+        }
     }
 
     private fun concatenateValues(
@@ -158,7 +168,9 @@ class MapperServiceImpl : MapperService {
         key.split(",").map {
             it.trim()
         }.forEach {
-            finalValue += " " + jsonObject?.get(it)?.jsonPrimitive?.content?.trim().orEmpty()
+            if (jsonObject?.get(it) !is JsonNull) {
+                finalValue += " " + jsonObject?.get(it)?.jsonPrimitive?.content?.trim().orEmpty()
+            }
         }
 
         return finalValue.trim()
