@@ -136,7 +136,7 @@ class ServerServiceImplTest {
                     ) -> MappedResponse
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
-                serverService.startQueryAllRoutesRoute { "Received" }
+                serverService.startQueryAllRoutesRoute { emptyList() }
                 serverService.startGenericMappingRoute { "Received" }
                 serverService.startPreviewRoute { _, _ -> "Received" }
             }
