@@ -246,9 +246,6 @@ class ServerServiceImplTest {
     private fun createMappedRoute(): MappedRouteParameter {
         return MappedRouteParameter(
             path = "getTeryiaki",
-            mappedApi = MappedApiParameter(
-                originalApi = OriginalApiParameter("https://www.themealdb.com/api/")
-            ),
             method = MiddlewareHttpMethods.Get,
             originalRoute = OriginalRouteParameter(
                 path = "json/v1/1/lookup.php?i=52772",
