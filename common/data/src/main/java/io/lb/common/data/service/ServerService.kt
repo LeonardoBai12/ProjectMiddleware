@@ -17,6 +17,11 @@ interface ServerService {
     fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String)
 
     /**
+     * Starts the route to query all routes.
+     */
+    fun startQueryAllRoutesRoute(onReceive: suspend (String) -> String)
+
+    /**
      * Starts the preview route.
      * @param onReceive The handler for the preview route. It receives the mapping rules and returns the preview.
      */

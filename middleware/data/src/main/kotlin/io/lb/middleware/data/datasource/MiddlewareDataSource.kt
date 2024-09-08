@@ -9,6 +9,8 @@ import io.lb.common.data.service.DatabaseService
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.service.ServerService
 import io.lb.common.shared.error.MiddlewareException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.VisibleForTesting
 
 /**
@@ -25,6 +27,8 @@ internal class MiddlewareDataSource(
     private val serverService: ServerService,
     private val mapperService: MapperService
 ) {
+    private val json = Json { this.prettyPrint = true }
+
     /**
      * Configures the generic routes.
      *
@@ -32,6 +36,14 @@ internal class MiddlewareDataSource(
      */
     @Throws(MiddlewareException::class)
     fun configGenericRoutes() {
+        serverService.startQueryAllRoutesRoute {
+            try {
+                val routes = databaseService.queryAllMappedRoutes()
+                json.encodeToString(routes.map { it.copy(rulesAsString = null) })
+            } catch (e: MiddlewareException) {
+                e.message.toString()
+            }
+        }
         serverService.startGenericMappingRoute {
             try {
                 val route = createMappedRoute(it)

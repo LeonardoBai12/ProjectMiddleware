@@ -60,11 +60,13 @@ class MiddlewareDataSourceTest {
 
     @Test
     fun `When configGenericRoutes is called, expect startGenericMappingRoute and startPreviewRoute`() = runTest {
+        every { serverService.startQueryAllRoutesRoute(any()) } just Runs
         every { serverService.startGenericMappingRoute(any()) } just Runs
         every { serverService.startPreviewRoute(any()) } just Runs
 
         dataSource.configGenericRoutes()
 
+        verify { serverService.startQueryAllRoutesRoute(any()) }
         verify { serverService.startGenericMappingRoute(any()) }
         verify { serverService.startPreviewRoute(any()) }
     }
