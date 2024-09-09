@@ -117,3 +117,4 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jacoco = { id = "jacoco", version.ref = "jacoco" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
+ktor-plugin = { id = "io.ktor.plugin", version.ref = "ktor" }
