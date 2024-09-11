@@ -31,18 +31,15 @@ internal data class TokenConfig(
             config: ApplicationConfig,
             embedded: Boolean
         ): TokenConfig {
-            val secret = if (embedded) {
-                val properties = Properties()
-                val fileInputStream = FileInputStream("local.properties")
-                properties.load(fileInputStream)
-
-                properties.getProperty("jwt.secret_key")
+            val secret: String = if (embedded) {
+                System.getenv("SECRET_KEY")
             } else {
-                config.property("jwt.secret_key").getString()
+                val properties = Properties()
+                properties.load(FileInputStream(config.property("local.properties").getString()))
+                properties.getProperty("jwt.secret_key")
             }
-
             return TokenConfig(
-                issuer = "http://0.0.0.0:8080",
+                issuer = "http://projectmiddleware.fly.dev:8080",
                 audience = "users",
                 expiresIn = 365L * 1000L * 60L * 60L * 24L,
                 secret = secret
