@@ -2,7 +2,7 @@
 
 ### Method: GET
 
-**URL**: `http://localhost:8080/v1/preview`
+**URL**: `https://projectmiddleware.fly.dev/v1/preview`
 
 ---
 

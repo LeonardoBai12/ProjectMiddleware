@@ -42,11 +42,13 @@ internal fun provideMiddleware(
 /**
  * Main function of the server.
  */
-internal fun configureServer(): NettyApplicationEngine {
+internal fun configureServer(embedded: Boolean = false): NettyApplicationEngine {
+    val port = if (embedded) 8080 else System.getenv("PORT")?.toInt() ?: 8080
+    val host = if (embedded) "0.0.0.0" else System.getenv("HOST") ?: "0.0.0.0"
     return embeddedServer(
         Netty,
-        port = 8080,
-        host = "0.0.0.0",
+        port = port,
+        host = host,
         module = Application::module
     )
 }

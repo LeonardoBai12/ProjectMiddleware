@@ -9,8 +9,6 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.runBlocking
 import org.bson.Document
 import org.bson.UuidRepresentation
-import java.io.FileInputStream
-import java.util.Properties
 
 /**
  * Object class representing a database client.
@@ -31,11 +29,7 @@ internal object DatabaseClient {
     }
 
     private fun client(): MongoClient {
-        val properties = Properties()
-        val fileInputStream = FileInputStream("local.properties")
-        properties.load(fileInputStream)
-
-        val connection = properties.getProperty("mongodb.connection")
+        val connection: String = System.getenv("MONGODB_CONNECTION")
         val serverApi = ServerApi.builder()
             .version(ServerApiVersion.V1)
             .build()
