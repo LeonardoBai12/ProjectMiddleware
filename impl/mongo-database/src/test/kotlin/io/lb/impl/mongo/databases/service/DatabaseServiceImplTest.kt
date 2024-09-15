@@ -3,6 +3,7 @@ package io.lb.impl.mongo.databases.service
 import com.mongodb.client.model.InsertOneOptions
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.kotlin.client.coroutine.FindFlow
+import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.lb.common.data.model.MappedApi
@@ -11,11 +12,13 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.service.DatabaseService
 import io.lb.common.shared.error.MiddlewareException
+import io.lb.impl.mongo.database.database
 import io.lb.impl.mongo.database.model.MappedApiEntity
 import io.lb.impl.mongo.database.model.MappedRouteEntity
 import io.lb.impl.mongo.database.service.DatabaseServiceImpl
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.FlowCollector
@@ -31,15 +34,21 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class DatabaseServiceImplTest {
+    private lateinit var client: MongoClient
     private lateinit var db: MongoDatabase
     private lateinit var collection: MongoCollection<MappedApiEntity>
     private lateinit var service: DatabaseService
 
     @BeforeEach
     fun setUp() {
+        client = mockk(relaxed = true)
         db = mockk(relaxed = true)
+        every { client.database() } returns db
         collection = db.getCollection("MappedApi")
-        service = DatabaseServiceImpl(db)
+        every {
+            client.database().getCollection<MappedApiEntity>("MappedApi")
+        } returns collection
+        service = DatabaseServiceImpl(client)
     }
 
     @AfterEach

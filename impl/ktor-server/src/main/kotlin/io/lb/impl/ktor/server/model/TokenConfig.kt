@@ -1,6 +1,5 @@
 package io.lb.impl.ktor.server.model
 
-import io.ktor.server.config.ApplicationConfig
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -22,13 +21,11 @@ internal data class TokenConfig(
         /**
          * Default TokenConfig for the WareHouse project.
          *
-         * @param config Represents an application config node.
          * @param embedded Represents whether the server is embbeded.
          *
          * @return A TokenConfig instance with the default values for the WareHouse project.
          */
         fun middlewareTokenConfig(
-            config: ApplicationConfig,
             embedded: Boolean
         ): TokenConfig {
             val secret: String = if (embedded) {

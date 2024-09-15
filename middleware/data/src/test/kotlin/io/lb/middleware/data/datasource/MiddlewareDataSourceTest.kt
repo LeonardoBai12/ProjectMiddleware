@@ -155,9 +155,11 @@ class MiddlewareDataSourceTest {
     @Test
     fun `When stopMiddleware is called, expect stopMiddleware`() = runTest {
         coEvery { serverService.stopServer() } just Runs
+        coEvery { databaseService.close() } just Runs
 
         dataSource.stopMiddleware()
 
         coVerify { serverService.stopServer() }
+        coVerify { databaseService.close() }
     }
 }

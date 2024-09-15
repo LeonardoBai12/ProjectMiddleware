@@ -6,12 +6,11 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
-import java.io.FileInputStream
-import java.util.Properties
-import javax.net.ssl.SSLContext
 import kotlinx.coroutines.runBlocking
 import org.bson.Document
 import org.bson.UuidRepresentation
+import java.io.FileInputStream
+import java.util.Properties
 
 /**
  * Object class representing a database client.

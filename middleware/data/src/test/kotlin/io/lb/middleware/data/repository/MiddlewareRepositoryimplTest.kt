@@ -6,7 +6,6 @@ import io.lb.middleware.data.datasource.MiddlewareDataSource
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
@@ -66,10 +65,10 @@ class MiddlewareRepositoryimplTest {
 
     @Test
     fun `When stopMiddleware is called, expect to call stopMiddleware`() = runTest {
-        every { dataSource.stopMiddleware() } just Runs
+        coEvery { dataSource.stopMiddleware() } just Runs
 
         repository.stopMiddleware()
 
-        verify { dataSource.stopMiddleware() }
+        coVerify { dataSource.stopMiddleware() }
     }
 }
