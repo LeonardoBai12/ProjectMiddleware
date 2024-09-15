@@ -13,5 +13,5 @@ class StopMiddlewareUseCase(
     /**
      * Stops the middleware.
      */
-    operator fun invoke() = repository.stopMiddleware()
+    suspend operator fun invoke() = repository.stopMiddleware()
 }

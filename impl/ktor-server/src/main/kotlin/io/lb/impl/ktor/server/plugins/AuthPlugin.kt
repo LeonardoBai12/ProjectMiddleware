@@ -14,7 +14,7 @@ import io.lb.impl.ktor.server.model.TokenConfig
 fun Application.configureAuth() {
     val config = TokenConfig.middlewareTokenConfig(
         config = environment.config,
-        embedded = true
+        embedded = false
     )
 
     authentication {

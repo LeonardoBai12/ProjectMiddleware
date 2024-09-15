@@ -34,7 +34,7 @@ internal class MiddlewareRepositoryImpl(
         }
     }
 
-    override fun stopMiddleware() {
+    override suspend fun stopMiddleware() {
         dataSource.stopMiddleware()
     }
 }

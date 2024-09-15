@@ -6,6 +6,9 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import java.io.FileInputStream
+import java.util.Properties
+import javax.net.ssl.SSLContext
 import kotlinx.coroutines.runBlocking
 import org.bson.Document
 import org.bson.UuidRepresentation
@@ -14,44 +17,41 @@ import org.bson.UuidRepresentation
  * Object class representing a database client.
  */
 internal object DatabaseClient {
-    private val client = client()
-
-    /**
-     * The MongoDB database.
-     */
-    val database: MongoDatabase = client.database()
-
-    /**
-     * Function to close the database client.
-     */
-    internal fun close() {
-        client.close()
-    }
-
-    private fun client(): MongoClient {
-        val connection: String = System.getenv("MONGODB_CONNECTION")
+    fun client(embedded: Boolean): MongoClient {
+        val connection = if (embedded) {
+            val properties = Properties()
+            val fileInputStream = FileInputStream("local.properties")
+            properties.load(fileInputStream)
+            properties.getProperty("mongodb.connection")
+        } else {
+            System.getenv("MONGODB_CONNECTION")
+        }
         val serverApi = ServerApi.builder()
             .version(ServerApiVersion.V1)
             .build()
         val mongoClientSettings = MongoClientSettings.builder()
             .uuidRepresentation(UuidRepresentation.STANDARD)
             .applyConnectionString(ConnectionString(connection))
+            .applyToSslSettings {
+                it.enabled(true)
+                it.invalidHostNameAllowed(true)
+            }
             .serverApi(serverApi)
             .build()
 
         return MongoClient.create(mongoClientSettings)
     }
+}
 
-    private fun MongoClient.database(): MongoDatabase {
-        val database = getDatabase("LB12")
+fun MongoClient.database(): MongoDatabase {
+    val database = getDatabase("Middleware")
 
-        database.run {
-            runBlocking {
-                runCommand(Document("ping", 1))
-            }
-            println("Pinged your deployment. You successfully connected to MongoDB!")
+    database.run {
+        runBlocking {
+            runCommand(Document("ping", 1))
         }
-
-        return database
+        println("Pinged your deployment. You successfully connected to MongoDB!")
     }
+
+    return database
 }

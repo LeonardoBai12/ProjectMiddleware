@@ -153,11 +153,11 @@ class MiddlewareDataSourceTest {
     }
 
     @Test
-    fun `When stopMiddleware is called, expect stopMiddleware`() {
-        every { serverService.stopServer() } just Runs
+    fun `When stopMiddleware is called, expect stopMiddleware`() = runTest {
+        coEvery { serverService.stopServer() } just Runs
 
         dataSource.stopMiddleware()
 
-        verify { serverService.stopServer() }
+        coVerify { serverService.stopServer() }
     }
 }
