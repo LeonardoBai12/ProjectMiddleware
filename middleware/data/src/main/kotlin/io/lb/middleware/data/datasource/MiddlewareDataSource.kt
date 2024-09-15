@@ -148,7 +148,8 @@ internal class MiddlewareDataSource(
     /**
      * Stops the middleware.
      */
-    fun stopMiddleware() {
+    suspend fun stopMiddleware() {
         serverService.stopServer()
+        databaseService.close()
     }
 }

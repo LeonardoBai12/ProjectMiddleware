@@ -7,6 +7,8 @@ import io.lb.middleware.domain.usecases.ConfigureRoutesUseCase
 import io.lb.middleware.domain.usecases.StartMiddlewareUseCase
 import io.lb.middleware.domain.usecases.StopMiddlewareUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
@@ -72,7 +74,7 @@ class MiddlewareControllerTest {
     fun `When start and configureRoutesUseCase returns an error, expect server to stop`() = runTest {
         every { startMiddlewareUseCase() } returns flowOf(Resource.Success(Unit))
         every { configureRoutesUseCase() } returns flowOf(Resource.Error("Error"))
-        every { stopMiddlewareUseCase() } just runs
+        coEvery { stopMiddlewareUseCase() } just runs
 
         val initialState = middlewareController.state.value
         assert(initialState is MiddlewareState.Idle)
@@ -87,7 +89,7 @@ class MiddlewareControllerTest {
     @Test
     fun `When start and startMiddlewareUseCase returns an error, expect server to stop`() = runTest {
         every { startMiddlewareUseCase() } returns flowOf(Resource.Error("Error"))
-        every { stopMiddlewareUseCase() } just runs
+        coEvery { stopMiddlewareUseCase() } just runs
 
         val initialState = middlewareController.state.value
         assert(initialState is MiddlewareState.Idle)
@@ -97,6 +99,6 @@ class MiddlewareControllerTest {
         val finalState = middlewareController.state.value
         assert(finalState is MiddlewareState.Stopped)
         verify { startMiddlewareUseCase() }
-        verify { stopMiddlewareUseCase() }
+        coVerify { stopMiddlewareUseCase() }
     }
 }

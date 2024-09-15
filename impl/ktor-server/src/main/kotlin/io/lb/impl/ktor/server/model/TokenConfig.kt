@@ -1,6 +1,5 @@
 package io.lb.impl.ktor.server.model
 
-import io.ktor.server.config.ApplicationConfig
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -22,24 +21,23 @@ internal data class TokenConfig(
         /**
          * Default TokenConfig for the WareHouse project.
          *
-         * @param config Represents an application config node.
          * @param embedded Represents whether the server is embbeded.
          *
          * @return A TokenConfig instance with the default values for the WareHouse project.
          */
         fun middlewareTokenConfig(
-            config: ApplicationConfig,
             embedded: Boolean
         ): TokenConfig {
             val secret: String = if (embedded) {
-                System.getenv("SECRET_KEY")
-            } else {
                 val properties = Properties()
-                properties.load(FileInputStream(config.property("local.properties").getString()))
+                val fileInputStream = FileInputStream("local.properties")
+                properties.load(fileInputStream)
                 properties.getProperty("jwt.secret_key")
+            } else {
+                System.getenv("SECRET_KEY")
             }
             return TokenConfig(
-                issuer = "http://projectmiddleware.fly.dev:8080",
+                issuer = "https://projectmiddleware.fly.dev:8080",
                 audience = "users",
                 expiresIn = 365L * 1000L * 60L * 60L * 24L,
                 secret = secret

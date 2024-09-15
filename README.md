@@ -8,11 +8,11 @@ Welcome to the **Project Middleware**! This API allows you to transform data fro
 
 2. **Test with Preview Route**: Before creating a permanent mapping route, it's recommended to test your configuration using the **Preview Route**. This ensures the mapped response matches your expectations without committing to a permanent route.
 
-    - For more information, see [Documentation for Preview Route](./documentation/PreviewRoute.md).
+   - For more information, see [Documentation for Preview Route](./documentation/PreviewRoute.md).
 
 3. **Create a Mapped Route**: Once you’re satisfied with the preview response, you can proceed to create the actual mapped route using the **Mapping Request** guidelines.
 
-    - Learn more about this in [Documentation for Mapping Request](./documentation/MappingRequest.md).
+   - Learn more about this in [Documentation for Mapping Request](./documentation/MappingRequest.md).
 
 ## Key Features
 
@@ -23,24 +23,27 @@ Welcome to the **Project Middleware**! This API allows you to transform data fro
 ## Steps to Create a Mapped Route
 
 1. **Preview the Response**:
-    - Call the `/v1/preview` endpoint with your rules to ensure that the response matches your expected output. This step is crucial before proceeding to create a permanent mapped route.
-    - [Documentation for Mapping Rules](./documentation/MappingRules.md): Detailed explanation of how to define your mapping rules.
-    - [Documentation for Preview Route](./documentation/PreviewRoute.md): Guidelines for testing your mappings.
-    
+   - Call the `/v1/preview` endpoint with your rules to ensure that the response matches your expected output. This step is crucial before proceeding to create a permanent mapped route.
+   - [Documentation for Mapping Rules](./documentation/MappingRules.md): Detailed explanation of how to define your mapping rules.
+   - [Documentation for Preview Route](./documentation/PreviewRoute.md): Guidelines for testing your mappings.
+
 2. **Create the Mapped Route**:
-    - After confirming the previewed response, create the route using the mapping request as described in these docs:
-    - [Documentation for Mapping Request](./documentation/MappingRequest.md): Full instructions on how to set up your mapped route.
+   - After confirming the previewed response, create the route using the mapping request as described in these docs:
+   - [Documentation for Mapping Request](./documentation/MappingRequest.md): Full instructions on how to set up your mapped route.
 
 3. **Call the Mapped Route**:
-    - Once the route is created, you can start using the mapped route to get transformed responses by calling `/v1/{uuid}/{path}`.
-
-## Postman Documentation
-
-For a complete list of routes, examples, and how to use the API, visit the [Postman Collection URL](https://documenter.getpostman.com/view/28162587/2sAXjRX9p1#intro).
+   - Once the route is created, you can start using the mapped route to get transformed responses by calling `/v1/{uuid}/{path}`.
 
 ## API Endpoints Overview
 
-- **`GET /v1/preview`**: Preview a mapped response before creating the route.
-- **`GET /v1/routes`**: Retrieve all mapped routes.
-- **`POST /v1/mapping`**: Define a new mapping rule for an API.
-- **`GET /v1/{uuid}/{path}`**: Retrieve the mapped response using the specific UUID and path.
+### Base URL: https://projectmiddleware.fly.dev/
+
+- **`GET https://projectmiddleware.fly.dev/v1/preview`**: Preview a mapped response before creating the route.
+- **`GET https://projectmiddleware.fly.dev/v1/routes`**: Retrieve all mapped routes.
+- **`POST https://projectmiddleware.fly.dev/v1/mapping`**: Define a new mapping rule for an API.
+- **`GET https://projectmiddleware.fly.dev/v1/{uuid}/{path}`**: Retrieve the mapped response using the specific UUID and path.
+
+## Postman Documentation
+
+### [Postman Collection URL](https://documenter.getpostman.com/view/28162587/2sAXjRX9p1#intro)
+For a complete list of routes, examples, and how to use the API, visit our Postman collection. 

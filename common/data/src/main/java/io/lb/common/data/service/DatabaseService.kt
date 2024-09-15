@@ -63,4 +63,9 @@ interface DatabaseService {
      */
     @Throws(MiddlewareException::class)
     suspend fun updateMappedApi(api: MappedApi)
+
+    /**
+     * Deletes a mapped API.
+     */
+    suspend fun close()
 }

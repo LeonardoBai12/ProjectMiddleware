@@ -20,5 +20,5 @@ interface MiddlewareRepository {
     /**
      * Stops the middleware.
      */
-    fun stopMiddleware()
+    suspend fun stopMiddleware()
 }
