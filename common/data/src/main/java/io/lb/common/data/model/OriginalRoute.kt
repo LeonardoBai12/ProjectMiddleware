@@ -3,6 +3,7 @@ package io.lb.common.data.model
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Data class representing an original route.
@@ -23,5 +24,5 @@ data class OriginalRoute(
     val authHeader: MiddlewareAuthHeader? = null,
     val queries: Map<String, String> = mapOf(),
     val headers: Map<String, String> = mapOf(),
-    val body: String? = null
+    val body: JsonObject? = null
 )

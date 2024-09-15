@@ -4,6 +4,7 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 internal data class OriginalRouteParameter(
@@ -12,7 +13,7 @@ internal data class OriginalRouteParameter(
     val method: MiddlewareHttpMethods,
     val authHeader: Map<String, String>? = null,
     val headers: Map<String, String> = mapOf(),
-    val body: String? = null
+    val body: JsonObject? = null
 ) {
     fun toOriginalRoute() = OriginalRoute(
         path = path,

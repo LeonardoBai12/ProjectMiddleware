@@ -17,6 +17,8 @@ import io.lb.impl.ktor.client.service.ClientServiceImpl
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class ClientServiceImplTest {
-
+    private val json = Json { ignoreUnknownKeys = true }
     private lateinit var httpClient: HttpClient
     private lateinit var service: ClientServiceImpl
     private lateinit var mockEngine: MockEngine
@@ -69,7 +71,7 @@ class ClientServiceImplTest {
             method = MiddlewareHttpMethods.Get,
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, "Authenticated"),
             headers = mapOf("Content-Type" to "application/json"),
-            body = """{"key":"request"}"""
+            body = json.decodeFromString("""{"key":"request"}""")
         )
 
         val response = service.request(route, emptyMap(), emptyMap(), null)
@@ -86,7 +88,7 @@ class ClientServiceImplTest {
             method = MiddlewareHttpMethods.Get,
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, "Authenticated"),
             headers = mapOf("Content-Type" to "application/json"),
-            body = """{"key":"request"}"""
+            body = json.decodeFromString("""{"key":"request"}""")
         )
 
         val response = service.request(route, emptyMap(), emptyMap(), null)
@@ -115,7 +117,7 @@ class ClientServiceImplTest {
             method = MiddlewareHttpMethods.Get,
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "Authenticated"),
             headers = mapOf("Content-Type" to "application/json"),
-            body = """{"key":"request"}"""
+            body = json.decodeFromString("""{"key":"request"}""")
         )
 
         assertThrows<IllegalArgumentException> {
@@ -131,14 +133,14 @@ class ClientServiceImplTest {
             method = MiddlewareHttpMethods.Get,
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "Authenticated"),
             headers = mapOf("OtherRandom" to "OtherHeader"),
-            body = """{"key":"request"}"""
+            body = json.decodeFromString("""{"key":"request"}""")
         )
 
         val response = service.request(
             route = route,
             preConfiguredQueries = mapOf("key" to "value"),
             preConfiguredHeaders = mapOf("Random" to "Header"),
-            preConfiguredBody = """{"key":"value"}"""
+            preConfiguredBody = json.decodeFromString("""{"key":"value"}""")
         )
         advanceUntilIdle()
         val request = mockEngine.requestHistory.first()

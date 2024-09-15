@@ -4,6 +4,9 @@ import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
+import io.lb.impl.mongo.database.di.json
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 /**
  * Entity for a mapped route.
@@ -42,7 +45,7 @@ internal data class MappedRouteEntity(
             method = this.method,
             preConfiguredQueries = this.preConfiguredQueries,
             preConfiguredHeaders = this.preConfiguredHeaders,
-            preConfiguredBody = this.preConfiguredBody,
+            preConfiguredBody = json.parseToJsonElement(this.preConfiguredBody ?: "{}").jsonObject,
             rulesAsString = this.rulesAsString,
         )
     }
@@ -61,7 +64,7 @@ internal fun MappedRoute.toEntity(): MappedRouteEntity {
         method = method,
         preConfiguredQueries = this.preConfiguredQueries,
         preConfiguredHeaders = this.preConfiguredHeaders,
-        preConfiguredBody = this.preConfiguredBody,
+        preConfiguredBody = this.preConfiguredBody.toString(),
         rulesAsString = rulesAsString,
     )
 }

@@ -24,6 +24,8 @@ import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.service.ServerService
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.PreviewRequestBody
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 /**
  * Implementation of the server service.
@@ -33,6 +35,8 @@ import io.lb.impl.ktor.server.model.PreviewRequestBody
 internal class ServerServiceImpl(
     private val engine: NettyApplicationEngine
 ) : ServerService {
+    private val json = Json { ignoreUnknownKeys = true }
+
     override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
         engine.application.routing {
             post("v1/mapping") {
@@ -125,7 +129,7 @@ internal class ServerServiceImpl(
         mappedRoute.originalRoute = mappedRoute.originalRoute.copy(
             queries = queries,
             headers = headers,
-            body = body
+            body = json.parseToJsonElement(body).jsonObject
         )
         val response = onRequest(mappedRoute)
 
