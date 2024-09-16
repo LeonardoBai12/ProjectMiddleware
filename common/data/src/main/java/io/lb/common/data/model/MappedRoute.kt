@@ -2,8 +2,8 @@ package io.lb.common.data.model
 
 import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
-import java.util.UUID
 import kotlinx.serialization.json.JsonObject
+import java.util.UUID
 
 /**
  * Data class representing a mapped route.

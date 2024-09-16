@@ -4,8 +4,8 @@ import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
-import io.lb.impl.mongo.database.di.json
-import kotlinx.serialization.json.Json
+import io.lb.impl.mongo.database.DatabaseClient.json
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.jsonObject
 
 /**
@@ -45,7 +45,9 @@ internal data class MappedRouteEntity(
             method = this.method,
             preConfiguredQueries = this.preConfiguredQueries,
             preConfiguredHeaders = this.preConfiguredHeaders,
-            preConfiguredBody = json.parseToJsonElement(this.preConfiguredBody ?: "{}").jsonObject,
+            preConfiguredBody = json.parseToJsonElement(this.preConfiguredBody ?: "{}").takeIf {
+                it !is JsonNull
+            }?.jsonObject,
             rulesAsString = this.rulesAsString,
         )
     }

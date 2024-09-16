@@ -6,7 +6,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.request.receiveNullable
-import io.ktor.server.request.receiveText
 import io.ktor.server.response.defaultTextContentType
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
@@ -22,10 +21,10 @@ import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.service.ServerService
+import io.lb.common.shared.error.MiddlewareException
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.PreviewRequestBody
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Implementation of the server service.
@@ -35,8 +34,6 @@ import kotlinx.serialization.json.jsonObject
 internal class ServerServiceImpl(
     private val engine: NettyApplicationEngine
 ) : ServerService {
-    private val json = Json { ignoreUnknownKeys = true }
-
     override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
         engine.application.routing {
             post("v1/mapping") {
@@ -44,7 +41,16 @@ internal class ServerServiceImpl(
                     call.respond(HttpStatusCode.BadRequest)
                     return@post
                 }
-                val mappedRouteUrl = onReceive(parameter.toMappedRoute())
+                val mappedRouteUrl = runCatching {
+                    onReceive(parameter.toMappedRoute())
+                }.getOrElse {
+                    when (it) {
+                        is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
+                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    }
+                    return@post
+                }
                 call.respond(HttpStatusCode.Created, mappedRouteUrl)
             }
         }
@@ -53,7 +59,15 @@ internal class ServerServiceImpl(
     override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>) {
         engine.application.routing {
             get("v1/routes") {
-                val routes = onReceive("v1/routes")
+                val routes = kotlin.runCatching {
+                    onReceive("v1/routes")
+                }.getOrElse {
+                    when (it) {
+                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
+                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    }
+                    return@get
+                }
                 call.respond(HttpStatusCode.OK, routes)
             }
         }
@@ -67,8 +81,24 @@ internal class ServerServiceImpl(
                     call.respond(HttpStatusCode.BadRequest)
                     return@get
                 }
-                val mappingRules = parameter.mappingRules.toString()
-                val mappedResponse = onReceive(originalResponse.toString(), mappingRules)
+                val mappingRules = kotlin.runCatching {
+                    parameter.mappingRules.toString()
+                }.getOrElse {
+                    when (it) {
+                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
+                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    }
+                    return@get
+                }
+                val mappedResponse = kotlin.runCatching {
+                    onReceive(originalResponse.toString(), mappingRules)
+                }.getOrElse {
+                    when (it) {
+                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
+                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    }
+                    return@get
+                }
                 call.respond(HttpStatusCode.OK, mappedResponse)
             }
         }
@@ -125,11 +155,15 @@ internal class ServerServiceImpl(
         val headers = call.request.headers.toMap().mapValues { header ->
             header.value.first()
         }
-        val body = call.receiveText()
+        val body = try {
+            call.receiveNullable<JsonObject>()
+        } catch (e: Exception) {
+            null
+        }
         mappedRoute.originalRoute = mappedRoute.originalRoute.copy(
             queries = queries,
             headers = headers,
-            body = json.parseToJsonElement(body).jsonObject
+            body = body
         )
         val response = onRequest(mappedRoute)
 

@@ -11,11 +11,14 @@ import org.bson.Document
 import org.bson.UuidRepresentation
 import java.io.FileInputStream
 import java.util.Properties
+import kotlinx.serialization.json.Json
 
 /**
  * Object class representing a database client.
  */
 internal object DatabaseClient {
+    internal val json = Json { ignoreUnknownKeys = true }
+
     fun client(embedded: Boolean): MongoClient {
         val connection = if (embedded) {
             val properties = Properties()

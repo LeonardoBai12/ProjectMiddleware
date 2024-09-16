@@ -4,9 +4,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.toMap
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalRoute
@@ -18,7 +20,6 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -54,7 +55,13 @@ class ClientServiceImplTest {
             }
         }
 
-        httpClient = HttpClient(mockEngine)
+        httpClient = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                json(
+                    json
+                )
+            }
+        }
         service = ClientServiceImpl(httpClient)
     }
 
@@ -139,7 +146,10 @@ class ClientServiceImplTest {
         val response = service.request(
             route = route,
             preConfiguredQueries = mapOf("key" to "value"),
-            preConfiguredHeaders = mapOf("Random" to "Header"),
+            preConfiguredHeaders = mapOf(
+                "Random" to "Header",
+                "Content-Type" to "application/json"
+            ),
             preConfiguredBody = json.decodeFromString("""{"key":"value"}""")
         )
         advanceUntilIdle()

@@ -1,6 +1,7 @@
 package io.lb.middleware.data.datasource
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.service.ClientService
@@ -40,19 +41,15 @@ internal class MiddlewareDataSource(
             }
         }
         serverService.startGenericMappingRoute { mappedRoute ->
-            kotlin.runCatching {
-                val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
-                    createMappedRoute(mappedRoute)
-                } else {
-                    throw MiddlewareException(
-                        code = HttpStatusCode.BadRequest.value,
-                        message = "Invalid mapping rules."
-                    )
-                }
-                route.path
-            }.getOrElse {
-                it.message.toString()
+            val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
+                createMappedRoute(mappedRoute)
+            } else {
+                throw MiddlewareException(
+                    code = HttpStatusCode.BadRequest.value,
+                    message = "Invalid mapping rules."
+                )
             }
+            route.path
         }
         serverService.startPreviewRoute { originalResponse, mappingRules ->
             mapperService.responseJsonPreview(
@@ -106,7 +103,7 @@ internal class MiddlewareDataSource(
         }
 
         getMappedResponse(mappedRoute).takeIf {
-            it.statusCode != HttpStatusCode.OK.value
+            HttpStatusCode.fromValue(it.statusCode).isSuccess().not()
         }?.let {
             throw MiddlewareException(
                 code = it.statusCode,
@@ -149,7 +146,7 @@ internal class MiddlewareDataSource(
             preConfiguredHeaders = mappedRoute.preConfiguredHeaders,
             preConfiguredBody = mappedRoute.preConfiguredBody
         )
-        if (originalResponse.statusCode != HttpStatusCode.OK.value) {
+        if (HttpStatusCode.fromValue(originalResponse.statusCode).isSuccess().not()) {
             throw MiddlewareException(
                 code = originalResponse.statusCode,
                 message = originalResponse.body ?: "Failed to get response from original server."

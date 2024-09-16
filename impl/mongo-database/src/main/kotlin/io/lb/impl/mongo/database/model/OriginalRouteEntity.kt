@@ -3,7 +3,7 @@ package io.lb.impl.mongo.database.model
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareHttpMethods
-import io.lb.impl.mongo.database.di.json
+import io.lb.impl.mongo.database.DatabaseClient.json
 import kotlinx.serialization.json.jsonObject
 
 data class OriginalRouteEntity(

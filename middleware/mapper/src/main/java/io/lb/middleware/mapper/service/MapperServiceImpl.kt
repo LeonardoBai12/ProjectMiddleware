@@ -112,18 +112,35 @@ internal class MapperServiceImpl : MapperService {
 
         if (parentKeys.isNotEmpty()) {
             for (key in parentKeys) {
-                currentElement = currentElement?.jsonObject?.get(key)?.jsonArray?.first()
-                    ?: throw MiddlewareException(
+                val element = currentElement?.jsonObject?.get(key)
+                currentElement = if (element is JsonArray) {
+                    element.jsonArray.first()
+                } else {
+                    element?.jsonObject
+                } ?: throw MiddlewareException(
                         code = MiddlewareStatusCode.BAD_REQUEST,
                         "Parent key '$key' not found in original JSON."
                     )
             }
         } else {
-            currentElement = currentElement?.jsonObject?.get(keys[0])?.jsonArray?.first()
-                ?: throw MiddlewareException(
-                    code = MiddlewareStatusCode.BAD_REQUEST,
-                    "Key '${keys[0]}' not found in original JSON root."
-                )
+            val element = currentElement?.jsonObject?.get(keys[0])
+            currentElement = when (element) {
+                is JsonArray -> {
+                    element.jsonArray.first()
+                }
+                is JsonObject -> {
+                    element.jsonObject
+                }
+                is JsonPrimitive -> {
+                    element.jsonPrimitive
+                }
+                else -> {
+                    throw MiddlewareException(
+                        code = MiddlewareStatusCode.BAD_REQUEST,
+                        "Key '${keys[0]}' not found in original JSON root."
+                    )
+                }
+            }
         }
 
         return runCatching {
@@ -156,6 +173,9 @@ internal class MapperServiceImpl : MapperService {
         currentElement: JsonElement?,
         ignoreEmptyValues: Boolean,
     ) = keys.fold(currentElement) { element, key ->
+        if (element is JsonPrimitive) {
+            return@fold element
+        }
         with(element?.jsonObject?.get(key)) {
             takeIf {
                 ignoreEmptyValues && (
