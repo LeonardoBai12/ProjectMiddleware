@@ -17,6 +17,7 @@ import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Extension function to make a request to the API.
@@ -34,7 +35,7 @@ internal suspend fun HttpClient.request(
     originalRoute: OriginalRoute,
     preConfiguredQueries: Map<String, String>,
     preConfiguredHeaders: Map<String, String>,
-    preConfiguredBody: String?
+    preConfiguredBody: JsonObject?
 ): OriginalResponse = withContext(coroutineDispatcher) {
     val response = request {
         method = getHttpMethod(originalRoute)
@@ -55,9 +56,13 @@ internal suspend fun HttpClient.request(
                 }
             }
 
-        preConfiguredBody?.takeIf { it.isNotBlank() }?.let {
+        preConfiguredBody?.takeIf {
+            it.isNotEmpty()
+        }?.let {
             setBody(it)
-        } ?: originalRoute.body?.takeIf { it.isNotBlank() }?.let {
+        } ?: originalRoute.body?.takeIf {
+            it.isNotEmpty()
+        }?.let {
             setBody(it)
         }
 

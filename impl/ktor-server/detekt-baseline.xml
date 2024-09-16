@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>SwallowedException:ServerServiceImpl.kt$ServerServiceImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ServerServiceImpl.kt$ServerServiceImpl$e: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>

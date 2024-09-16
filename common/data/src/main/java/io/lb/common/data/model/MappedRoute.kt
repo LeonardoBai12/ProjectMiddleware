@@ -2,6 +2,7 @@ package io.lb.common.data.model
 
 import io.lb.common.data.request.MiddlewareHttpMethods
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import java.util.UUID
 
 /**
@@ -29,6 +30,6 @@ data class MappedRoute(
     val method: MiddlewareHttpMethods,
     val preConfiguredQueries: Map<String, String> = mapOf(),
     val preConfiguredHeaders: Map<String, String> = originalRoute.headers,
-    val preConfiguredBody: String? = originalRoute.body,
+    val preConfiguredBody: JsonObject? = originalRoute.body,
     val rulesAsString: String?
 )
