@@ -24,6 +24,7 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
 import org.bson.conversions.Bson
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class DatabaseServiceImplTest {
+    private val json = Json { ignoreUnknownKeys = true }
     private lateinit var client: MongoClient
     private lateinit var db: MongoDatabase
     private lateinit var collection: MongoCollection<MappedApiEntity>
@@ -327,13 +329,13 @@ class DatabaseServiceImplTest {
         originalRoute = OriginalRoute(
             path = "/path",
             method = MiddlewareHttpMethods.Get,
-            body = "",
+            body = json.decodeFromString("{}"),
             originalApi = OriginalApi("https://teste.com")
         ),
         method = MiddlewareHttpMethods.Get,
         preConfiguredQueries = mapOf("query" to "value"),
         preConfiguredHeaders = mapOf("header" to "value"),
-        preConfiguredBody = "",
+        preConfiguredBody = "{}",
         rulesAsString = null,
     )
 

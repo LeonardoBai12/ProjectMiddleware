@@ -4,6 +4,7 @@ import io.lb.common.data.model.ApiValidationResponse
 import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Service for making requests to the middleware server.
@@ -23,7 +24,7 @@ interface ClientService {
         route: OriginalRoute,
         preConfiguredQueries: Map<String, String>,
         preConfiguredHeaders: Map<String, String>,
-        preConfiguredBody: String?
+        preConfiguredBody: JsonObject?
     ): OriginalResponse
 
     /**

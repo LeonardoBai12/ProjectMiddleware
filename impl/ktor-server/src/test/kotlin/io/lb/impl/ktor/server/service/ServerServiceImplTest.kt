@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class ServerServiceImplTest {
+    private val json = Json { this.prettyPrint = true }
     private lateinit var serverService: ServerServiceImpl
 
     @AfterEach
@@ -205,7 +206,7 @@ class ServerServiceImplTest {
             originalApi = OriginalApi("https://10.0.2.2:8885/"),
             authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, "Authenticated"),
             headers = mapOf("Content-Type" to "application/json"),
-            body = """{"key":"request"}"""
+            body = json.decodeFromString("{}"),
         )
         val testMappedRoute = MappedRoute(
             uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
@@ -234,7 +235,7 @@ class ServerServiceImplTest {
                     assertEquals("application/json", get("Content-Type"))
                     assertEquals("example", get("header-lb"))
                 }
-                assertEquals("""{"key":"request"}""", it.originalRoute.body)
+                assertEquals("""{"key":"request"}""", it.originalRoute.body.toString())
                 testResponse
             }
 

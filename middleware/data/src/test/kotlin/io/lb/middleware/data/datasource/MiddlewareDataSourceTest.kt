@@ -11,6 +11,7 @@ import io.lb.common.data.service.ClientService
 import io.lb.common.data.service.DatabaseService
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.service.ServerService
+import io.lb.common.shared.error.MiddlewareException
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class MiddlewareDataSourceTest {
     @MockK
@@ -85,7 +87,7 @@ class MiddlewareDataSourceTest {
     }
 
     @Test
-    fun `When createMappedRoute is called, expect createMappedRoute and configureMappedRoute`() = runTest {
+    fun `When createMappedRoute is called, expect exception`() = runTest {
         val originalRoute = OriginalRoute(
             path = "path",
             method = MiddlewareHttpMethods.Post,
@@ -104,16 +106,18 @@ class MiddlewareDataSourceTest {
             method = MiddlewareHttpMethods.Post,
             rulesAsString = "rules"
         )
-        coEvery { serverService.createMappedRoute(any(), any()) } just Runs
-        coEvery { databaseService.updateMappedRoute(any()) } returns "id"
         coEvery { databaseService.queryMappedRoutes(any()) } returns listOf(mappedRoute)
         coEvery { databaseService.queryMappedApi(any()) } returns null
         coEvery { databaseService.createMappedApi(any()) } returns "id"
 
-        dataSource.createMappedRoute(mappedRoute)
+        assertThrows<MiddlewareException>(
+            "Route already exists with the exact same configuration." +
+                " Path: v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path"
+        ) {
+            dataSource.createMappedRoute(mappedRoute)
+        }
 
-        coVerify { serverService.createMappedRoute(mappedRoute, any()) }
-        coVerify { databaseService.updateMappedRoute(mappedRoute) }
+        coVerify(inverse = true) { serverService.createMappedRoute(mappedRoute, any()) }
         coVerify { databaseService.queryMappedRoutes("https://www.themealdb.com/api/") }
         coVerify { databaseService.queryMappedApi("https://www.themealdb.com/api/") }
         coVerify { databaseService.createMappedApi(any()) }

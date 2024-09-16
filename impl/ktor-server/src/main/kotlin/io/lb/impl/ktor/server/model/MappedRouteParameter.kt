@@ -24,7 +24,7 @@ internal data class MappedRouteParameter(
     val method: MiddlewareHttpMethods,
     val preConfiguredQueries: Map<String, String> = mapOf(),
     val preConfiguredHeaders: Map<String, String> = originalRoute.headers,
-    val preConfiguredBody: String? = originalRoute.body,
+    val preConfiguredBody: JsonObject? = originalRoute.body,
     val rulesAsString: JsonObject?
 ) {
     fun toMappedRoute() = MappedRoute(

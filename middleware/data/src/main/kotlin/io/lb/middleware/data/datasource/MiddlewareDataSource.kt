@@ -1,7 +1,7 @@
 package io.lb.middleware.data.datasource
 
 import io.ktor.http.HttpStatusCode
-import io.lb.common.data.model.MappedApi
+import io.ktor.http.isSuccess
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.service.ClientService
@@ -41,19 +41,15 @@ internal class MiddlewareDataSource(
             }
         }
         serverService.startGenericMappingRoute { mappedRoute ->
-            kotlin.runCatching {
-                val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
-                    createMappedRoute(mappedRoute)
-                } else {
-                    throw MiddlewareException(
-                        code = HttpStatusCode.BadRequest.value,
-                        message = "Invalid mapping rules."
-                    )
-                }
-                route.path
-            }.getOrElse {
-                it.message.toString()
+            val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
+                createMappedRoute(mappedRoute)
+            } else {
+                throw MiddlewareException(
+                    code = HttpStatusCode.BadRequest.value,
+                    message = "Invalid mapping rules."
+                )
             }
+            route.path
         }
         serverService.startPreviewRoute { originalResponse, mappingRules ->
             mapperService.responseJsonPreview(
@@ -89,32 +85,50 @@ internal class MiddlewareDataSource(
     @VisibleForTesting
     @Throws(MiddlewareException::class)
     suspend fun createMappedRoute(mappedRoute: MappedRoute): MappedRoute {
-        var localApi = databaseService.queryMappedApi(mappedRoute.mappedApi.originalApi.baseUrl)
-        if (localApi == null) {
-            val uuid = databaseService.createMappedApi(mappedRoute.mappedApi)
-            localApi = MappedApi(
-                uuid = uuid,
-                originalApi = mappedRoute.mappedApi.originalApi
-            )
+        val localApi = databaseService.queryMappedApi(mappedRoute.mappedApi.originalApi.baseUrl) ?: run {
+            databaseService.createMappedApi(mappedRoute.mappedApi)
+            mappedRoute.mappedApi
         }
 
         val routes = databaseService.queryMappedRoutes(localApi.originalApi.baseUrl)
         val localRoute = routes.find { it.originalRoute.path == mappedRoute.originalRoute.path }
 
-        val uuid = if (localRoute != null) {
-            databaseService.updateMappedRoute(mappedRoute.copy(uuid = localRoute.uuid))
-        } else {
-            databaseService.createMappedRoute(mappedRoute)
+        localRoute?.takeIf {
+            hasSameConfigs(it, mappedRoute)
+        }?.let {
+            throw MiddlewareException(
+                code = HttpStatusCode.Conflict.value,
+                message = "Route already exists with the exact same configuration. Path: ${it.path}"
+            )
         }
 
+        getMappedResponse(mappedRoute).takeIf {
+            HttpStatusCode.fromValue(it.statusCode).isSuccess().not()
+        }?.let {
+            throw MiddlewareException(
+                code = it.statusCode,
+                message = it.body ?: "Failed to get response from original server."
+            )
+        }
+
+        val uuid = databaseService.createMappedRoute(mappedRoute)
         val remoteRoute = mappedRoute.copy(
             uuid = uuid,
             path = "v1/$uuid/${mappedRoute.path}"
         )
 
-        configureMappedRoute(localRoute ?: remoteRoute)
-        return localRoute ?: remoteRoute
+        configureMappedRoute(remoteRoute)
+        return remoteRoute
     }
+
+    private fun hasSameConfigs(
+        localRoute: MappedRoute,
+        mappedRoute: MappedRoute,
+    ) = localRoute.originalRoute.method == mappedRoute.originalRoute.method &&
+        localRoute.preConfiguredQueries == mappedRoute.preConfiguredQueries &&
+        localRoute.preConfiguredHeaders == mappedRoute.preConfiguredHeaders &&
+        localRoute.preConfiguredBody == mappedRoute.preConfiguredBody &&
+        localRoute.rulesAsString == mappedRoute.rulesAsString
 
     @Throws(MiddlewareException::class)
     private suspend fun configureMappedRoute(mappedRoute: MappedRoute) {
@@ -132,7 +146,7 @@ internal class MiddlewareDataSource(
             preConfiguredHeaders = mappedRoute.preConfiguredHeaders,
             preConfiguredBody = mappedRoute.preConfiguredBody
         )
-        if (originalResponse.statusCode != HttpStatusCode.OK.value) {
+        if (HttpStatusCode.fromValue(originalResponse.statusCode).isSuccess().not()) {
             throw MiddlewareException(
                 code = originalResponse.statusCode,
                 message = originalResponse.body ?: "Failed to get response from original server."

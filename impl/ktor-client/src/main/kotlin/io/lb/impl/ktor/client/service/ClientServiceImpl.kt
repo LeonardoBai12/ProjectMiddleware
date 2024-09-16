@@ -8,6 +8,7 @@ import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.service.ClientService
 import io.lb.impl.ktor.client.util.request
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Implementation of the [ClientService] interface.
@@ -21,7 +22,7 @@ internal class ClientServiceImpl(
         route: OriginalRoute,
         preConfiguredQueries: Map<String, String>,
         preConfiguredHeaders: Map<String, String>,
-        preConfiguredBody: String?
+        preConfiguredBody: JsonObject?
     ): OriginalResponse {
         return client.request(
             originalRoute = route,
