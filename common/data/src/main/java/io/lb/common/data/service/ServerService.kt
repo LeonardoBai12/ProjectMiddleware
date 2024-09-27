@@ -9,15 +9,15 @@ import io.lb.common.shared.error.MiddlewareException
  */
 interface ServerService {
     /**
-     * Starts the configuration route.
-     *
-     * @param onReceive The handler for the configuration route. It receives the mapped route and returns
-     * the URL for the mapped route.
+     * Starts the generic mapping route.
+     * @param onReceive The handler for the generic mapping route. It receives the mapped route and returns the URL.
      */
     fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String)
 
     /**
-     * Starts the route to query all routes.
+     * Starts the query all routes route.
+     * @param onReceive The handler for the query all routes route.
+     * It receives the URL and returns the list of mapped routes.
      */
     fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>)
 
