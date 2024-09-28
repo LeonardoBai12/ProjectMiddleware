@@ -2,6 +2,11 @@
 
 Welcome to the **Project Middleware**! This API allows you to transform data from any public API to a format that best fits your needs. The process involves defining mapping rules to convert fields, handle nested structures, and concatenate values where necessary.
 
+## Official Documentation
+
+You can access out official documentation for the Project Middleware API here:
+- [Project Middleware Official Documentation](https://leonardos-organization-15.gitbook.io/projectmiddleware-public-docs)
+
 ## How It Works
 
 1. **Define Mapping Rules**: Use the provided rules in [Documentation for Mapping Rules](./documentation/MappingRules.md) to create custom mapping logic for your API responses. You can transform field names, exclude empty values, and more.

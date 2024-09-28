@@ -28,6 +28,11 @@ class DokkaModuleConventionPlugin : Plugin<Project> {
 
                     reportUndocumented.set(true)
 
+                    perPackageOption {
+                        matchingRegex.set(".*di.*")
+                        suppress.set(true)
+                    }
+
                     if (file("Packages.md").exists()) {
                         includes.from("Packages.md")
                     }
@@ -36,7 +41,8 @@ class DokkaModuleConventionPlugin : Plugin<Project> {
                     }
                     documentedVisibilities.set(
                         setOf(
-                            DokkaConfiguration.Visibility.PUBLIC
+                            DokkaConfiguration.Visibility.PUBLIC,
+                            DokkaConfiguration.Visibility.INTERNAL
                         )
                     )
                 }
