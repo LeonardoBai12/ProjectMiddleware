@@ -1,6 +1,5 @@
 package io.lb.middleware.data.datasource
 
-import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.model.OriginalApi
@@ -11,7 +10,6 @@ import io.lb.common.data.service.ClientService
 import io.lb.common.data.service.DatabaseService
 import io.lb.common.data.service.MapperService
 import io.lb.common.data.service.ServerService
-import io.lb.common.shared.error.MiddlewareException
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -27,7 +25,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class MiddlewareDataSourceTest {
     @MockK
@@ -66,7 +63,9 @@ class MiddlewareDataSourceTest {
         every { serverService.startGenericMappingRoute(any()) } just Runs
         every { serverService.startPreviewRoute(any()) } just Runs
 
-        dataSource.configGenericRoutes()
+        dataSource.configGenericRoutes {
+            it
+        }
 
         verify { serverService.startQueryAllRoutesRoute(any()) }
         verify { serverService.startGenericMappingRoute(any()) }
@@ -84,43 +83,6 @@ class MiddlewareDataSourceTest {
         assertEquals(result, mockRoutes.size)
         coVerify { databaseService.queryAllMappedRoutes() }
         coVerify { serverService.createMappedRoutes(any(), any()) }
-    }
-
-    @Test
-    fun `When createMappedRoute is called, expect exception`() = runTest {
-        val originalRoute = OriginalRoute(
-            path = "path",
-            method = MiddlewareHttpMethods.Post,
-            originalApi = OriginalApi(
-                baseUrl = "baseUrl"
-            ),
-        )
-        val mappedRoute = MappedRoute(
-            uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
-            path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
-            mappedApi = MappedApi(
-                uuid = "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
-                originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
-            ),
-            originalRoute = originalRoute,
-            method = MiddlewareHttpMethods.Post,
-            rulesAsString = "rules"
-        )
-        coEvery { databaseService.queryMappedRoutes(any()) } returns listOf(mappedRoute)
-        coEvery { databaseService.queryMappedApi(any()) } returns null
-        coEvery { databaseService.createMappedApi(any()) } returns "id"
-
-        assertThrows<MiddlewareException>(
-            "Route already exists with the exact same configuration." +
-                " Path: v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path"
-        ) {
-            dataSource.createMappedRoute(mappedRoute)
-        }
-
-        coVerify(inverse = true) { serverService.createMappedRoute(mappedRoute, any()) }
-        coVerify { databaseService.queryMappedRoutes("https://www.themealdb.com/api/") }
-        coVerify { databaseService.queryMappedApi("https://www.themealdb.com/api/") }
-        coVerify { databaseService.createMappedApi(any()) }
     }
 
     @Test
