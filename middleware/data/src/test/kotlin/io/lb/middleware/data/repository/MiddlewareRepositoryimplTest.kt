@@ -30,13 +30,13 @@ class MiddlewareRepositoryimplTest {
         val result = repository.startMiddleware().single()
 
         assert(result is Resource.Success)
-        verify { dataSource.configGenericRoutes() }
+        verify { dataSource.configGenericRoutes(any()) }
         coVerify { dataSource.configStoredMappedRoutes() }
     }
 
     @Test
     fun `When startMiddleware is called and an exception is thrown, expect to return Resource Error`() = runTest {
-        coEvery { dataSource.configGenericRoutes() } throws MiddlewareException(400, "Error")
+        coEvery { dataSource.configGenericRoutes(any()) } throws MiddlewareException(400, "Error")
 
         val result = repository.startMiddleware().single()
 

@@ -2,6 +2,7 @@ package io.lb.middleware.data.datasource
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
 import io.lb.common.data.service.ClientService
@@ -31,7 +32,7 @@ internal class MiddlewareDataSource(
      * @throws MiddlewareException If an error occurs while configuring the routes.
      */
     @Throws(MiddlewareException::class)
-    fun configGenericRoutes() {
+    fun configGenericRoutes(onCreateMappedRoute: suspend (MappedRoute) -> MappedRoute) {
         serverService.startQueryAllRoutesRoute {
             kotlin.runCatching {
                 val routes = databaseService.queryAllMappedRoutes()
@@ -42,7 +43,7 @@ internal class MiddlewareDataSource(
         }
         serverService.startGenericMappingRoute { mappedRoute ->
             val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
-                createMappedRoute(mappedRoute)
+                onCreateMappedRoute(mappedRoute)
             } else {
                 throw MiddlewareException(
                     code = HttpStatusCode.BadRequest.value,
@@ -82,46 +83,7 @@ internal class MiddlewareDataSource(
         return localRoutes.size
     }
 
-    @VisibleForTesting
-    @Throws(MiddlewareException::class)
-    suspend fun createMappedRoute(mappedRoute: MappedRoute): MappedRoute {
-        val localApi = databaseService.queryMappedApi(mappedRoute.mappedApi.originalApi.baseUrl) ?: run {
-            databaseService.createMappedApi(mappedRoute.mappedApi)
-            mappedRoute.mappedApi
-        }
-
-        val routes = databaseService.queryMappedRoutes(localApi.originalApi.baseUrl)
-        val localRoute = routes.find { it.originalRoute.path == mappedRoute.originalRoute.path }
-
-        localRoute?.takeIf {
-            hasSameConfigs(it, mappedRoute)
-        }?.let {
-            throw MiddlewareException(
-                code = HttpStatusCode.Conflict.value,
-                message = "Route already exists with the exact same configuration. Path: ${it.path}"
-            )
-        }
-
-        getMappedResponse(mappedRoute).takeIf {
-            HttpStatusCode.fromValue(it.statusCode).isSuccess().not()
-        }?.let {
-            throw MiddlewareException(
-                code = it.statusCode,
-                message = it.body ?: "Failed to get response from original server."
-            )
-        }
-
-        val uuid = databaseService.createMappedRoute(mappedRoute)
-        val remoteRoute = mappedRoute.copy(
-            uuid = uuid,
-            path = "v1/$uuid/${mappedRoute.path}"
-        )
-
-        configureMappedRoute(remoteRoute)
-        return remoteRoute
-    }
-
-    private fun hasSameConfigs(
+    fun hasSameConfigs(
         localRoute: MappedRoute,
         mappedRoute: MappedRoute,
     ) = localRoute.originalRoute.method == mappedRoute.originalRoute.method &&
@@ -131,7 +93,7 @@ internal class MiddlewareDataSource(
         localRoute.rulesAsString == mappedRoute.rulesAsString
 
     @Throws(MiddlewareException::class)
-    private suspend fun configureMappedRoute(mappedRoute: MappedRoute) {
+    suspend fun configureMappedRoute(mappedRoute: MappedRoute) {
         serverService.createMappedRoute(mappedRoute) {
             getMappedResponse(mappedRoute)
         }
@@ -165,5 +127,44 @@ internal class MiddlewareDataSource(
     suspend fun stopMiddleware() {
         serverService.stopServer()
         databaseService.close()
+    }
+
+    /**
+     * Queries the mapped API.
+     *
+     * @param baseUrl The base URL of the API.
+     * @return The mapped API.
+     */
+    suspend fun queryMappedApi(baseUrl: String): MappedApi? {
+        return databaseService.queryMappedApi(baseUrl)
+    }
+
+    /**
+     * Creates the mapped API.
+     *
+     * @param mappedApi The mapped API.
+     */
+    suspend fun createMappedApi(mappedApi: MappedApi) {
+        databaseService.createMappedApi(mappedApi)
+    }
+
+    /**
+     * Queries the mapped routes.
+     *
+     * @param baseUrl The base URL of the API.
+     * @return The mapped routes.
+     */
+    suspend fun queryMappedRoutes(baseUrl: String): List<MappedRoute> {
+        return databaseService.queryMappedRoutes(baseUrl)
+    }
+
+    /**
+     * Creates the mapped route.
+     *
+     * @param mappedRoute The mapped route.
+     * @return The UUID of the mapped route.
+     */
+    suspend fun createMappedRoute(mappedRoute: MappedRoute): String {
+        return databaseService.createMappedRoute(mappedRoute)
     }
 }
