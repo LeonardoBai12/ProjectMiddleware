@@ -4,6 +4,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.request.receiveNullable
 import io.ktor.server.response.defaultTextContentType
@@ -36,70 +37,92 @@ internal class ServerServiceImpl(
 ) : ServerService {
     override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
         engine.application.routing {
-            post("v1/mapping") {
-                val parameter = call.receiveNullable<MappedRouteParameter>() ?: run {
-                    call.respond(HttpStatusCode.BadRequest)
-                    return@post
-                }
-                val mappedRouteUrl = runCatching {
-                    onReceive(parameter.toMappedRoute())
-                }.getOrElse {
-                    when (it) {
-                        is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
-                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
-                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+            authenticate {
+                post("v1/mapping") {
+                    val parameter = call.receiveNullable<MappedRouteParameter>() ?: run {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@post
                     }
-                    return@post
+                    val mappedRouteUrl = runCatching {
+                        onReceive(parameter.toMappedRoute())
+                    }.getOrElse {
+                        when (it) {
+                            is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                            is MiddlewareException -> call.respond(
+                                HttpStatusCode.fromValue(it.code),
+                                it.localizedMessage
+                            )
+
+                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                        }
+                        return@post
+                    }
+                    call.respond(HttpStatusCode.Created, mappedRouteUrl)
                 }
-                call.respond(HttpStatusCode.Created, mappedRouteUrl)
             }
         }
     }
 
     override fun startQueryAllRoutesRoute(onReceive: suspend (String) -> List<MappedRoute>) {
         engine.application.routing {
-            get("v1/routes") {
-                val routes = kotlin.runCatching {
-                    onReceive("v1/routes")
-                }.getOrElse {
-                    when (it) {
-                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
-                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+            authenticate {
+                get("v1/routes") {
+                    val routes = kotlin.runCatching {
+                        onReceive("v1/routes")
+                    }.getOrElse {
+                        when (it) {
+                            is MiddlewareException -> call.respond(
+                                HttpStatusCode.fromValue(it.code),
+                                it.localizedMessage
+                            )
+
+                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                        }
+                        return@get
                     }
-                    return@get
+                    call.respond(HttpStatusCode.OK, routes)
                 }
-                call.respond(HttpStatusCode.OK, routes)
             }
         }
     }
 
     override fun startPreviewRoute(onReceive: (String, String) -> String) {
         engine.application.routing {
-            get("v1/preview") {
-                val parameter = call.receiveNullable<PreviewRequestBody>()
-                val originalResponse = parameter?.originalResponse ?: run {
-                    call.respond(HttpStatusCode.BadRequest)
-                    return@get
-                }
-                val mappingRules = kotlin.runCatching {
-                    parameter.mappingRules.toString()
-                }.getOrElse {
-                    when (it) {
-                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
-                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+            authenticate {
+                get("v1/preview") {
+                    val parameter = call.receiveNullable<PreviewRequestBody>()
+                    val originalResponse = parameter?.originalResponse ?: run {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@get
                     }
-                    return@get
-                }
-                val mappedResponse = kotlin.runCatching {
-                    onReceive(originalResponse.toString(), mappingRules)
-                }.getOrElse {
-                    when (it) {
-                        is MiddlewareException -> call.respond(HttpStatusCode.fromValue(it.code), it.localizedMessage)
-                        else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    val mappingRules = kotlin.runCatching {
+                        parameter.mappingRules.toString()
+                    }.getOrElse {
+                        when (it) {
+                            is MiddlewareException -> call.respond(
+                                HttpStatusCode.fromValue(it.code),
+                                it.localizedMessage
+                            )
+
+                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                        }
+                        return@get
                     }
-                    return@get
+                    val mappedResponse = kotlin.runCatching {
+                        onReceive(originalResponse.toString(), mappingRules)
+                    }.getOrElse {
+                        when (it) {
+                            is MiddlewareException -> call.respond(
+                                HttpStatusCode.fromValue(it.code),
+                                it.localizedMessage
+                            )
+
+                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                        }
+                        return@get
+                    }
+                    call.respond(HttpStatusCode.OK, mappedResponse)
                 }
-                call.respond(HttpStatusCode.OK, mappedResponse)
             }
         }
     }
@@ -109,35 +132,42 @@ internal class ServerServiceImpl(
         onRequest: suspend (MappedRoute) -> MappedResponse
     ) {
         engine.application.routing {
-            when (mappedRoute.method) {
-                MiddlewareHttpMethods.Get -> {
-                    get(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+            authenticate {
+                when (mappedRoute.method) {
+                    MiddlewareHttpMethods.Get -> {
+                        get(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
-                }
-                MiddlewareHttpMethods.Post -> {
-                    post(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+
+                    MiddlewareHttpMethods.Post -> {
+                        post(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
-                }
-                MiddlewareHttpMethods.Put -> {
-                    put(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+
+                    MiddlewareHttpMethods.Put -> {
+                        put(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
-                }
-                MiddlewareHttpMethods.Delete -> {
-                    delete(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+
+                    MiddlewareHttpMethods.Delete -> {
+                        delete(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
-                }
-                MiddlewareHttpMethods.Patch -> {
-                    patch(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+
+                    MiddlewareHttpMethods.Patch -> {
+                        patch(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
-                }
-                MiddlewareHttpMethods.Head -> {
-                    head(mappedRoute.path) {
-                        onServerRequest(mappedRoute, onRequest)
+
+                    MiddlewareHttpMethods.Head -> {
+                        head(mappedRoute.path) {
+                            onServerRequest(mappedRoute, onRequest)
+                        }
                     }
                 }
             }

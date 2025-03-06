@@ -6,6 +6,7 @@ import io.lb.middleware.domain.model.MiddlewareState
 import io.lb.middleware.domain.usecases.ConfigureRoutesUseCase
 import io.lb.middleware.domain.usecases.StartMiddlewareUseCase
 import io.lb.middleware.domain.usecases.StopMiddlewareUseCase
+import io.lb.middleware.domain.usecases.ValidateUserUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +17,8 @@ class MiddlewareController(
     private val coroutineScope: CoroutineScope,
     private val startMiddlewareUseCase: StartMiddlewareUseCase,
     private val configureRoutesUseCase: ConfigureRoutesUseCase,
-    private val stopMiddlewareUseCase: StopMiddlewareUseCase
+    private val stopMiddlewareUseCase: StopMiddlewareUseCase,
+    private val validateUserUseCase: ValidateUserUseCase
 ) {
     private val _state = MutableStateFlow<MiddlewareState>(MiddlewareState.Idle)
     val state: StateFlow<MiddlewareState> = _state
@@ -27,6 +29,24 @@ class MiddlewareController(
                 startMiddleware()
             }
         }
+    }
+
+    suspend fun validateUser(
+        secret: String,
+        audience: String,
+        issuer: String,
+        userId: String,
+        email: String,
+        expiration: Long,
+    ): Boolean {
+        return validateUserUseCase(
+            secret = secret,
+            audience = audience,
+            issuer = issuer,
+            userId = userId,
+            email = email,
+            expiration = expiration
+        )
     }
 
     private fun startMiddleware() {

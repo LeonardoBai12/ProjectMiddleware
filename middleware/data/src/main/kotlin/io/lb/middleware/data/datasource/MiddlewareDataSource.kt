@@ -167,4 +167,22 @@ internal class MiddlewareDataSource(
     suspend fun createMappedRoute(mappedRoute: MappedRoute): String {
         return databaseService.createMappedRoute(mappedRoute)
     }
+
+    suspend fun validateUser(
+        secret: String,
+        audience: String,
+        issuer: String,
+        userId: String,
+        email: String,
+        expiration: Long,
+    ): Boolean{
+        return clientService.validateUser(
+            secret = secret,
+            audience = audience,
+            issuer = issuer,
+            userId = userId,
+            email = email,
+            expiration = expiration
+        )
+    }
 }
