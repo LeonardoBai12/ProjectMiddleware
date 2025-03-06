@@ -14,6 +14,7 @@ import io.lb.common.data.model.OriginalApi
 import io.lb.common.data.model.OriginalResponse
 import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.service.ClientService
+import io.lb.impl.ktor.client.ClientHiddenConstants
 import io.lb.impl.ktor.client.model.UserData
 import io.lb.impl.ktor.client.util.request
 import kotlinx.serialization.json.JsonObject
@@ -55,7 +56,7 @@ internal class ClientServiceImpl(
         expiration: Long,
     ): Boolean {
         val result = client.get {
-            url("")
+            url("${ClientHiddenConstants.userServiceBaseUrl}/user?userId=$userId")
             bearerAuth(generateToken(secret, audience, issuer, userId, email, expiration))
         }
         val body = result.body<UserData?>()
