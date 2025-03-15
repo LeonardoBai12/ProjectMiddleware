@@ -184,12 +184,17 @@ internal class ServerServiceImpl(
         }
         val headers = call.request.headers.toMap().mapValues { header ->
             header.value.first()
-        }
+        }.toMutableMap()
         val body = try {
             call.receiveNullable<JsonObject>()
         } catch (e: Exception) {
             null
         }
+
+        if (headers.containsKey("MappedAuthorization")) {
+            headers["Authorization"] = headers["MappedAuthorization"]!!
+        }
+
         mappedRoute.originalRoute = mappedRoute.originalRoute.copy(
             queries = queries,
             headers = headers,
