@@ -1,5 +1,6 @@
 package io.lb.impl.ktor.server.service
 
+import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -89,11 +90,11 @@ internal class ServerServiceImpl(
     override fun startPreviewRoute(onReceive: (String, String) -> String) {
         engine.application.routing {
             authenticate {
-                get("v1/preview") {
+                post("v1/preview") {
                     val parameter = call.receiveNullable<PreviewRequestBody>()
                     val originalResponse = parameter?.originalResponse ?: run {
                         call.respond(HttpStatusCode.BadRequest)
-                        return@get
+                        return@post
                     }
                     val mappingRules = kotlin.runCatching {
                         parameter.mappingRules.toString()
@@ -106,7 +107,7 @@ internal class ServerServiceImpl(
 
                             else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
                         }
-                        return@get
+                        return@post
                     }
                     val mappedResponse = kotlin.runCatching {
                         onReceive(originalResponse.toString(), mappingRules)
@@ -119,7 +120,7 @@ internal class ServerServiceImpl(
 
                             else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
                         }
-                        return@get
+                        return@post
                     }
                     call.respond(HttpStatusCode.OK, mappedResponse)
                 }

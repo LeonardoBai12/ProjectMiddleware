@@ -83,7 +83,7 @@ class ServerServiceImplTest {
     @Test
     fun `When uses Get method on preview route, expect OK`() =
         serverServiceTestApplication(MiddlewareHttpMethods.Get) {
-            val response = client.get("v1/preview") {
+            val response = client.post("v1/preview") {
                 setupRequest()
                 setBody(Json.encodeToString(createPreviewRequest()))
             }
