@@ -23,9 +23,8 @@ import io.ktor.server.sessions.set
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.util.generateNonce
 import io.lb.impl.ktor.server.model.MiddlewareSession
-import kotlinx.serialization.json.Json
 
-fun ApplicationTestBuilder.setupApplication(block: Application.() -> Unit) {
+fun ApplicationTestBuilder.setupApplication() {
     install(ContentNegotiation) {
         json()
         gson {
@@ -36,7 +35,6 @@ fun ApplicationTestBuilder.setupApplication(block: Application.() -> Unit) {
         setupApplication()
     }
 }
-
 
 fun Application.setupApplication() {
     configureAuth()
@@ -64,7 +62,7 @@ fun Application.configureSession(
 
     intercept(ApplicationCallPipeline.Call) {
         call.sessions.get<MiddlewareSession>() ?: run {
-            val clientId = userId.ifBlank { call.parameters["userId"] ?: "" }
+            val clientId = userId.ifBlank { call.parameters["userId"].orEmpty() }
 
             call.sessions.set(
                 MiddlewareSession(

@@ -46,15 +46,19 @@ internal class ServerServiceImpl(
                     }
                     val mappedRouteUrl = runCatching {
                         onReceive(parameter.toMappedRoute())
-                    }.getOrElse {
-                        when (it) {
-                            is IllegalArgumentException -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
-                            is MiddlewareException -> call.respond(
-                                HttpStatusCode.fromValue(it.code),
-                                it.localizedMessage
+                    }.getOrElse { error ->
+                        when (error) {
+                            is IllegalArgumentException -> call.respond(
+                                HttpStatusCode.BadRequest,
+                                error.localizedMessage
                             )
 
-                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                            is MiddlewareException -> call.respond(
+                                HttpStatusCode.fromValue(error.code),
+                                error.localizedMessage
+                            )
+
+                            else -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
                         }
                         return@post
                     }
@@ -70,14 +74,14 @@ internal class ServerServiceImpl(
                 get("v1/routes") {
                     val routes = kotlin.runCatching {
                         onReceive("v1/routes")
-                    }.getOrElse {
-                        when (it) {
+                    }.getOrElse { error ->
+                        when (error) {
                             is MiddlewareException -> call.respond(
-                                HttpStatusCode.fromValue(it.code),
-                                it.localizedMessage
+                                HttpStatusCode.fromValue(error.code),
+                                error.localizedMessage
                             )
 
-                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                            else -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
                         }
                         return@get
                     }
@@ -98,27 +102,27 @@ internal class ServerServiceImpl(
                     }
                     val mappingRules = kotlin.runCatching {
                         parameter.mappingRules.toString()
-                    }.getOrElse {
-                        when (it) {
+                    }.getOrElse { error ->
+                        when (error) {
                             is MiddlewareException -> call.respond(
-                                HttpStatusCode.fromValue(it.code),
-                                it.localizedMessage
+                                HttpStatusCode.fromValue(error.code),
+                                error.localizedMessage
                             )
 
-                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                            else -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
                         }
                         return@post
                     }
                     val mappedResponse = kotlin.runCatching {
                         onReceive(originalResponse.toString(), mappingRules)
-                    }.getOrElse {
-                        when (it) {
+                    }.getOrElse { error ->
+                        when (error) {
                             is MiddlewareException -> call.respond(
-                                HttpStatusCode.fromValue(it.code),
-                                it.localizedMessage
+                                HttpStatusCode.fromValue(error.code),
+                                error.localizedMessage
                             )
 
-                            else -> call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                            else -> call.respond(HttpStatusCode.BadRequest, error.localizedMessage)
                         }
                         return@post
                     }

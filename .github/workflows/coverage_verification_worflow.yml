@@ -8,7 +8,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -24,14 +24,14 @@ jobs:
 
       - name: Generate Tests Report (If JUnit finds violations)
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Middleware-Test-Report
           path: 'build/reports/tests/test/'
 
       - name: Upload Unit Tests Coverage Report (If JaCoCo finds violations)
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Middleware-Coverage-Report
           path: 'build/reports/jacoco/test/html/'
