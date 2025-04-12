@@ -5,7 +5,6 @@ import io.lb.middleware.domain.repository.MiddlewareRepository
 import io.lb.middleware.domain.usecases.ConfigureRoutesUseCase
 import io.lb.middleware.domain.usecases.StartMiddlewareUseCase
 import io.lb.middleware.domain.usecases.StopMiddlewareUseCase
-import io.lb.middleware.domain.usecases.ValidateUserUseCase
 import kotlinx.coroutines.CoroutineScope
 
 fun provideMiddlewareController(
@@ -16,7 +15,6 @@ fun provideMiddlewareController(
         coroutineScope = coroutineScope,
         startMiddlewareUseCase = StartMiddlewareUseCase(repository),
         configureRoutesUseCase = ConfigureRoutesUseCase(repository),
-        stopMiddlewareUseCase = StopMiddlewareUseCase(repository),
-        validateUserUseCase = ValidateUserUseCase(repository)
+        stopMiddlewareUseCase = StopMiddlewareUseCase(repository)
     )
 }

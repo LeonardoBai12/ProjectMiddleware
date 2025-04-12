@@ -6,7 +6,6 @@ import io.lb.middleware.domain.model.MiddlewareState
 import io.lb.middleware.domain.usecases.ConfigureRoutesUseCase
 import io.lb.middleware.domain.usecases.StartMiddlewareUseCase
 import io.lb.middleware.domain.usecases.StopMiddlewareUseCase
-import io.lb.middleware.domain.usecases.ValidateUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -35,9 +34,6 @@ class MiddlewareControllerTest {
     @MockK
     private lateinit var stopMiddlewareUseCase: StopMiddlewareUseCase
 
-    @MockK
-    private lateinit var validateUserUseCase: ValidateUserUseCase
-
     private lateinit var middlewareController: MiddlewareController
 
     @BeforeEach
@@ -47,8 +43,7 @@ class MiddlewareControllerTest {
             CoroutineScope(UnconfinedTestDispatcher()),
             startMiddlewareUseCase,
             configureRoutesUseCase,
-            stopMiddlewareUseCase,
-            validateUserUseCase
+            stopMiddlewareUseCase
         )
     }
 

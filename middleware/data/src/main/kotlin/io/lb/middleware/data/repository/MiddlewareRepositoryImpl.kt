@@ -81,22 +81,4 @@ internal class MiddlewareRepositoryImpl(
     override suspend fun stopMiddleware() {
         dataSource.stopMiddleware()
     }
-
-    override suspend fun validateUser(
-        secret: String,
-        audience: String,
-        issuer: String,
-        userId: String,
-        email: String,
-        expiration: Long
-    ): Boolean {
-        return dataSource.validateUser(
-            secret = secret,
-            audience = audience,
-            issuer = issuer,
-            userId = userId,
-            email = email,
-            expiration = expiration
-        )
-    }
 }

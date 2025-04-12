@@ -34,24 +34,4 @@ interface ClientService {
      * @return The response from the API.
      */
     suspend fun validateApi(api: OriginalApi): ApiValidationResponse
-
-    /**
-     * Validates a user by making a request to the user service.
-     *
-     * @param secret The secret to use for validation.
-     * @param audience The audience to use for validation.
-     * @param issuer The issuer to use for validation.
-     * @param userId The user ID to validate.
-     * @param email The email of the user.
-     * @param expiration The expiration time of the token.
-     * @return Whether the user is valid.
-     */
-    suspend fun validateUser(
-        secret: String,
-        audience: String,
-        issuer: String,
-        userId: String,
-        email: String,
-        expiration: Long,
-    ): Boolean
 }

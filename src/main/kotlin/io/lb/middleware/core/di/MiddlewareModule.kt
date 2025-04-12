@@ -33,19 +33,6 @@ internal fun provideMiddleware(
         repository = repository
     )
 
-    engine.application.apply {
-        configureAuth { parameter ->
-            controller.validateUser(
-                secret = parameter.secret,
-                audience = parameter.audience,
-                issuer = parameter.issuer,
-                userId = parameter.userId,
-                email = parameter.email,
-                expiration = parameter.expiration
-            )
-        }
-    }
-
     return Middleware(
         coroutineScope = coroutineScope,
         controller = controller
@@ -73,4 +60,5 @@ private fun Application.module() {
     configureSerialization()
     configureMonitoring()
     configureSession()
+    configureAuth()
 }
