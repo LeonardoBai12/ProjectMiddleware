@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew dokkaHtmlMultiModule
 
       - name: Upload documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ProjectMiddleware-KDoc-Documentation
           path: 'build/dokka/htmlMultiModule'
