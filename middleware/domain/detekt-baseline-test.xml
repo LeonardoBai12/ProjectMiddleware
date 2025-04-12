@@ -10,6 +10,7 @@
     <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var configureRoutesUseCase: ConfigureRoutesUseCase</ID>
     <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var startMiddlewareUseCase: StartMiddlewareUseCase</ID>
     <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var stopMiddlewareUseCase: StopMiddlewareUseCase</ID>
+    <ID>VarCouldBeVal:MiddlewareControllerTest.kt$MiddlewareControllerTest$@MockK private lateinit var validateUserUseCase: ValidateUserUseCase</ID>
     <ID>VarCouldBeVal:StartMiddlewareUseCaseTest.kt$StartMiddlewareUseCaseTest$@MockK private lateinit var middlewareRepository: MiddlewareRepository</ID>
     <ID>VarCouldBeVal:StopMiddlewareUseCaseTest.kt$StopMiddlewareUseCaseTest$@MockK private lateinit var repository: MiddlewareRepository</ID>
   </CurrentIssues>

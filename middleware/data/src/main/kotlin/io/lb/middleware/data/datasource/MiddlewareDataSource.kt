@@ -175,7 +175,7 @@ internal class MiddlewareDataSource(
         userId: String,
         email: String,
         expiration: Long,
-    ): Boolean{
+    ): Boolean {
         return clientService.validateUser(
             secret = secret,
             audience = audience,
