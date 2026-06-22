@@ -11,7 +11,7 @@ title: About the Creator
   <div>
     <h2 style="margin:0 0 0.25rem;">Leonardo Bai</h2>
     <p style="margin:0; opacity:0.75;">Android Engineer · Kotlin · Ktor · KMP</p>
-    <p style="margin:0.5rem 0 0;">São Paulo, Brazil</p>
+    <p style="margin:0.5rem 0 0;">Brazil</p>
   </div>
 </div>
 
@@ -21,29 +21,7 @@ ProjectMiddleware started as a personal backend experiment to solve a real frust
 
 ---
 
-## Experience
-
-| Period | Company | Role |
-|--------|---------|------|
-| Mar 2025 – Apr 2026 | **PicPay** | Android Engineer — corporate payment solutions; introduced testing culture during legacy refactoring |
-| May 2024 – Mar 2025 | **Caf** | Android Engineer — led FaceLiveness SDK redesign, 95% test coverage, reverse proxy and analytics |
-| Jan 2022 – Apr 2024 | **Invillia / PagBank** | Android Engineer — payment SDKs, card terminal apps, R8, CI pipelines |
-| Jan 2021 – Jan 2022 | **Top Information** | Mobile Developer — maintained legacy projects; first Kotlin and Flutter apps |
-
----
-
-## Education
-
-- **Postgraduate** — Software Architecture, Cybersecurity & Data Engineering · PUC (2024–2025)
-- **Postgraduate** — Mobile Application Development · PUC (2023–2025)
-- **Bachelor's** — Software Engineering · UniCesumar (2020–2024)
-- **Associate's** — Systems Analysis and Development · UniCesumar (2020–2023)
-
----
-
-## Other projects
-
-### Portfolio
+## Portfolio
 
 A personal portfolio site summarising experience, skills, and notable projects.
 
