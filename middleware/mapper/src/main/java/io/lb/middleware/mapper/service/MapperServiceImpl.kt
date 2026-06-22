@@ -221,7 +221,8 @@ internal class MapperServiceImpl : MapperService {
         }
 
         return when (type) {
-            "String" -> JsonPrimitive(value?.jsonPrimitive?.content?.trim().orEmpty())
+            "String" -> if (value == null || value is JsonNull) JsonNull
+                else JsonPrimitive(value.jsonPrimitive.content.trim())
             "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull())
             "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull())
             "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean())
