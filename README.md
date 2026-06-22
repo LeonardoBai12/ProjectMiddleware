@@ -1,54 +1,38 @@
-# Project Middleware Overview
+# ProjectMiddleware
 
-Welcome to the **Project Middleware**! This API allows you to transform data from any public API to a format that best fits your needs. The process involves defining mapping rules to convert fields, handle nested structures, and concatenate values where necessary.
+**ProjectMiddleware** is a Kotlin/Ktor API transformation service. It lets you define mapping rules that call an external API and reshape its JSON response — so every client gets exactly the format it needs, without touching the upstream service.
 
-## Official Documentation
+## Documentation
 
-You can access out official documentation for the Project Middleware API here:
-- [Project Middleware Official Documentation](https://leonardos-organization-15.gitbook.io/projectmiddleware-public-docs)
+Full documentation: **[leonardobai12.github.io/ProjectMiddleware](https://leonardobai12.github.io/ProjectMiddleware/)**
 
 ## How It Works
 
-1. **Define Mapping Rules**: Use the provided rules in [Documentation for Mapping Rules](./documentation/MappingRules.md) to create custom mapping logic for your API responses. You can transform field names, exclude empty values, and more.
+1. **Define mapping rules** — specify which external endpoint to call and how to transform its response: rename fields, extract nested values, concatenate multiple fields, and more. See [Mapping Rules](https://leonardobai12.github.io/ProjectMiddleware/getting-started/mapping-rules/).
 
-2. **Test with Preview Route**: Before creating a permanent mapping route, it's recommended to test your configuration using the **Preview Route**. This ensures the mapped response matches your expectations without committing to a permanent route.
+2. **Preview before committing** — call `/v1/preview` with your rules to verify the transformed output before creating a permanent route. See [Preview Route](https://leonardobai12.github.io/ProjectMiddleware/getting-started/preview-route/).
 
-   - For more information, see [Documentation for Preview Route](./documentation/PreviewRoute.md).
+3. **Create the mapped route** — once the preview looks right, register the route. It gets a UUID-based path and stays live from that point on. See [Mapping Request](https://leonardobai12.github.io/ProjectMiddleware/getting-started/mapping-request/).
 
-3. **Create a Mapped Route**: Once you’re satisfied with the preview response, you can proceed to create the actual mapped route using the **Mapping Request** guidelines.
-
-   - Learn more about this in [Documentation for Mapping Request](./documentation/MappingRequest.md).
+4. **Call the route** — send requests to `/v1/{uuid}/{path}` and receive the transformed response in real time.
 
 ## Key Features
 
-- **Flexible Mapping**: You can rename fields, extract values from deeply nested structures, and concatenate multiple fields into one.
-- **Preview Before Creation**: Use the preview functionality to verify your mappings before committing to a route.
-- **Easy Field Transformation**: Transform field names and types seamlessly with custom rules.
+- **Flexible field mapping** — rename fields, extract values from deeply nested structures, and concatenate multiple fields into one.
+- **Preview before creation** — validate mappings against live data before committing to a permanent route.
+- **Dynamic routing** — every registered route is served instantly via its UUID path with no redeployment needed.
 
-## Steps to Create a Mapped Route
+## API Endpoints
 
-1. **Preview the Response**:
-   - Call the `/v1/preview` endpoint with your rules to ensure that the response matches your expected output. This step is crucial before proceeding to create a permanent mapped route.
-   - [Documentation for Mapping Rules](./documentation/MappingRules.md): Detailed explanation of how to define your mapping rules.
-   - [Documentation for Preview Route](./documentation/PreviewRoute.md): Guidelines for testing your mappings.
+**Base URL:** `https://projectmiddleware.fly.dev/`
 
-2. **Create the Mapped Route**:
-   - After confirming the previewed response, create the route using the mapping request as described in these docs:
-   - [Documentation for Mapping Request](./documentation/MappingRequest.md): Full instructions on how to set up your mapped route.
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1/mapping` | Create a mapped route |
+| `GET` | `/v1/routes` | List all mapped routes |
+| `POST` | `/v1/preview` | Preview a mapped response |
+| `*` | `/v1/{uuid}/{path}` | Call a mapped route |
 
-3. **Call the Mapped Route**:
-   - Once the route is created, you can start using the mapped route to get transformed responses by calling `/v1/{uuid}/{path}`.
+## Postman Collection
 
-## API Endpoints Overview
-
-### Base URL: https://projectmiddleware.fly.dev/
-
-- **`GET https://projectmiddleware.fly.dev/v1/preview`**: Preview a mapped response before creating the route.
-- **`GET https://projectmiddleware.fly.dev/v1/routes`**: Retrieve all mapped routes.
-- **`POST https://projectmiddleware.fly.dev/v1/mapping`**: Define a new mapping rule for an API.
-- **`GET https://projectmiddleware.fly.dev/v1/{uuid}/{path}`**: Retrieve the mapped response using the specific UUID and path.
-
-## Postman Documentation
-
-### [Postman Collection URL](https://documenter.getpostman.com/view/28162587/2sAXjRX9p1#intro)
-For a complete list of routes, examples, and how to use the API, visit our Postman collection. 
+For a complete list of routes and ready-to-run examples, see the [Postman collection](https://documenter.getpostman.com/view/28162587/2sAXjRX9p1#intro).

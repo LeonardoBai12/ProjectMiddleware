@@ -1,0 +1,89 @@
+theme: jekyll-theme-chirpy
+
+# -------------------------
+# Site metadata
+# -------------------------
+title: ProjectMiddleware
+tagline: A Kotlin/Ktor middleware for transforming and mapping external API responses
+description: >-
+  ProjectMiddleware is an API transformation layer that lets clients register
+  mapping rules, call external APIs, and receive clean transformed responses —
+  all without changing upstream services.
+
+url: "https://leonardobai12.github.io"
+baseurl: "/ProjectMiddleware"
+
+lang: en
+timezone: America/Sao_Paulo
+
+# -------------------------
+# Author
+# -------------------------
+github:
+  username: "LeonardoBai12"
+
+social:
+  name: "Leonardo Bai"
+  email: "lb.io.dev@gmail.com"
+  links:
+    - https://github.com/LeonardoBai12
+
+# -------------------------
+# Theme preferences
+# -------------------------
+theme_mode:      # leave blank to follow system default; or "light" / "dark"
+
+avatar: "/assets/images/middleware-icon.jpg"
+
+toc: true
+
+# -------------------------
+# Analytics (optional)
+# -------------------------
+google_analytics:
+  id: ""
+
+# -------------------------
+# SEO
+# -------------------------
+google_site_verification: ""
+
+# -------------------------
+# Jekyll build settings
+# -------------------------
+permalink: pretty
+
+exclude:
+  - "*.gem"
+  - "*.gemspec"
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - node_modules
+  - vendor
+  - .bundle
+  - .sass-cache
+  - .jekyll-cache
+  - MappingRules.md
+  - MappingRequest.md
+  - PreviewRoute.md
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+# -------------------------
+# Plugins
+# -------------------------
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag

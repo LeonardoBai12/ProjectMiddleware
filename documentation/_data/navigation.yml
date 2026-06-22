@@ -1,0 +1,49 @@
+- title: "Overview"
+  url_prefix: "overview"
+  url: "/overview/"
+  chapters:
+    - title: "How It Works"
+      url: "/overview/"
+    - title: "Key Features"
+      url: "/overview/key-features/"
+
+- title: "Getting Started"
+  url_prefix: "getting-started"
+  url: "/getting-started/mapping-rules/"
+  chapters:
+    - title: "Mapping Rules"
+      url: "/getting-started/mapping-rules/"
+    - title: "Mapping Request"
+      url: "/getting-started/mapping-request/"
+    - title: "Preview Route"
+      url: "/getting-started/preview-route/"
+
+- title: "Endpoints"
+  url_prefix: "endpoints"
+  url: "/endpoints/"
+  chapters:
+    - title: "Endpoints Overview"
+      url: "/endpoints/"
+    - title: "Postman Collection"
+      url: "/endpoints/postman/"
+
+- title: "API Reference"
+  url_prefix: "api-reference"
+  url: "/api-reference/"
+  chapters:
+    - title: "KDoc Reference"
+      url: "/api-reference/"
+
+- title: "Ecosystem"
+  url_prefix: "ecosystem"
+  url: "/ecosystem/"
+  chapters:
+    - title: "Related Projects"
+      url: "/ecosystem/"
+
+- title: "About"
+  url_prefix: "about"
+  url: "/about/"
+  chapters:
+    - title: "About the Creator"
+      url: "/about/"

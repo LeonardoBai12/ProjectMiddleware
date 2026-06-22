@@ -42,6 +42,13 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### Jekyll ###
+documentation/_site/
+documentation/.jekyll-cache/
+documentation/.jekyll-metadata
+documentation/vendor/
+documentation/.bundle/
+
 local.properties
 **/ClientHiddenConstants.kt
 CLAUDE.md
