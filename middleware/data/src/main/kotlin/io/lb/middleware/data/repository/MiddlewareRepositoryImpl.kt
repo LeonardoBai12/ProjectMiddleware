@@ -3,6 +3,7 @@ package io.lb.middleware.data.repository
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import io.lb.common.data.model.MappedRoute
+import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.shared.error.MiddlewareException
 import io.lb.common.shared.flow.Resource
 import io.lb.middleware.data.datasource.MiddlewareDataSource
@@ -21,8 +22,8 @@ internal class MiddlewareRepositoryImpl(
 ) : MiddlewareRepository {
     override fun startMiddleware() = flow {
         try {
-            dataSource.configGenericRoutes {
-                createMappedRoute(it)
+            dataSource.configGenericRoutes { mappedRoute, runtimeAuth ->
+                createMappedRoute(mappedRoute, runtimeAuth)
             }
             dataSource.configStoredMappedRoutes()
             emit(Resource.Success(Unit))
@@ -32,7 +33,10 @@ internal class MiddlewareRepositoryImpl(
     }
 
     @VisibleForTesting
-    private suspend fun createMappedRoute(mappedRoute: MappedRoute): MappedRoute {
+    private suspend fun createMappedRoute(
+        mappedRoute: MappedRoute,
+        runtimeAuth: MiddlewareAuthHeader? = null
+    ): MappedRoute {
         val localApi = dataSource.queryMappedApi(mappedRoute.mappedApi.originalApi.baseUrl) ?: run {
             dataSource.createMappedApi(mappedRoute.mappedApi)
             mappedRoute.mappedApi
@@ -50,7 +54,13 @@ internal class MiddlewareRepositoryImpl(
             )
         }
 
-        dataSource.getMappedResponse(mappedRoute).takeIf {
+        val routeForValidation = if (runtimeAuth != null && mappedRoute.originalRoute.authHeader == null) {
+            mappedRoute.copy(originalRoute = mappedRoute.originalRoute.copy(authHeader = runtimeAuth))
+        } else {
+            mappedRoute
+        }
+
+        dataSource.getMappedResponse(routeForValidation).takeIf {
             HttpStatusCode.fromValue(it.statusCode).isSuccess().not()
         }?.let {
             throw MiddlewareException(

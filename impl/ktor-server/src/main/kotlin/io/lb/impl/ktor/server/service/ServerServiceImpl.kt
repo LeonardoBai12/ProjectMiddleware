@@ -22,6 +22,7 @@ import io.ktor.util.pipeline.PipelineContext
 import io.ktor.util.toMap
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
+import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareHttpMethods
 import io.lb.common.data.service.ServerService
 import io.lb.common.shared.error.MiddlewareException
@@ -37,7 +38,10 @@ import kotlinx.serialization.json.JsonObject
 internal class ServerServiceImpl(
     private val engine: NettyApplicationEngine
 ) : ServerService {
-    override fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String) {
+    companion object {
+        const val MAPPED_AUTH_HEADER = "X-Mapped-Auth"
+    }
+    override fun startGenericMappingRoute(onReceive: suspend (MappedRoute, MiddlewareAuthHeader?) -> String) {
         engine.application.routing {
             authenticate {
                 post("v1/mapping") {
@@ -45,8 +49,10 @@ internal class ServerServiceImpl(
                         call.respond(HttpStatusCode.BadRequest)
                         return@post
                     }
+                    val runtimeAuthHeader = call.request.headers[MAPPED_AUTH_HEADER]
+                        ?.let { MiddlewareAuthHeader.fromString(it) }
                     val mappedRouteUrl = runCatching {
-                        onReceive(parameter.toMappedRoute())
+                        onReceive(parameter.toMappedRoute(), runtimeAuthHeader)
                     }.getOrElse { error ->
                         when (error) {
                             is IllegalArgumentException -> call.respond(
@@ -188,9 +194,11 @@ internal class ServerServiceImpl(
         val queries = call.request.queryParameters.toMap().mapValues { query ->
             query.value.first()
         }
+        val runtimeAuthHeader = call.request.headers[MAPPED_AUTH_HEADER]
+            ?.let { MiddlewareAuthHeader.fromString(it) }
         val headers = call.request.headers.toMap()
             .mapValues { it.value.first() }
-            .filterKeys { it != HttpHeaders.Authorization }
+            .filterKeys { it != HttpHeaders.Authorization && it != MAPPED_AUTH_HEADER }
         val body = try {
             call.receiveNullable<JsonObject>()
         } catch (e: Exception) {
@@ -199,7 +207,8 @@ internal class ServerServiceImpl(
         mappedRoute.originalRoute = mappedRoute.originalRoute.copy(
             queries = queries,
             headers = headers,
-            body = body
+            body = body,
+            authHeader = mappedRoute.originalRoute.authHeader ?: runtimeAuthHeader
         )
         val response = onRequest(mappedRoute)
 

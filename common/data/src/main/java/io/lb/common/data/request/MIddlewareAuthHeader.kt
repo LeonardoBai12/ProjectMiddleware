@@ -31,6 +31,19 @@ data class MiddlewareAuthHeader(
 
             return MiddlewareAuthHeader(type, token)
         }
+
+        fun fromString(value: String): MiddlewareAuthHeader {
+            val parts = value.split(" ", limit = 2)
+            if (parts.size == 2) {
+                val type = MiddlewareAuthHeaderType.entries.firstOrNull {
+                    it != MiddlewareAuthHeaderType.None && it.name.equals(parts[0], ignoreCase = true)
+                }
+                if (type != null) {
+                    return MiddlewareAuthHeader(type = type, token = parts[1])
+                }
+            }
+            return MiddlewareAuthHeader(type = MiddlewareAuthHeaderType.None, token = value)
+        }
     }
 }
 

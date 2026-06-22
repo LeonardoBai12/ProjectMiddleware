@@ -63,8 +63,8 @@ class MiddlewareDataSourceTest {
         every { serverService.startGenericMappingRoute(any()) } just Runs
         every { serverService.startPreviewRoute(any()) } just Runs
 
-        dataSource.configGenericRoutes {
-            it
+        dataSource.configGenericRoutes { route, _ ->
+            route
         }
 
         verify { serverService.startQueryAllRoutesRoute(any()) }
