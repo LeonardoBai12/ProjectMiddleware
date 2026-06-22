@@ -1,4 +1,9 @@
-/* Avatar: square image fills the circle edge-to-edge */
+/* Avatar: 2x size, square image fills the circle edge-to-edge */
+#avatar {
+  width: 13rem !important;
+  height: 13rem !important;
+}
+
 #avatar img {
   object-fit: cover;
   object-position: center;
