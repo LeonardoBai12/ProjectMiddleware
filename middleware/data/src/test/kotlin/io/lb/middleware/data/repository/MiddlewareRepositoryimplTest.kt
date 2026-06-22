@@ -118,7 +118,7 @@ class MiddlewareRepositoryimplTest {
     }
 
     @Test
-    fun `When createMappedRoute with pre-configured auth and runtimeAuth, pre-configured auth used for validation`() = runTest {
+    fun `When createMappedRoute with pre-configured auth and runtimeAuth, pre-configured auth used`() = runTest {
         val capturedLambda = slot<suspend (MappedRoute, MiddlewareAuthHeader?) -> MappedRoute>()
         val capturedValidationRoute = slot<MappedRoute>()
 
