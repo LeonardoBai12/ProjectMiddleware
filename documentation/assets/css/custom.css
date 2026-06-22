@@ -1,12 +1,8 @@
-/* Avatar: 2x size, square image fills the circle edge-to-edge */
-#avatar {
-  width: 13rem !important;
-  height: 13rem !important;
-}
-
+/* Avatar: zoom the image 2x inside the circle without resizing the circle */
 #avatar img {
   object-fit: cover;
   object-position: center;
+  transform: scale(2);
 }
 
 
