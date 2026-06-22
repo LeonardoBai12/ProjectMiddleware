@@ -46,6 +46,8 @@ bin/
 documentation/_site/
 documentation/.jekyll-cache/
 documentation/.jekyll-metadata
+documentation/vendor/
+documentation/.bundle/
 
 local.properties
 **/ClientHiddenConstants.kt
