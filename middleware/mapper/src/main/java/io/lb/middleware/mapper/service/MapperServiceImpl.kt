@@ -118,9 +118,9 @@ internal class MapperServiceImpl : MapperService {
                 } else {
                     element?.jsonObject
                 } ?: throw MiddlewareException(
-                        code = MiddlewareStatusCode.BAD_REQUEST,
-                        "Parent key '$key' not found in original JSON."
-                    )
+                    code = MiddlewareStatusCode.BAD_REQUEST,
+                    "Parent key '$key' not found in original JSON."
+                )
             }
         } else {
             val element = currentElement?.jsonObject?.get(keys[0])
@@ -221,8 +221,11 @@ internal class MapperServiceImpl : MapperService {
         }
 
         return when (type) {
-            "String" -> if (value == null || value is JsonNull) JsonNull
-                else JsonPrimitive(value.jsonPrimitive.content.trim())
+            "String" -> if (value == null || value is JsonNull) {
+                JsonNull
+            } else {
+                JsonPrimitive(value.jsonPrimitive.content.trim())
+            }
             "Int" -> JsonPrimitive(value?.jsonPrimitive?.content?.toIntOrNull())
             "Double" -> JsonPrimitive(value?.jsonPrimitive?.content?.toDoubleOrNull())
             "Boolean" -> JsonPrimitive(value?.jsonPrimitive?.content?.toBoolean())
