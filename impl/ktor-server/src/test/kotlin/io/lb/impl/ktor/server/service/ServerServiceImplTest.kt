@@ -140,7 +140,7 @@ class ServerServiceImplTest {
                 ) = setupService(method)
                 serverService.createMappedRoute(testMappedRoute, onRequestMock)
                 serverService.startQueryAllRoutesRoute { emptyList() }
-                serverService.startGenericMappingRoute { "Received" }
+                serverService.startGenericMappingRoute { _, _ -> "Received" }
                 serverService.startPreviewRoute { _, _ -> "Received" }
             }
             block()
@@ -249,6 +249,119 @@ class ServerServiceImplTest {
     }
 
     @Test
+    fun `When route has no auth and X-Mapped-Auth Bearer is provided, expect auth applied to route`() {
+        var capturedAuthHeader: io.lb.common.data.request.MiddlewareAuthHeader? = null
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRouteWithoutAuth(MiddlewareHttpMethods.Get)) {
+                    capturedAuthHeader = it.originalRoute.authHeader
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+                header(ServerServiceImpl.MAPPED_AUTH_HEADER, "Bearer mytoken123")
+            }
+            assertEquals(io.lb.common.data.request.MiddlewareAuthHeaderType.Bearer, capturedAuthHeader?.type)
+            assertEquals("mytoken123", capturedAuthHeader?.token)
+        }
+    }
+
+    @Test
+    fun `When route has no auth and X-Mapped-Auth Basic is provided, expect auth applied to route`() {
+        var capturedAuthHeader: io.lb.common.data.request.MiddlewareAuthHeader? = null
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRouteWithoutAuth(MiddlewareHttpMethods.Get)) {
+                    capturedAuthHeader = it.originalRoute.authHeader
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+                header(ServerServiceImpl.MAPPED_AUTH_HEADER, "Basic dXNlcjpwYXNz")
+            }
+            assertEquals(io.lb.common.data.request.MiddlewareAuthHeaderType.Basic, capturedAuthHeader?.type)
+            assertEquals("dXNlcjpwYXNz", capturedAuthHeader?.token)
+        }
+    }
+
+    @Test
+    fun `When route has pre-configured auth and X-Mapped-Auth is provided, expect pre-configured auth used`() {
+        var capturedAuthHeader: io.lb.common.data.request.MiddlewareAuthHeader? = null
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRoute(MiddlewareHttpMethods.Get)) {
+                    capturedAuthHeader = it.originalRoute.authHeader
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+                header(ServerServiceImpl.MAPPED_AUTH_HEADER, "Bearer runtimetoken")
+            }
+            assertEquals(MiddlewareAuthHeaderType.None, capturedAuthHeader?.type)
+            assertEquals("", capturedAuthHeader?.token)
+        }
+    }
+
+    @Test
+    fun `When X-Mapped-Auth header is provided, expect it not forwarded in route headers`() {
+        val capturedHeaders = mutableMapOf<String, String>()
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRouteWithoutAuth(MiddlewareHttpMethods.Get)) {
+                    capturedHeaders.putAll(it.originalRoute.headers)
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+                header(ServerServiceImpl.MAPPED_AUTH_HEADER, "Bearer mytoken")
+            }
+            assertFalse(capturedHeaders.containsKey(ServerServiceImpl.MAPPED_AUTH_HEADER))
+        }
+    }
+
+    @Test
+    fun `When route has no auth and no X-Mapped-Auth is provided, expect null auth on route`() {
+        var capturedAuthHeader: io.lb.common.data.request.MiddlewareAuthHeader? =
+            MiddlewareAuthHeader(MiddlewareAuthHeaderType.Bearer, "sentinel")
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRouteWithoutAuth(MiddlewareHttpMethods.Get)) {
+                    capturedAuthHeader = it.originalRoute.authHeader
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+            }
+            assertEquals(null, capturedAuthHeader)
+        }
+    }
+
+    @Test
     fun `When request has no auth, expect unauthorized`() =
         serverServiceTestApplication(MiddlewareHttpMethods.Get) {
             val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
@@ -313,7 +426,7 @@ class ServerServiceImplTest {
                 val engine: NettyApplicationEngine = mockk(relaxed = true)
                 every { engine.application } returns this
                 serverService = ServerServiceImpl(engine)
-                serverService.startGenericMappingRoute {
+                serverService.startGenericMappingRoute { _, _ ->
                     throw MiddlewareException(MiddlewareStatusCode.CONFLICT, "Route already exists")
                 }
             }
@@ -333,7 +446,7 @@ class ServerServiceImplTest {
                 val engine: NettyApplicationEngine = mockk(relaxed = true)
                 every { engine.application } returns this
                 serverService = ServerServiceImpl(engine)
-                serverService.startGenericMappingRoute {
+                serverService.startGenericMappingRoute { _, _ ->
                     throw IllegalArgumentException("Invalid route configuration")
                 }
             }
@@ -364,12 +477,78 @@ class ServerServiceImplTest {
         }
     }
 
+    @Test
+    fun `When mapping route creation receives X-Mapped-Auth, expect runtime auth passed to handler`() {
+        var capturedRuntimeAuth: io.lb.common.data.request.MiddlewareAuthHeader? = null
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.startGenericMappingRoute { _, runtimeAuth ->
+                    capturedRuntimeAuth = runtimeAuth
+                    "v1/test-path"
+                }
+            }
+            client.post("v1/mapping") {
+                setupRequest()
+                header(ServerServiceImpl.MAPPED_AUTH_HEADER, "Bearer creation-token")
+                setBody(Json.encodeToString(createMappedRoute()))
+            }
+            assertEquals(io.lb.common.data.request.MiddlewareAuthHeaderType.Bearer, capturedRuntimeAuth?.type)
+            assertEquals("creation-token", capturedRuntimeAuth?.token)
+        }
+    }
+
+    @Test
+    fun `When mapping route creation has no X-Mapped-Auth, expect null runtime auth passed to handler`() {
+        var capturedRuntimeAuth: io.lb.common.data.request.MiddlewareAuthHeader? =
+            MiddlewareAuthHeader(MiddlewareAuthHeaderType.Bearer, "sentinel")
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.startGenericMappingRoute { _, runtimeAuth ->
+                    capturedRuntimeAuth = runtimeAuth
+                    "v1/test-path"
+                }
+            }
+            client.post("v1/mapping") {
+                setupRequest()
+                setBody(Json.encodeToString(createMappedRoute()))
+            }
+            assertEquals(null, capturedRuntimeAuth)
+        }
+    }
+
     private fun createPreviewRequest(): PreviewRequestBody {
         return PreviewRequestBody(
             originalResponse = Json.parseToJsonElement("{}").jsonObject,
             mappingRules = Json.parseToJsonElement("{}").jsonObject
         )
     }
+
+    private fun createTestMappedRouteWithoutAuth(method: MiddlewareHttpMethods) = MappedRoute(
+        uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+        method = method,
+        path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
+        rulesAsString = "test-rules",
+        originalRoute = OriginalRoute(
+            path = "test-route",
+            method = method,
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            authHeader = null,
+            headers = mapOf("Content-Type" to "application/json"),
+            body = json.decodeFromString("{}"),
+        ),
+        mappedApi = MappedApi(
+            "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+            originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
+        ),
+    )
 
     private fun createTestMappedRoute(method: MiddlewareHttpMethods) = MappedRoute(
         uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",

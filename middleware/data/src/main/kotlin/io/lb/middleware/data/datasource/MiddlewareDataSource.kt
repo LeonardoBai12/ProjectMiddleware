@@ -5,6 +5,7 @@ import io.ktor.http.isSuccess
 import io.lb.common.data.model.MappedApi
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
+import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.service.ClientService
 import io.lb.common.data.service.DatabaseService
 import io.lb.common.data.service.MapperService
@@ -32,7 +33,7 @@ internal class MiddlewareDataSource(
      * @throws MiddlewareException If an error occurs while configuring the routes.
      */
     @Throws(MiddlewareException::class)
-    fun configGenericRoutes(onCreateMappedRoute: suspend (MappedRoute) -> MappedRoute) {
+    fun configGenericRoutes(onCreateMappedRoute: suspend (MappedRoute, MiddlewareAuthHeader?) -> MappedRoute) {
         serverService.startQueryAllRoutesRoute {
             kotlin.runCatching {
                 val routes = databaseService.queryAllMappedRoutes()
@@ -41,9 +42,9 @@ internal class MiddlewareDataSource(
                 emptyList()
             }
         }
-        serverService.startGenericMappingRoute { mappedRoute ->
+        serverService.startGenericMappingRoute { mappedRoute, runtimeAuth ->
             val route = if (mapperService.validateMappingRules(mappedRoute.rulesAsString.orEmpty())) {
-                onCreateMappedRoute(mappedRoute)
+                onCreateMappedRoute(mappedRoute, runtimeAuth)
             } else {
                 throw MiddlewareException(
                     code = HttpStatusCode.BadRequest.value,

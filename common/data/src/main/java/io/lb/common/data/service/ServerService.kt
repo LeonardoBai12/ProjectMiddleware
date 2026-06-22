@@ -2,6 +2,7 @@ package io.lb.common.data.service
 
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
+import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.shared.error.MiddlewareException
 
 /**
@@ -10,9 +11,10 @@ import io.lb.common.shared.error.MiddlewareException
 interface ServerService {
     /**
      * Starts the generic mapping route.
-     * @param onReceive The handler for the generic mapping route. It receives the mapped route and returns the URL.
+     * @param onReceive The handler for the generic mapping route. It receives the mapped route,
+     * an optional runtime auth header (from X-Mapped-Auth, not stored), and returns the URL.
      */
-    fun startGenericMappingRoute(onReceive: suspend (MappedRoute) -> String)
+    fun startGenericMappingRoute(onReceive: suspend (MappedRoute, MiddlewareAuthHeader?) -> String)
 
     /**
      * Starts the query all routes route.

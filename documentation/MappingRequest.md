@@ -16,7 +16,11 @@ You can also include the following optional fields in the root of your mapping r
 
 ### External API Authentication:
 
-To authenticate calls to the original external API, include an `authHeader` field inside `originalRoute`. This is independent from the Middleware's own authentication (handled via the `Authorization` header when calling the Middleware).
+There are two ways to authenticate calls to the original external API. Both are independent from the Middleware's own authentication (handled via the `Authorization` header when calling the Middleware).
+
+#### Option 1 — Pre-configured auth (stored with the route)
+
+Include an `authHeader` field inside `originalRoute` when creating the route. The token is stored and automatically used on every request to that mapped route.
 
 Supported auth types:
 - **`None`** — No authentication header is sent to the external API.
@@ -37,7 +41,25 @@ Supported auth types:
 }
 ```
 
-> **Note:** The Middleware's own `Authorization` header (used by clients to authenticate with the Middleware) is never forwarded to the external API. Only `authHeader` inside `originalRoute` controls external API authentication.
+#### Option 2 — Runtime auth via `X-Mapped-Auth` header (not stored)
+
+If you do not want to store the auth token in the route, omit `authHeader` from `originalRoute` and pass the `X-Mapped-Auth` header instead. This is useful when tokens are short-lived or user-specific.
+
+The header value should be the full authorization string (same format as an `Authorization` header):
+
+```
+X-Mapped-Auth: Bearer your-api-token-here
+X-Mapped-Auth: Basic dXNlcjpwYXNz
+X-Mapped-Auth: raw-token
+```
+
+**When creating a route (`POST /v1/mapping`):** If `X-Mapped-Auth` is present and the route has no `authHeader`, the middleware uses it to validate the route against the external API before saving. The token is **not** stored — every subsequent call to that route must include `X-Mapped-Auth`.
+
+**When calling a mapped route (`/v1/{uuid}/path`):** If the route has no pre-configured `authHeader`, the middleware uses `X-Mapped-Auth` from the incoming request to authenticate the outbound call to the external API.
+
+**Priority:** Pre-configured `authHeader` always takes precedence over `X-Mapped-Auth`. If both are present, `X-Mapped-Auth` is ignored.
+
+> **Note:** The Middleware's own `Authorization` header (used by clients to authenticate with the Middleware) is never forwarded to the external API. `X-Mapped-Auth` is also never forwarded as-is — it is only used internally to set the outbound `Authorization` header.
 
 ### Example Additional Fields:
 
