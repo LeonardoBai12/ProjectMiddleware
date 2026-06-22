@@ -151,8 +151,14 @@ internal fun Project.setJacocoJvmDirectories(
         "**/Application.kt",
         "**/*Configuration.kt",
         "**/*Kt$*",
+        "**/internal/**",
         "**/R.class",
         "**/BuildConfig.*",
+        "**/session/**",
+        "**/model/**",
+        "**/plugins/**",
+        "**/di/**",
+        "**/security/**",
     )
 
     jacocoReport.apply {
