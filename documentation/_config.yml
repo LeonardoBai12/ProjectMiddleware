@@ -33,7 +33,7 @@ social:
 # -------------------------
 theme_mode:      # leave blank to follow system default; or "light" / "dark"
 
-avatar: "/assets/img/logo.png"
+avatar: "/assets/images/middleware-icon.jpg"
 
 toc: true
 

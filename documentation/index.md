@@ -32,6 +32,18 @@ Once registered, the middleware exposes a clean UUID-based endpoint. Every reque
 | [Endpoints](endpoints/) | All available HTTP endpoints |
 | [Postman Collection](endpoints/postman/) | Interactive API collection |
 | [KDoc Reference](api-reference/) | Auto-generated code documentation |
+| [Ecosystem](ecosystem/) | Playground app, user service, and related repositories |
+
+---
+
+## The ecosystem
+
+ProjectMiddleware is the backend of a broader ecosystem:
+
+- **[Middleware Playground](https://github.com/LeonardoBai12/MiddlewarePlayground)** — a Kotlin Multiplatform app (Android + iOS) for creating and managing mapped routes with a visual editor
+- **[Middleware User Service](https://github.com/LeonardoBai12/MIddlewareUserService)** — a dedicated Ktor authentication microservice that handles JWT issuance and user management for the ecosystem
+
+See the [Ecosystem page](ecosystem/) for details.
 
 ---
 

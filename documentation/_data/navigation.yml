@@ -33,3 +33,17 @@
   chapters:
     - title: "KDoc Reference"
       url: "/api-reference/"
+
+- title: "Ecosystem"
+  url_prefix: "ecosystem"
+  url: "/ecosystem/"
+  chapters:
+    - title: "Related Projects"
+      url: "/ecosystem/"
+
+- title: "About"
+  url_prefix: "about"
+  url: "/about/"
+  chapters:
+    - title: "About the Creator"
+      url: "/about/"
