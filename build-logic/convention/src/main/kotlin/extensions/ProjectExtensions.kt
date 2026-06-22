@@ -87,10 +87,15 @@ private fun Project.configureKotlin() {
  * @receiver The JacocoCoverageVerification to configure the settings for.
  * @param minimumCoverage The minimum coverage percentage to enforce.
  */
-internal fun JacocoCoverageVerification.setupCoverageVerification(
-    minimumCoverage: Double = 0.80
+internal fun Project.setupCoverageVerification(
+    task: JacocoCoverageVerification
 ) {
-    violationRules {
+    val minimumCoverage = rootProject.findProperty("minimumCoverage")
+        ?.toString()
+        ?.toDoubleOrNull()
+        ?: 0.80
+
+    task.violationRules {
         rule {
             limit {
                 minimum = minimumCoverage.toBigDecimal()

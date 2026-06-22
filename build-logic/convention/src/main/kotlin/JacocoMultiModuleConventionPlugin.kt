@@ -49,7 +49,7 @@ class JacocoMultiModuleConventionPlugin : Plugin<Project> {
                 group = "verification"
                 description = "Validates $module coverage."
 
-                setupCoverageVerification()
+                setupCoverageVerification(this)
                 dependsOn(report)
 
                 subprojects.forEach { subproject ->
