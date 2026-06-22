@@ -9,5 +9,5 @@ data class UserData(
     val phone: String,
     val password: String?,
     val email: String,
-    val profilePictureUrl: String
+    val profilePictureUrl: String?
 )
