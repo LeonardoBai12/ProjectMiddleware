@@ -1,8 +1,17 @@
-/* Avatar: zoom the image 2x inside the circle without resizing the circle */
+/* Avatar: centered, image zoomed 3x inside the circle */
+#avatar {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 #avatar img {
   object-fit: cover;
   object-position: center;
-  transform: scale(2);
+  transform: scale(3);
+}
+
+#avatar img:hover {
+  transform: scale(3);
 }
 
 
