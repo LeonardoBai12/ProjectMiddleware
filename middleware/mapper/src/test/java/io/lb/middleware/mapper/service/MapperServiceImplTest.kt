@@ -8,7 +8,9 @@ import io.lb.middleware.mapper.model.NewBodyMappingRule
 import io.lb.middleware.mapper.model.OldBodyField
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -159,12 +161,157 @@ class MapperServiceImplTest {
     }
 
     @Test
-    fun `mapResponse shaould return a MappedResponse with correct statusCode and mapped body`() {
+    fun `mapResponse should return a MappedResponse with concatenated fields`() {
         val originalResponse = createOriginalResponse()
         val mappedResponse: MappedResponse = mapperService.mapResponse(getConcatenatedMappingRule(), originalResponse)
 
         assertEquals(200, mappedResponse.statusCode)
         assertEquals(expectedMeasuredResponse(), json.parseToJsonElement(mappedResponse.body!!).toString())
+    }
+
+    @Test
+    fun `mapResponse should return concatenated fields with empty values when ignoreEmptyValues is false`() {
+        val originalResponse = createOriginalResponse()
+        val mappedResponse: MappedResponse = mapperService.mapResponse(
+            getConcatenatedMappingRule(false),
+            originalResponse
+        )
+
+        assertEquals(200, mappedResponse.statusCode)
+        val expected = expectedMeasuredResponseWithEmptyValues()
+        assertEquals(expected, json.parseToJsonElement(mappedResponse.body!!).toString())
+    }
+
+    @Test
+    fun `mapResponse should map Double type field correctly`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                newBodyFields = mapOf("rating" to NewBodyField("rating", "Double")),
+                oldBodyFields = mapOf("rating" to OldBodyField(listOf("rating"), "Double"))
+            )
+        )
+        val mappedResponse = mapperService.mapResponse(mappingRule, createFlatOriginalResponse())
+
+        assertEquals(200, mappedResponse.statusCode)
+        assertEquals(
+            json.parseToJsonElement("""{"rating":4.5}""").toString(),
+            json.parseToJsonElement(mappedResponse.body!!).toString()
+        )
+    }
+
+    @Test
+    fun `mapResponse should map Boolean type field correctly`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                newBodyFields = mapOf("available" to NewBodyField("available", "Boolean")),
+                oldBodyFields = mapOf("available" to OldBodyField(listOf("available"), "Boolean"))
+            )
+        )
+        val mappedResponse = mapperService.mapResponse(mappingRule, createFlatOriginalResponse())
+
+        assertEquals(200, mappedResponse.statusCode)
+        assertEquals(
+            json.parseToJsonElement("""{"available":true}""").toString(),
+            json.parseToJsonElement(mappedResponse.body!!).toString()
+        )
+    }
+
+    @Test
+    fun `mapResponse should map root-level fields without parents`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                newBodyFields = mapOf(
+                    "id" to NewBodyField("id", "Int"),
+                    "title" to NewBodyField("title", "String")
+                ),
+                oldBodyFields = mapOf(
+                    "id" to OldBodyField(listOf("id"), "Int"),
+                    "title" to OldBodyField(listOf("title"), "String")
+                )
+            )
+        )
+        val mappedResponse = mapperService.mapResponse(mappingRule, createFlatOriginalResponse())
+
+        assertEquals(200, mappedResponse.statusCode)
+        assertEquals(
+            json.parseToJsonElement("""{"id":101,"title":"Pasta Carbonara"}""").toString(),
+            json.parseToJsonElement(mappedResponse.body!!).toString()
+        )
+    }
+
+    @Test
+    fun `mapResponse should preserve non-200 status code`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                newBodyFields = mapOf("id" to NewBodyField("id", "Int")),
+                oldBodyFields = mapOf("id" to OldBodyField(listOf("id"), "Int"))
+            )
+        )
+        val originalResponse = OriginalResponse(statusCode = 404, body = """{"id":"42"}""")
+        val mappedResponse = mapperService.mapResponse(mappingRule, originalResponse)
+
+        assertEquals(404, mappedResponse.statusCode)
+        assertEquals(
+            json.parseToJsonElement("""{"id":42}""").toString(),
+            json.parseToJsonElement(mappedResponse.body!!).toString()
+        )
+    }
+
+    @Test
+    fun `mapResponse should map fields with multiple parent levels`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                newBodyFields = mapOf(
+                    "id" to NewBodyField("id", "Int"),
+                    "name" to NewBodyField("name", "String")
+                ),
+                oldBodyFields = mapOf(
+                    "id" to OldBodyField(listOf("id"), "Int", parents = listOf("data", "recipes")),
+                    "name" to OldBodyField(listOf("name"), "String", parents = listOf("data", "recipes"))
+                )
+            )
+        )
+        val mappedResponse = mapperService.mapResponse(mappingRule, createDeepNestedOriginalResponse())
+
+        assertEquals(200, mappedResponse.statusCode)
+        assertEquals(
+            json.parseToJsonElement("""{"id":200,"name":"Tiramisu"}""").toString(),
+            json.parseToJsonElement(mappedResponse.body!!).toString()
+        )
+    }
+
+    @Test
+    fun `mapResponse should omit null String fields when ignoreEmptyValues is true`() {
+        val mappingRule = Json.encodeToString(
+            NewBodyMappingRule(
+                ignoreEmptyValues = true,
+                newBodyFields = mapOf(
+                    "idMeal" to NewBodyField("id", "Int"),
+                    "drinkAlternate" to NewBodyField("comment", "String")
+                ),
+                oldBodyFields = mapOf(
+                    "idMeal" to OldBodyField(listOf("idMeal"), "Int", parents = listOf("meals")),
+                    "drinkAlternate" to OldBodyField(listOf("strDrinkAlternate"), "String", parents = listOf("meals"))
+                )
+            )
+        )
+        val mappedResponse = mapperService.mapResponse(mappingRule, createOriginalResponse())
+        val body = json.parseToJsonElement(mappedResponse.body!!).jsonObject
+
+        assertFalse(body.containsKey("comment"))
+    }
+
+    @Test
+    fun `responseJsonPreview should throw MiddlewareException when mapping rules are invalid`() {
+        val exception = assertThrows<MiddlewareException> {
+            mapperService.responseJsonPreview("Invalid json", createOriginalResponse().body!!)
+        }
+
+        assertEquals(
+            "Failed to parse mapping rules. Checkout our documentation: " +
+                "https://github.com/LeonardoBai12-Org/ProjectMiddleware",
+            exception.message
+        )
     }
 }
 

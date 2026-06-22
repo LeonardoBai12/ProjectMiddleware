@@ -87,10 +87,15 @@ private fun Project.configureKotlin() {
  * @receiver The JacocoCoverageVerification to configure the settings for.
  * @param minimumCoverage The minimum coverage percentage to enforce.
  */
-internal fun JacocoCoverageVerification.setupCoverageVerification(
-    minimumCoverage: Double = 0.80
+internal fun Project.setupCoverageVerification(
+    task: JacocoCoverageVerification
 ) {
-    violationRules {
+    val minimumCoverage = rootProject.findProperty("minimumCoverage")
+        ?.toString()
+        ?.toDoubleOrNull()
+        ?: 0.80
+
+    task.violationRules {
         rule {
             limit {
                 minimum = minimumCoverage.toBigDecimal()
@@ -145,9 +150,34 @@ internal fun Project.setupJacoco() {
 internal fun Project.setJacocoJvmDirectories(
     jacocoReport: JacocoReportBase
 ) {
+    val buildDir = layout.buildDirectory.get().asFile.absolutePath
+    val fileFilter = listOf(
+        "**/build/generated/**",
+        "**/Application.kt",
+        "**/*Configuration.kt",
+        "**/*Kt$*",
+        "**/internal/**",
+        "**/R.class",
+        "**/BuildConfig.*",
+        "**/session/**",
+        "**/model/**",
+        "**/plugins/**",
+        "**/di/**",
+        "**/security/**",
+    )
+
     jacocoReport.apply {
-        executionData.from(fileTree("${layout.buildDirectory}/jacoco/test.exec"))
-        setJacocoDirectories(this)
+        executionData.from(fileTree("$buildDir/jacoco") { include("test.exec") })
+
+        classDirectories.from(
+            files(
+                fileTree(mapOf("dir" to "$buildDir/classes/kotlin/main", "excludes" to fileFilter))
+            )
+        )
+
+        val sourceDirs = listOf("src/main/kotlin", "src/main/java")
+        sourceDirectories.from(files(sourceDirs))
+        additionalSourceDirs.from(files(sourceDirs))
     }
 }
 
@@ -160,8 +190,11 @@ internal fun Project.setJacocoJvmDirectories(
 internal fun Project.setJacocoAndroidDirectories(
     jacocoReport: JacocoReportBase
 ) {
+    val buildDir = layout.buildDirectory.get().asFile.absolutePath
     jacocoReport.apply {
-        executionData.from(fileTree("${layout.buildDirectory}/jacoco/testDebugUnitTest.exec"))
+        executionData.from(
+            fileTree("$buildDir/jacoco") { include("testDebugUnitTest.exec") }
+        )
         setJacocoDirectories(this)
     }
 }
@@ -175,6 +208,7 @@ internal fun Project.setJacocoAndroidDirectories(
 internal fun Project.setJacocoDirectories(
     jacocoReport: JacocoReportBase
 ) {
+    val buildDir = layout.buildDirectory.get().asFile.absolutePath
     val fileFilter = listOf(
         "**/build/generated/**",
         "**/Application.kt",
@@ -193,18 +227,18 @@ internal fun Project.setJacocoDirectories(
     jacocoReport.apply {
         val javaTree = fileTree(
             mapOf(
-                "dir" to "${layout.buildDirectory}/intermediates/javac/debug/classes",
+                "dir" to "$buildDir/intermediates/javac/debug/classes",
                 "excludes" to fileFilter
             )
         )
         val kotlinTree = fileTree(
             mapOf(
-                "dir" to "${layout.buildDirectory}/tmp/kotlin-classes/debug",
+                "dir" to "$buildDir/tmp/kotlin-classes/debug",
                 "excludes" to fileFilter
             )
         )
 
-        classDirectories.setFrom(files(javaTree, kotlinTree))
+        classDirectories.from(files(javaTree, kotlinTree))
 
         val sourceDirs = listOf(
             "src/main/kotlin",
@@ -212,8 +246,8 @@ internal fun Project.setJacocoDirectories(
             "src/debug/kotlin",
             "src/debug/java"
         )
-        sourceDirectories.setFrom(files(sourceDirs))
-        additionalSourceDirs.setFrom(files(sourceDirs))
+        sourceDirectories.from(files(sourceDirs))
+        additionalSourceDirs.from(files(sourceDirs))
     }
 }
 

@@ -20,7 +20,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Validate coverage
-        run: ./gradlew jacocoProjectMiddleWareCoverageVerification
+        run: ./gradlew jacocoProjectMiddlewareCoverageVerification
 
       - name: Generate Tests Report (If JUnit finds violations)
         if: failure()
@@ -34,4 +34,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Middleware-Coverage-Report
-          path: 'build/reports/jacoco/test/html/'
+          path: 'build/reports/jacoco/jacocoProjectMiddlewareCoverageReport/html/'

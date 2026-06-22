@@ -14,6 +14,31 @@ You can also include the following optional fields in the root of your mapping r
 - **`preConfiguredHeaders`**: Define any custom headers that should be included in the request.
 - **`preConfiguredBody`**: Predefine the body content for requests that require a specific payload.
 
+### External API Authentication:
+
+To authenticate calls to the original external API, include an `authHeader` field inside `originalRoute`. This is independent from the Middleware's own authentication (handled via the `Authorization` header when calling the Middleware).
+
+Supported auth types:
+- **`None`** — No authentication header is sent to the external API.
+- **`Bearer`** — Sends `Authorization: Bearer <token>`.
+- **`Basic`** — Sends `Authorization: Basic <token>`.
+
+```json
+"originalRoute": {
+  "path": "api/json/v1/1/random.php",
+  "method": "Get",
+  "originalApi": {
+    "baseUrl": "https://www.example.com/"
+  },
+  "authHeader": {
+    "type": "Bearer",
+    "token": "your-api-token-here"
+  }
+}
+```
+
+> **Note:** The Middleware's own `Authorization` header (used by clients to authenticate with the Middleware) is never forwarded to the external API. Only `authHeader` inside `originalRoute` controls external API authentication.
+
 ### Example Additional Fields:
 
 ```json

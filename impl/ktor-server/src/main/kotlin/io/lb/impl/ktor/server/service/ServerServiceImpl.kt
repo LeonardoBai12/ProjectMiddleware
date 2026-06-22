@@ -2,6 +2,7 @@ package io.lb.impl.ktor.server.service
 
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -187,9 +188,9 @@ internal class ServerServiceImpl(
         val queries = call.request.queryParameters.toMap().mapValues { query ->
             query.value.first()
         }
-        val headers = call.request.headers.toMap().mapValues { header ->
-            header.value.first()
-        }
+        val headers = call.request.headers.toMap()
+            .mapValues { it.value.first() }
+            .filterKeys { it != HttpHeaders.Authorization }
         val body = try {
             call.receiveNullable<JsonObject>()
         } catch (e: Exception) {

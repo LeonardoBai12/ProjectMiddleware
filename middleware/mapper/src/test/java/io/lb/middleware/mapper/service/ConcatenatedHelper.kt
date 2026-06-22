@@ -1,10 +1,10 @@
 package io.lb.middleware.mapper.service
 
-internal fun getConcatenatedMappingRule() =
+internal fun getConcatenatedMappingRule(ignoreEmptyValues: Boolean = true) =
     json.parseToJsonElement(
         """
         {
-          "ignoreEmptyValues":true,
+          "ignoreEmptyValues":$ignoreEmptyValues,
           $CONCATENATED_NEW_FIELDS
           $concatenatedOldFields
         }
@@ -128,6 +128,27 @@ internal fun expectedMeasuredResponse() =
             "2 cloves Garlic",
             "Pinch Parsley",
             "1/2 kg chopped Chorizo"
+          ]
+        }
+        """.trimIndent()
+    ).toString()
+
+internal fun expectedMeasuredResponseWithEmptyValues() =
+    json.parseToJsonElement(
+        """
+        {
+          "id":53058,
+          "name":"Croatian Bean Stew",
+          "thumbnail":"https://www.themealdb.com/images/media/meals/tnwy8m1628770384.jpg",
+          "ingredients":[
+            "2 cans Cannellini Beans",
+            "3 tbs Vegetable Oil",
+            "2 cups Tomatoes",
+            "5 Challots",
+            "2 cloves Garlic",
+            "Pinch Parsley",
+            "1/2 kg chopped Chorizo",
+            "", "", "", "", "", "", "", "", "", "", "", "", ""
           ]
         }
         """.trimIndent()

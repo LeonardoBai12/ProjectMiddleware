@@ -5,6 +5,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
@@ -22,6 +23,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -130,6 +132,118 @@ class ClientServiceImplTest {
         assertThrows<IllegalArgumentException> {
             service.request(route, emptyMap(), emptyMap(), null)
         }
+    }
+
+    @Test
+    fun `When calls route with Bearer auth, expect Authorization header sent`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Bearer, "my-token"),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        assertEquals("Bearer my-token", mockEngine.requestHistory.last().headers[HttpHeaders.Authorization])
+    }
+
+    @Test
+    fun `When calls route with Basic auth, expect Authorization header sent`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Basic, "base64creds"),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        assertEquals("Basic base64creds", mockEngine.requestHistory.last().headers[HttpHeaders.Authorization])
+    }
+
+    @Test
+    fun `When calls route with no auth header, expect no Authorization sent`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = null,
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        assertNull(mockEngine.requestHistory.last().headers[HttpHeaders.Authorization])
+    }
+
+    @Test
+    fun `When uses Head method, expect Head HTTP method sent to server`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Head,
+            authHeader = null,
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        assertEquals(HttpMethod.Head, mockEngine.requestHistory.last().method)
+    }
+
+    @Test
+    fun `When preConfiguredHeaders is empty, expect originalRoute headers used`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = null,
+            headers = mapOf("X-Custom" to "custom-value", "Content-Type" to "application/json"),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        assertEquals("custom-value", mockEngine.requestHistory.last().headers["X-Custom"])
+    }
+
+    @Test
+    fun `When preConfiguredQueries is empty, expect originalRoute queries used`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = null,
+            queries = mapOf("key" to "value"),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        val params = mockEngine.requestHistory.last().url.parameters.toMap()
+        assertEquals(mapOf("key" to listOf("value")), params)
+    }
+
+    @Test
+    fun `When preConfiguredBody is null, expect originalRoute body used`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = null,
+            headers = mapOf("Content-Type" to "application/json"),
+            body = json.decodeFromString("""{"key":"from-route"}"""),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        val body = mockEngine.requestHistory.last().body.toByteArray().decodeToString()
+        assertEquals("""{"key":"from-route"}""", body)
+    }
+
+    @Test
+    fun `When preConfiguredHeaders contains Authorization, expect authHeader takes priority`() = runTest {
+        val route = OriginalRoute(
+            path = "test-route",
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            method = MiddlewareHttpMethods.Get,
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.Bearer, "correct-token"),
+            headers = mapOf("Authorization" to "Bearer wrong-token"),
+        )
+        service.request(route, emptyMap(), emptyMap(), null)
+        advanceUntilIdle()
+        val auth = mockEngine.requestHistory.last().headers[HttpHeaders.Authorization]
+        assertEquals("Bearer correct-token", auth)
     }
 
     @Test

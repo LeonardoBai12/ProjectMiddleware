@@ -2,6 +2,11 @@ package io.lb.middleware.mapper.service
 
 import io.lb.common.data.model.OriginalResponse
 
+private const val INSTRUCTIONS = "Heat the oil in a pan. Add the chopped vegetables and sauté until tender. " +
+    "Take a pot, empty the beans together with the vegetables into it, put the sausages inside and cook " +
+    "for further 20 minutes on a low heat. Or, put it in an oven and bake it at a temperature of " +
+    "180ºC/350ºF for 30 minutes. This dish is even better reheated the next day."
+
 internal fun createOriginalResponse(): OriginalResponse {
     return OriginalResponse(
         statusCode = 200,
@@ -14,7 +19,7 @@ internal fun createOriginalResponse(): OriginalResponse {
                      "strDrinkAlternate":null,
                      "strCategory":"Beef",
                      "strArea":"Croatian",
-                     "strInstructions":"Heat the oil in a pan. Add the chopped vegetables and saut\u00e9 until tender. Take a pot, empty the beans together with the vegetables into it, put the sausages inside and cook for further 20 minutes on a low heat. Or, put it in an oven and bake it at a temperature of 180\u00baC\/350\u00baF for 30 minutes. This dish is even better reheated the next day.",
+                     "strInstructions":"$INSTRUCTIONS",
                      "strMealThumb":"https:\/\/www.themealdb.com\/images\/media\/meals\/tnwy8m1628770384.jpg",
                      "strTags":"Warming, Soup, Beans",
                      "strYoutube":"https:\/\/www.youtube.com\/watch?v=mrjnQal3S1A",
@@ -280,3 +285,32 @@ internal fun getMappingRule(ignoreEmptyValues: Boolean = true) =
         }
         """.trimIndent()
     ).toString()
+
+internal fun createFlatOriginalResponse() = OriginalResponse(
+    statusCode = 200,
+    body = """
+        {
+          "id": "101",
+          "title": "Pasta Carbonara",
+          "rating": "4.5",
+          "available": "true",
+          "category": "Italian"
+        }
+    """.trimIndent()
+)
+
+internal fun createDeepNestedOriginalResponse() = OriginalResponse(
+    statusCode = 200,
+    body = """
+        {
+          "data": {
+            "recipes": [
+              {
+                "id": "200",
+                "name": "Tiramisu"
+              }
+            ]
+          }
+        }
+    """.trimIndent()
+)
