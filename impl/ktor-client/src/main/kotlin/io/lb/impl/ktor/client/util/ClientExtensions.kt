@@ -51,7 +51,7 @@ internal suspend fun HttpClient.request(
                 if (it.key == HttpHeaders.ContentType) {
                     accept(ContentType.parse(it.value))
                     contentType(ContentType.parse(it.value))
-                } else {
+                } else if (it.key != HttpHeaders.Authorization) {
                     headers[it.key] = it.value
                 }
             }
@@ -91,7 +91,7 @@ internal suspend fun HttpClient.request(
 private fun getHttpMethod(originalRoute: OriginalRoute) = when (originalRoute.method) {
     MiddlewareHttpMethods.Get -> HttpMethod.Get
     MiddlewareHttpMethods.Post -> HttpMethod.Post
-    MiddlewareHttpMethods.Head -> HttpMethod.Put
+    MiddlewareHttpMethods.Head -> HttpMethod.Head
     MiddlewareHttpMethods.Delete -> HttpMethod.Delete
     MiddlewareHttpMethods.Patch -> HttpMethod.Patch
     MiddlewareHttpMethods.Put -> HttpMethod.Put

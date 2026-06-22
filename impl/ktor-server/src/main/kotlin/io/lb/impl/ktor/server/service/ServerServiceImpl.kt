@@ -18,6 +18,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
+import io.ktor.http.HttpHeaders
 import io.ktor.util.toMap
 import io.lb.common.data.model.MappedResponse
 import io.lb.common.data.model.MappedRoute
@@ -187,9 +188,9 @@ internal class ServerServiceImpl(
         val queries = call.request.queryParameters.toMap().mapValues { query ->
             query.value.first()
         }
-        val headers = call.request.headers.toMap().mapValues { header ->
-            header.value.first()
-        }
+        val headers = call.request.headers.toMap()
+            .mapValues { it.value.first() }
+            .filterKeys { it != HttpHeaders.Authorization }
         val body = try {
             call.receiveNullable<JsonObject>()
         } catch (e: Exception) {

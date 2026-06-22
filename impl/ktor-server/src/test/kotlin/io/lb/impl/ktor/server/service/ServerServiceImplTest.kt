@@ -22,6 +22,8 @@ import io.lb.common.data.model.OriginalRoute
 import io.lb.common.data.request.MiddlewareAuthHeader
 import io.lb.common.data.request.MiddlewareAuthHeaderType
 import io.lb.common.data.request.MiddlewareHttpMethods
+import io.lb.common.data.util.MiddlewareStatusCode
+import io.lb.common.shared.error.MiddlewareException
 import io.lb.impl.ktor.server.model.MappedRouteParameter
 import io.lb.impl.ktor.server.model.OriginalApiParameter
 import io.lb.impl.ktor.server.model.OriginalRouteParameter
@@ -36,6 +38,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class ServerServiceImplTest {
@@ -245,12 +249,147 @@ class ServerServiceImplTest {
         return Pair(testMappedRoute, onRequestMock)
     }
 
+    @Test
+    fun `When request has no auth, expect unauthorized`() =
+        serverServiceTestApplication(MiddlewareHttpMethods.Get) {
+            val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                header(io.ktor.http.HttpHeaders.ContentType, "application/json")
+            }
+            assertEquals(HttpStatusCode.Unauthorized, response.status)
+        }
+
+    @Test
+    fun `When request has multiple custom headers, all headers forwarded to handler`() {
+        val capturedHeaders = mutableMapOf<String, String>()
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRoute(MiddlewareHttpMethods.Get)) {
+                    capturedHeaders.putAll(it.originalRoute.headers)
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            val response = client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+                header("X-First-Header", "first-value")
+                header("X-Second-Header", "second-value")
+                header("X-Third-Header", "third-value")
+            }
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("first-value", capturedHeaders["X-First-Header"])
+            assertEquals("second-value", capturedHeaders["X-Second-Header"])
+            assertEquals("third-value", capturedHeaders["X-Third-Header"])
+        }
+    }
+
+    @Test
+    fun `When Authorization header is in request, expect it not forwarded to handler`() {
+        val capturedHeaders = mutableMapOf<String, String>()
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.createMappedRoute(createTestMappedRoute(MiddlewareHttpMethods.Get)) {
+                    capturedHeaders.putAll(it.originalRoute.headers)
+                    MappedResponse(statusCode = 200, body = "{}")
+                }
+            }
+            client.get("v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path") {
+                setupRequest()
+            }
+            assertFalse(capturedHeaders.containsKey(io.ktor.http.HttpHeaders.Authorization))
+        }
+    }
+
+    @Test
+    fun `When mapping route throws MiddlewareException, expect Conflict status`() {
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.startGenericMappingRoute {
+                    throw MiddlewareException(MiddlewareStatusCode.CONFLICT, "Route already exists")
+                }
+            }
+            val response = client.post("v1/mapping") {
+                setupRequest()
+                setBody(Json.encodeToString(createMappedRoute()))
+            }
+            assertEquals(HttpStatusCode.Conflict, response.status)
+        }
+    }
+
+    @Test
+    fun `When mapping route throws IllegalArgumentException, expect bad request`() {
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.startGenericMappingRoute {
+                    throw IllegalArgumentException("Invalid route configuration")
+                }
+            }
+            val response = client.post("v1/mapping") {
+                setupRequest()
+                setBody(Json.encodeToString(createMappedRoute()))
+            }
+            assertEquals(HttpStatusCode.BadRequest, response.status)
+        }
+    }
+
+    @Test
+    fun `When routes route throws MiddlewareException, expect Conflict status`() {
+        testApplication {
+            setupApplication()
+            application {
+                val engine: NettyApplicationEngine = mockk(relaxed = true)
+                every { engine.application } returns this
+                serverService = ServerServiceImpl(engine)
+                serverService.startQueryAllRoutesRoute {
+                    throw MiddlewareException(MiddlewareStatusCode.CONFLICT, "Error listing routes")
+                }
+            }
+            val response = client.get("v1/routes") {
+                setupRequest()
+            }
+            assertEquals(HttpStatusCode.Conflict, response.status)
+        }
+    }
+
     private fun createPreviewRequest(): PreviewRequestBody {
         return PreviewRequestBody(
             originalResponse = Json.parseToJsonElement("{}").jsonObject,
             mappingRules = Json.parseToJsonElement("{}").jsonObject
         )
     }
+
+    private fun createTestMappedRoute(method: MiddlewareHttpMethods) = MappedRoute(
+        uuid = "b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+        method = method,
+        path = "v1/b1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b/test-path",
+        rulesAsString = "test-rules",
+        originalRoute = OriginalRoute(
+            path = "test-route",
+            method = method,
+            originalApi = OriginalApi("https://10.0.2.2:8885/"),
+            authHeader = MiddlewareAuthHeader(MiddlewareAuthHeaderType.None, ""),
+            headers = mapOf("Content-Type" to "application/json"),
+            body = json.decodeFromString("{}"),
+        ),
+        mappedApi = MappedApi(
+            "a1b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b",
+            originalApi = OriginalApi(baseUrl = "https://www.themealdb.com/api/")
+        ),
+    )
 
     private fun createMappedRoute(): MappedRouteParameter {
         return MappedRouteParameter(
