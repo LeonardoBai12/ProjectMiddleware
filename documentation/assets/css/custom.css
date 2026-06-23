@@ -1,9 +1,10 @@
-/* Avatar: centered, image zoomed 3x inside the circle */
-#avatar {
-  margin-left: auto !important;
-  margin-right: auto !important;
+/* Allow site title to wrap onto two lines */
+#sidebar .site-title {
+  width: 100%;
+  white-space: normal;
 }
 
+/* Avatar: image zoomed 3x inside the circle */
 #avatar img {
   object-fit: cover;
   object-position: center;
