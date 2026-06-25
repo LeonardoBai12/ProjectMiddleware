@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Endpoints Overview
+nav_order: 4
+has_children: true
 ---
 
 All endpoints are served under the base URL of the deployed middleware instance. Authentication with the middleware itself uses HTTP Basic Auth on all routes.

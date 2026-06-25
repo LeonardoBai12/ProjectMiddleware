@@ -1,6 +1,7 @@
 ---
-layout: page
-title: ProjectMiddleware
+layout: home
+title: Home
+nav_order: 1
 ---
 
 **ProjectMiddleware** is a Kotlin/Ktor API transformation service. It acts as a middleware layer: clients register mapping rules that define how to call an external API and how to transform its JSON response. Mapped routes are then served dynamically via UUID-based paths.

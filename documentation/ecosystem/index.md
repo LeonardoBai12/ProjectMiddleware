@@ -1,6 +1,7 @@
 ---
-layout: page
+layout: default
 title: Ecosystem
+nav_order: 5
 ---
 
 ProjectMiddleware is the backend engine of a small ecosystem of services and apps designed to work together. Each piece has a single responsibility and evolves independently.
@@ -13,7 +14,7 @@ ProjectMiddleware is the backend engine of a small ecosystem of services and app
 
 A **Kotlin Multiplatform** client application for Android and iOS that provides a visual interface for creating, previewing, and managing mapped routes — all powered by ProjectMiddleware on the backend.
 
-![Playground icon](/assets/images/middleware-playground-icon.png){: width="80" style="border-radius:12px; margin-bottom:0.5rem;"}
+![Playground icon]({{ site.baseurl }}/assets/images/middleware-playground-icon.png){: width="80" style="border-radius:12px; margin-bottom:0.5rem;"}
 
 ### What it does
 

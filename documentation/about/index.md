@@ -1,10 +1,11 @@
 ---
-layout: page
+layout: default
 title: About the Creator
+nav_order: 7
 ---
 
 <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-bottom:2rem;">
-  <img src="/assets/images/perfil.jpeg"
+  <img src="{{ site.baseurl }}/assets/images/perfil.jpeg"
        alt="Leonardo Bai"
        width="140"
        style="border-radius:50%; object-fit:cover; flex-shrink:0;">

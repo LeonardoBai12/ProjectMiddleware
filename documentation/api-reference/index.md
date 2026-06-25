@@ -1,6 +1,7 @@
 ---
-layout: page
+layout: default
 title: KDoc Reference
+nav_order: 6
 ---
 
 The KDoc reference is auto-generated from the source code on every push to `main` using [Dokka](https://github.com/Kotlin/dokka). It documents all public and internal declarations across every module.

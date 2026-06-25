@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: How It Works
+nav_order: 2
+has_children: true
 ---
 
 ProjectMiddleware sits between your client application and any external API. You define the transformation rules once, and the middleware handles all subsequent calls — including authentication, field mapping, and response shaping.

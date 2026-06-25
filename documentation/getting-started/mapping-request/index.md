@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Mapping Request
+parent: Getting Started
+nav_order: 1
 ---
 
 `POST /v1/mapping` registers a new mapped route. The middleware validates the mapping rules, makes a live test call to the external API, stores the route on success, and returns the UUID-based path to use for all future calls.

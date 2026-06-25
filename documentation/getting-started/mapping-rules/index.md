@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Mapping Rules
+parent: Getting Started
+nav_order: 2
 ---
 
 Mapping rules define how the middleware transforms an external API's JSON response into your desired output shape. They are provided as the `rulesAsString` field when creating a mapped route.
