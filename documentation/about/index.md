@@ -1,6 +1,7 @@
 ---
-layout: page
+layout: default
 title: About the Creator
+nav_order: 7
 ---
 
 <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-bottom:2rem;">

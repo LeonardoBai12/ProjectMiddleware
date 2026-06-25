@@ -1,6 +1,7 @@
 ---
-layout: page
+layout: default
 title: Ecosystem
+nav_order: 5
 ---
 
 ProjectMiddleware is the backend engine of a small ecosystem of services and apps designed to work together. Each piece has a single responsibility and evolves independently.

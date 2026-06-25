@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Preview Route
+parent: Getting Started
+nav_order: 3
 ---
 
 `POST /v1/preview` lets you test mapping rules against a sample response body **without** registering a permanent route or making any outbound calls. Use it to iterate on your `rulesAsString` until the output looks exactly right.

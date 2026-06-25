@@ -1,10 +1,9 @@
-theme: jekyll-theme-chirpy
+theme: just-the-docs
 
 # -------------------------
 # Site metadata
 # -------------------------
 title: "Project Middleware"
-tagline: A Kotlin/Ktor middleware for transforming and mapping external API responses
 description: >-
   ProjectMiddleware is an API transformation layer that lets clients register
   mapping rules, call external APIs, and receive clean transformed responses —
@@ -17,36 +16,15 @@ lang: en
 timezone: America/Sao_Paulo
 
 # -------------------------
-# Author
+# Just-the-Docs settings
 # -------------------------
-github:
-  username: "LeonardoBai12"
+color_scheme: dark
+search_enabled: true
+heading_anchors: true
 
-social:
-  name: "Leonardo Bai"
-  email: "lb.io.dev@gmail.com"
-  links:
-    - https://github.com/LeonardoBai12
-
-# -------------------------
-# Theme preferences
-# -------------------------
-theme_mode:      # leave blank to follow system default; or "light" / "dark"
-
-avatar: "/assets/images/middleware-icon.jpg"
-
-toc: true
-
-# -------------------------
-# Analytics (optional)
-# -------------------------
-google_analytics:
-  id: ""
-
-# -------------------------
-# SEO
-# -------------------------
-google_site_verification: ""
+aux_links:
+  "GitHub":
+    - "https://github.com/LeonardoBai12/ProjectMiddleware"
 
 # -------------------------
 # Jekyll build settings

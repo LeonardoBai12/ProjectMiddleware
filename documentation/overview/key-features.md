@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Key Features
+parent: How It Works
+nav_order: 1
 ---
 
 ## Flexible field mapping

@@ -1,6 +1,8 @@
 ---
-layout: page
+layout: default
 title: Postman Collection
+parent: Endpoints Overview
+nav_order: 1
 ---
 
 The ProjectMiddleware Postman collection contains ready-to-use requests for all endpoints, with pre-filled examples for route creation, preview, and calling mapped routes.
